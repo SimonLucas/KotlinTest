@@ -31,7 +31,7 @@ public class CaveView extends JComponent {
 
     public ArrayList<int[]> playouts;
 
-    double scale = 0.5;
+    double scale = 0.6;
 
     static Stroke stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
