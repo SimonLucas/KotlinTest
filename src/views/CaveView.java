@@ -1,6 +1,7 @@
 package views;
 
 import games.caveswing.Anchor;
+import games.caveswing.CaveGameInternalState;
 import games.caveswing.CaveGameState;
 import games.caveswing.CaveSwingParams;
 import math.Vector2d;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 public class CaveView extends JComponent {
     CaveSwingParams params;
     CaveGameState gameState;
+    CaveGameInternalState internalState;
     Color bg = Color.black;
     Color deadZone = Color.getHSBColor(0.9f, 1, 1);
     Color goalZone = Color.getHSBColor(0.3f, 1, 1);
@@ -31,14 +33,15 @@ public class CaveView extends JComponent {
 
     public ArrayList<int[]> playouts;
 
-    double scale = 0.6;
+    double scale = 1.0;
 
     static Stroke stroke = new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
 
     public CaveView setGameState(CaveGameState gameState) {
         this.gameState = gameState;
-        setParams(gameState.getParams());
+        internalState = gameState.getState();
+        setParams(internalState.getParams());
         return this;
     }
 
@@ -55,7 +58,7 @@ public class CaveView extends JComponent {
     }
 
     public String getTitle() {
-        return gameState.getNTicks() + " : " + nPaints;
+        return internalState.getNTicks() + " : " + nPaints;
     }
 
     public Dimension getPreferredSize() {
@@ -74,7 +77,7 @@ public class CaveView extends JComponent {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        double xScroll = -gameState.getAvatar().getS().getX() + scrollWidth / 2;
+        double xScroll = -internalState.getAvatar().getS().getX() + scrollWidth / 2;
         if (scrollView) {
             g.translate(xScroll, 0);
         }
@@ -96,9 +99,9 @@ public class CaveView extends JComponent {
     private void paintAnchors(Graphics2D g) {
         g.setColor(Color.white);
         int index = 0;
-        Anchor currentAnchor = gameState.getMap().getClosestAnchor(gameState.getAvatar().getS());
-        for (Anchor a : gameState.getMap().getAnchors()) {
-            if (a.equals(currentAnchor)) {
+        Anchor closestAnchor = internalState.getMap().getClosestAnchor(internalState.getAvatar().getS());
+        for (Anchor a : internalState.getMap().getAnchors()) {
+            if (a.equals(closestAnchor)) {
                 g.setColor(anchorColor);
             } else {
                 g.setColor(Color.lightGray);
@@ -113,13 +116,13 @@ public class CaveView extends JComponent {
 
     private void paintAvatar(Graphics2D g) {
         g.setColor(avatarColor);
-        Vector2d s = gameState.getAvatar().getS();
+        Vector2d s = internalState.getAvatar().getS();
         g.fillRect((int) s.getX() - rad, (int) s.getY() - rad, 2 * rad, 2 * rad);
-        if (gameState.getCurrentAnchor() != null) {
+        if (internalState.getCurrentAnchor() != null) {
             // todo: draw a rope to the selected one
             g.setColor(ropeColor);
             g.setStroke(new BasicStroke(rad / 2));
-            Vector2d p = gameState.getCurrentAnchor().getS();
+            Vector2d p = internalState.getCurrentAnchor().getS();
             g.drawLine((int) s.getX(), (int) s.getY(), (int) p.getX(), (int) p.getY());
         }
     }
@@ -148,12 +151,12 @@ public class CaveView extends JComponent {
 
         g.setStroke(stroke);
         Path2D path = new Path2D.Double();
-        Vector2d pos = gameState.getAvatar().getS();
+        Vector2d pos = internalState.getAvatar().getS();
         path.moveTo(pos.getX(), pos.getY());
         int playerId = 0;
         for (int a : seq) {
             gameState.next(new int[]{a}, playerId);
-            pos = gameState.getAvatar().getS();
+            pos = internalState.getAvatar().getS();
             path.lineTo(pos.getX(), pos.getY());
         }
         g.draw(path);
@@ -171,7 +174,7 @@ public class CaveView extends JComponent {
 
     private void paintZones(Graphics2D g) {
 
-        CaveSwingParams p = gameState.getParams();
+        CaveSwingParams p = internalState.getParams();
         g.setColor(deadZone);
         g.fillRect(-zoneWidth, 0, zoneWidth, getHeight());
         g.fillRect(0, 0, p.getWidth(), getHeight() / borderRatio);

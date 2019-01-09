@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
     var totalTicks = 0
     for (i in 0 until nGames) {
         val finalState = runOneGame(params)
-        totalTicks += finalState.nTicks
+        totalTicks += finalState.state.nTicks
     }
     val elapsed = timer.elapsed().toDouble()
     println(timer)
