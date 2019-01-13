@@ -18,5 +18,9 @@ interface AbstractGameState {
 
     fun isTerminal(): Boolean
 
+    fun nTicks(): Int
+
+    fun totalTicks() : Int
+
 }
 

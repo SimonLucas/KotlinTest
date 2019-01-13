@@ -1,5 +1,6 @@
 package games.caveswing
 
+import ggi.game.MovableObject
 import math.Vector2d
 
 data class CaveGameInternalState (
@@ -7,7 +8,7 @@ data class CaveGameInternalState (
         var map: Map = Map().setup(params),
         // var nextAnchorIndex: Int = 0,
         var nTicks: Int = 0,
-        var avatar: MovableObject = MovableObject(Vector2d(), Vector2d()),
+        var avatar: MovableObject = MovableObject(),
         var gameOver: Boolean = false,
         var currentAnchor: Anchor? = null
 ) {

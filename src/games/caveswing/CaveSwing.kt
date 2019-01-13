@@ -4,6 +4,7 @@ import agents.RandomAgent
 import agents.SimpleEvoAgent
 import ggi.AbstractGameState
 import ggi.SimplePlayerInterface
+import ggi.game.MovableObject
 import math.Vector2d
 import utilities.ElapsedTimer
 import utilities.Picker
@@ -82,9 +83,24 @@ class Map : Serializable {
 }
 
 
+
 class CaveGameState : AbstractGameState, Serializable {
 
+    companion object {
+        var totalTicks: Int = 0
+    }
+
+    override fun totalTicks(): Int {
+        return totalTicks
+    }
+
+
+    override fun nTicks(): Int {
+        return state.nTicks
+    }
+
     var state = CaveGameInternalState()
+
 
     // reward increasing x-position
     // reward a high Y- position
@@ -92,10 +108,9 @@ class CaveGameState : AbstractGameState, Serializable {
     // it's important that nTicks is not incremented after the game is over
     // add in success bonus
 
-
     override fun score(): Double {
         with(state) {
-            var score = avatar.s.x * params.pointPerX + avatar.s.y * params.pointPerY - nTicks * params.costPerTick
+            var score:Double = avatar.s.x * params.pointPerX + avatar.s.y * params.pointPerY - nTicks * params.costPerTick
             if (avatar.s.x >= params.width) {
                 score += params.successBonus
             }
@@ -167,6 +182,8 @@ class CaveGameState : AbstractGameState, Serializable {
             avatar.update(resultantForce, params.lossFactor)
             nTicks++
         }
+
+        totalTicks++
         return this
 
     }
@@ -177,20 +194,3 @@ class CaveGameState : AbstractGameState, Serializable {
 }
 
 
-data class MovableObject(var s: Vector2d, var v: Vector2d) : Serializable {
-
-    fun update(resultantForce: Vector2d, lossFactor: Double): MovableObject {
-        v.add(resultantForce)
-        s.add(v)
-        v.mul(lossFactor)
-        return this
-    }
-
-    override fun toString(): String {
-        return "$s : $v"
-    }
-
-    fun copy(): MovableObject {
-        return MovableObject(s.copy(), v.copy())
-    }
-}
