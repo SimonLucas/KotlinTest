@@ -9,9 +9,11 @@ import java.util.Random
 data class SimpleEvoAgent (
         var flipAtLeastOneValue: Boolean = true,
         var expectedMutations: Double = 10.0,
-        var sequenceLength: Int = 100,
+        var sequenceLength: Int = 200,
         var nEvals: Int = 20,
         var useShiftBuffer: Boolean = true,
+        var useMutationTransducer: Boolean = true,
+        var repeatProb: Double = 0.5,  // only used with mutation transducer
         var discountFactor: Double? = null,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ): SimplePlayerInterface {
@@ -51,6 +53,13 @@ data class SimpleEvoAgent (
     }
 
     private fun mutate(v: IntArray, expectedMutations: Double, nActions: Int): IntArray {
+
+        if (useMutationTransducer) {
+            // build it dynamically in case any of the params have changed
+            val mutProb = expectedMutations * 1.0 / sequenceLength
+            val mt = MutationTransducer(mutProb, repeatProb)
+            return mt.mutate(v, nActions)
+        }
 
         val n = v.size
         val x = IntArray(n)

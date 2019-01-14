@@ -3,17 +3,21 @@ package agents
 import java.util.*
 
 fun main(args: Array<String>) {
-    val range = 5
+    val range = 3
     val n = 20
-    val mt = MutationTransducer()
+    val mt = MutationTransducer(repeatProb = 0.5)
 
-    val input = mt.repSeq(n, 0)
-    val output = mt.mutate(input, range)
+    val nSteps = 20
 
-    input.forEach { print(it) }
-    println()
-    output.forEach { print(it) }
-    println()
+    var output = mt.repSeq(n, 9)
+
+    for (i in 0 until nSteps) {
+        println(i)
+        output.forEach { print(it) }
+        println()
+        output = mt.mutate(output, range)
+    }
+
 
 }
 
@@ -32,10 +36,14 @@ data class MutationTransducer (var mutProb: Double = 0.2, var repeatProb: Double
 
             if (p < mutProb) {
                 // mutate
+                output[i] = random.nextInt(range)
 
-            } else if (p < mutProb + repeatProb)
+            } else if (p < mutProb + repeatProb && i>0) {
+                output[i] = input[i-1]
+            }
             else {
                 // faithful copy
+                output[i] = input[i]
 
             }
 

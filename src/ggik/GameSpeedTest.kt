@@ -17,17 +17,20 @@ import java.util.*
 fun main(args: Array<String>) {
     // now play a random game
     val games = listOf<ExtendedAbstractGameState>(
-            BreakoutGameState().setUp(),
-            CaveGameState().setup()
+            BreakoutGameState().setUp()
+            // CaveGameState().setup()
 
     )
     val agents = listOf<SimplePlayerInterface>(
             SimpleEvoAgent(),
-            RandomAgent()
+            // SimpleEvoAgent(useMutationTransducer = false),
+            // SimpleEvoAgent(repeatProb = 0.0),
+            SimpleEvoAgent(repeatProb = 0.5)
+            // RandomAgent()
 
     )
     val runner = GameRunner()
-    val nGames = 10
+    val nGames = 30
     for (game in games) {
         for (agent in agents) {
             runner.runGames(game, agent, nGames)
@@ -45,13 +48,14 @@ class GameRunner {
         val durations = StatSummary("Durations for: " + message)
         val timer = ElapsedTimer()
 
+        gameState.resetTotalTicks()
         for (i in 0 until nGames) {
             val finalState = runOneGame(gameState.copy(), agent)
             scores.add(finalState.score())
             durations.add(finalState.nTicks())
         }
         val elapsed = timer.elapsed().toDouble()
-        println(durations)
+        // println(durations)
         println(scores)
         println(timer)
         println("Total ticks: " + gameState.totalTicks())
