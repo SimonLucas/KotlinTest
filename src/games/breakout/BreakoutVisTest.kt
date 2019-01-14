@@ -24,7 +24,7 @@ fun main(args: Array<String>) {
             player.sequenceLength *= 2
             player.nEvals *= 2
         }
-        player = BreakoutKeyController()
+        // player = BreakoutKeyController()
         if (player is BreakoutKeyController)
             frame.addKeyListener(player.keyListener)
         while (!gameState.isTerminal()) {
