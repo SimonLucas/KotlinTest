@@ -20,7 +20,11 @@ interface AbstractGameState {
 
     fun nTicks(): Int
 
+}
+
+interface ExtendedAbstractGameState : AbstractGameState {
     fun totalTicks() : Int
 
+    fun resetTotalTicks(): Unit
 }
 

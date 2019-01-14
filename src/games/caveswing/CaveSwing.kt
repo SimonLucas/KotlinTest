@@ -3,6 +3,7 @@ package games.caveswing
 import agents.RandomAgent
 import agents.SimpleEvoAgent
 import ggi.AbstractGameState
+import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
 import ggi.game.MovableObject
 import math.Vector2d
@@ -84,7 +85,10 @@ class Map : Serializable {
 
 
 
-class CaveGameState : AbstractGameState, Serializable {
+class CaveGameState : ExtendedAbstractGameState, Serializable {
+    override fun resetTotalTicks() {
+        totalTicks = 0
+    }
 
     companion object {
         var totalTicks: Int = 0

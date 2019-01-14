@@ -2,6 +2,7 @@ package games.breakout
 
 import games.caveswing.CaveGameState
 import ggi.AbstractGameState
+import ggi.ExtendedAbstractGameState
 import ggi.game.MovableObject
 import math.Vector2d
 import javax.swing.JComponent
@@ -98,7 +99,14 @@ var totalTicks: Int = 0
 // use the internal game state within the active game state
 // active in the sense that it has the operational code
 // whereas the internal state just has the state data
-data class BreakoutGameState(public var state: InternalGameState = InternalGameState()) : AbstractGameState {
+data class BreakoutGameState(public var state: InternalGameState = InternalGameState())
+    : ExtendedAbstractGameState {
+
+
+    override fun resetTotalTicks() {
+        CaveGameState.totalTicks = 0
+    }
+
 
     override fun totalTicks(): Int {
         return totalTicks

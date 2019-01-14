@@ -7,6 +7,7 @@ import games.caveswing.CaveGameState
 import games.caveswing.CaveSwingParams
 import games.caveswing.Map
 import ggi.AbstractGameState
+import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
 import utilities.ElapsedTimer
 import utilities.StatSummary
@@ -15,7 +16,7 @@ import java.util.*
 
 fun main(args: Array<String>) {
     // now play a random game
-    val games = listOf<AbstractGameState>(
+    val games = listOf<ExtendedAbstractGameState>(
             BreakoutGameState().setUp(),
             CaveGameState().setup()
 
@@ -38,7 +39,7 @@ class GameRunner {
 
     var verbose = false
 
-    fun runGames(gameState: AbstractGameState, agent: SimplePlayerInterface, nGames: Int = 100) {
+    fun runGames(gameState: ExtendedAbstractGameState, agent: SimplePlayerInterface, nGames: Int = 100) {
         val message = "%s playing %s".format(agent, gameState)
         val scores = StatSummary("Scores for: " + message)
         val durations = StatSummary("Durations for: " + message)

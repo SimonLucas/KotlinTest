@@ -30,7 +30,7 @@ data class SimpleEvoAgent (
 
     fun getActions(gameState: AbstractGameState, playerId: Int): IntArray {
         if (useShiftBuffer) {
-            solution = shiftLeftAndRandomAppend(solution!!, gameState.nActions())
+            solution = shiftLeftAndRandomAppend(solution, gameState.nActions())
         } else {
             System.out.println("New random solution with nActions = " + gameState.nActions())
             solution = randomPoint(gameState.nActions())
