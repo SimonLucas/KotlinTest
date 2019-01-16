@@ -17,8 +17,6 @@ fun main(args: Array<String>) {
         println()
         output = mt.mutate(output, range)
     }
-
-
 }
 
 data class MutationTransducer (var mutProb: Double = 0.2, var repeatProb: Double = 0.5){
@@ -30,8 +28,6 @@ data class MutationTransducer (var mutProb: Double = 0.2, var repeatProb: Double
         // now copy across the input
 
         for (i in 0 until input.size) {
-
-            // todo actually implement these
             val p = random.nextDouble()
 
             if (p < mutProb) {

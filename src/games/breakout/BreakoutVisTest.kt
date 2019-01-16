@@ -23,6 +23,8 @@ fun main(args: Array<String>) {
         if (player is SimpleEvoAgent) {
             player.sequenceLength *= 2
             player.nEvals *= 2
+            player.useShiftBuffer = true
+            player.useMutationTransducer = true
         }
         // player = BreakoutKeyController()
         if (player is BreakoutKeyController)

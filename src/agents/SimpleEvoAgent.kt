@@ -8,7 +8,8 @@ import java.util.Random
 
 data class SimpleEvoAgent (
         var flipAtLeastOneValue: Boolean = true,
-        var expectedMutations: Double = 10.0,
+        // var expectedMutations: Double = 10.0,
+        var probMutation:Double = 0.2,
         var sequenceLength: Int = 200,
         var nEvals: Int = 20,
         var useShiftBuffer: Boolean = true,
@@ -34,14 +35,14 @@ data class SimpleEvoAgent (
         if (useShiftBuffer) {
             solution = shiftLeftAndRandomAppend(solution, gameState.nActions())
         } else {
-            System.out.println("New random solution with nActions = " + gameState.nActions())
+            // System.out.println("New random solution with nActions = " + gameState.nActions())
             solution = randomPoint(gameState.nActions())
         }
         solutions.clear()
         solutions.add(solution)
         for (i in 0 until nEvals) {
             // evaluate the current one
-            val mut = mutate(solution, expectedMutations, gameState.nActions())
+            val mut = mutate(solution, probMutation, gameState.nActions())
             val curScore = evalSeq(gameState.copy(), solution, playerId)
             val mutScore = evalSeq(gameState.copy(), mut, playerId)
             if (mutScore >= curScore) {
@@ -52,11 +53,10 @@ data class SimpleEvoAgent (
         return solution
     }
 
-    private fun mutate(v: IntArray, expectedMutations: Double, nActions: Int): IntArray {
+    private fun mutate(v: IntArray, mutProb: Double, nActions: Int): IntArray {
 
         if (useMutationTransducer) {
             // build it dynamically in case any of the params have changed
-            val mutProb = expectedMutations * 1.0 / sequenceLength
             val mt = MutationTransducer(mutProb, repeatProb)
             return mt.mutate(v, nActions)
         }
@@ -64,7 +64,6 @@ data class SimpleEvoAgent (
         val n = v.size
         val x = IntArray(n)
         // pointwise probability of additional mutations
-        val mutProb = expectedMutations / n
         // choose element of vector to mutate
         var ix = random.nextInt(n)
         if (!flipAtLeastOneValue) {

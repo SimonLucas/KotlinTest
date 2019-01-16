@@ -22,10 +22,12 @@ fun main(args: Array<String>) {
 
     )
     val agents = listOf<SimplePlayerInterface>(
-            SimpleEvoAgent(),
-            // SimpleEvoAgent(useMutationTransducer = false),
+            // SimpleEvoAgent(),
+            SimpleEvoAgent(useShiftBuffer = false),
+            SimpleEvoAgent(useMutationTransducer = false),
             // SimpleEvoAgent(repeatProb = 0.0),
-            SimpleEvoAgent(repeatProb = 0.5)
+            SimpleEvoAgent(repeatProb = 0.5),
+            SimpleEvoAgent(repeatProb = 0.7)
             // RandomAgent()
 
     )
