@@ -35,7 +35,7 @@ data class MutationTransducer (var mutProb: Double = 0.2, var repeatProb: Double
                 output[i] = random.nextInt(range)
 
             } else if (p < mutProb + repeatProb && i>0) {
-                output[i] = input[i-1]
+                output[i] = output[i-1]
             }
             else {
                 // faithful copy

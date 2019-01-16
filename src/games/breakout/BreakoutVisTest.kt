@@ -25,6 +25,8 @@ fun main(args: Array<String>) {
             player.nEvals *= 2
             player.useShiftBuffer = true
             player.useMutationTransducer = true
+            player.probMutation = 0.1
+            player.repeatProb = 0.8
         }
         // player = BreakoutKeyController()
         if (player is BreakoutKeyController)

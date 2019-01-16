@@ -91,10 +91,10 @@ class CaveGameState : ExtendedAbstractGameState, Serializable {
     }
 
     companion object {
-        var totalTicks: Int = 0
+        var totalTicks: Long = 0
     }
 
-    override fun totalTicks(): Int {
+    override fun totalTicks(): Long {
         return totalTicks
     }
 

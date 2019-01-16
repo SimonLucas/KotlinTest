@@ -23,7 +23,7 @@ interface AbstractGameState {
 }
 
 interface ExtendedAbstractGameState : AbstractGameState {
-    fun totalTicks() : Int
+    fun totalTicks() : Long
 
     fun resetTotalTicks(): Unit
 }

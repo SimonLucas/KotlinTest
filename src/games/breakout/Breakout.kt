@@ -94,7 +94,7 @@ data class InternalGameState(var params: BreakoutParams = BreakoutParams(),
     }
 }
 
-var totalTicks: Int = 0
+var totalTicks: Long = 0
 
 // use the internal game state within the active game state
 // active in the sense that it has the operational code
@@ -104,11 +104,11 @@ data class BreakoutGameState(public var state: InternalGameState = InternalGameS
 
 
     override fun resetTotalTicks() {
-        CaveGameState.totalTicks = 0
+        totalTicks = 0
     }
 
 
-    override fun totalTicks(): Int {
+    override fun totalTicks(): Long {
         return totalTicks
     }
 
