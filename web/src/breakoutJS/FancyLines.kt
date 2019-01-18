@@ -1,5 +1,6 @@
 package breakoutJS
 
+// import games.breakout.BreakoutGameState
 import jquery.jq
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
@@ -40,6 +41,8 @@ class HelloWorld() {
     val height = canvas.height
     val width = canvas.width
 
+    // val gameState = BreakoutGameState().setUp()
+
     val square = width / 5.0
 
     var hue = 0.0
@@ -54,6 +57,8 @@ class HelloWorld() {
         if (hue > 255) hue = 0.0
         // context.fillRect(0.0, 0.0, width.toDouble(), height.toDouble());
         context.fillRect(x, y, square, square);
+        // var ball = gameState.state.ball.s
+        // context.fillRect (ball.x, ball.y, square, square);
 
     }
 
