@@ -15,6 +15,10 @@ import kotlin.random.Random
 This example is based on example from html5 canvas2D docs:
   http://www.w3.org/TR/2dcontext/
 Note that only a subset of the api is supported for now.
+
+see example here:  https://try.kotlinlang.org/#/Examples/Canvas/Creatures/Creatures.kt
+
+
 */
 
 fun main(args: Array<String>) {
@@ -41,7 +45,8 @@ class HelloWorld() {
     val height = canvas.height
     val width = canvas.width
 
-    // val gameState = BreakoutGameState().setUp()
+    val gameState = BreakoutGameState().setUp()
+
 
     val square = width / 5.0
 
@@ -56,9 +61,11 @@ class HelloWorld() {
         hue += hueInc
         if (hue > 255) hue = 0.0
         // context.fillRect(0.0, 0.0, width.toDouble(), height.toDouble());
-        context.fillRect(x, y, square, square);
-        // var ball = gameState.state.ball.s
-        // context.fillRect (ball.x, ball.y, square, square);
+        // context.fillRect(x, y, square, square);
+        var ball = gameState.state.ball.s
+        context.fillRect (ball.x * width, ball.y * height, square, square);
+        gameState.next(intArrayOf(Constants.doNothing), 0)
+        if (gameState.isTerminal()) gameState.reset()
 
     }
 
