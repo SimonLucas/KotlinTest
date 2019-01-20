@@ -391,8 +391,8 @@ var web = function (_, Kotlin) {
     var tmp$, tmp$_0;
     var canvas = Kotlin.isType(tmp$ = document.createElement('canvas'), HTMLCanvasElement) ? tmp$ : throwCCE();
     var context = Kotlin.isType(tmp$_0 = canvas.getContext('2d'), CanvasRenderingContext2D) ? tmp$_0 : throwCCE();
-    context.canvas.width = 600;
-    context.canvas.height = 300;
+    context.canvas.width = window.innerWidth;
+    context.canvas.height = window.innerHeight / 2 | 0;
     ensureNotNull(document.body).appendChild(canvas);
     return canvas;
   }
@@ -405,22 +405,76 @@ var web = function (_, Kotlin) {
     this.square = this.width / 5.0;
     this.hue = 0.0;
     this.hueInc = 1;
+    this.mousePos = new Vec2d(this.width / 2.0, 0.0);
+    $(canvas).mousemove(HelloWorld_init$lambda(this));
   }
   HelloWorld.prototype.testRect = function () {
     var x = (this.width - this.square) * Math.random();
     var y = (this.height - this.square) * Math.random();
-    this.context.fillStyle = 'hsl(' + this.hue + ', 50%, 50%)';
+    this.gameState.state.bat.x = this.mousePos.x / this.width;
     this.hue += this.hueInc;
     if (this.hue > 255)
       this.hue = 0.0;
-    var ball = this.gameState.state.ball.s;
-    this.context.fillRect(ball.x * this.width, ball.y * this.height, this.square, this.square);
+    this.blank();
+    this.drawWall();
+    this.drawBat();
+    this.drawBall();
+    this.drawScore();
     this.gameState.next_u4kcgn$(new Int32Array([Constants_getInstance().doNothing]), 0);
     if (this.gameState.isTerminal())
       this.gameState.reset();
   };
+  HelloWorld.prototype.drawBall = function () {
+    var s = this.gameState.state.ball.s;
+    var rad = this.gameState.state.params.ballSize;
+    var cx = s.x * this.width;
+    var cy = s.y * this.height;
+    var pixWidth = this.width * rad;
+    var pixHeight = this.height * rad;
+    this.context.fillStyle = 'white';
+    this.context.fillRect(cx - pixWidth / 2, cy - pixHeight / 2, pixWidth, pixHeight);
+  };
+  HelloWorld.prototype.drawBat = function () {
+    var params = this.gameState.state.params;
+    var s = this.gameState.state.bat;
+    var cx = s.x * this.width;
+    var cy = s.y * this.height;
+    var pixWidth = this.width * (params.batWidth - params.ballSize);
+    var pixHeight = this.height * (params.batHeight - params.ballSize);
+    this.context.fillStyle = 'hsl(128, 100%, 50%)';
+    this.context.fillRect(cx - pixWidth / 2, cy - pixHeight / 2, pixWidth, pixHeight);
+  };
+  HelloWorld.prototype.drawScore = function () {
+    this.context.font = '30px Comic Sans MS';
+    this.context.fillStyle = 'red';
+    this.context.textAlign = 'center';
+    var str = 'Score = ' + numberToInt(this.gameState.score());
+    this.context.fillText(str, this.width / 2.0, this.height / 10.0);
+  };
+  HelloWorld.prototype.drawWall = function () {
+    var $receiver = this.gameState.state;
+    var tmp$, tmp$_0;
+    var cellWidth = this.width / $receiver.params.gridWidth | 0;
+    var cellHeight = this.height / $receiver.params.gridHeight | 0;
+    tmp$ = $receiver.params.gridWidth;
+    for (var i = 0; i < tmp$; i++) {
+      tmp$_0 = $receiver.params.gridHeight;
+      for (var j = 0; j < tmp$_0; j++) {
+        var cx = (i + 0.5) * cellWidth;
+        var cy = (j + 0.5) * cellHeight;
+        var pixWidth = cellWidth - this.width * $receiver.params.ballSize;
+        var pixHeight = cellHeight - this.height * $receiver.params.ballSize;
+        this.context.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        if ($receiver.bricks[i][j] !== Constants_getInstance().empytyCell) {
+          var brickHue = (j * 500 | 0) / $receiver.params.gridHeight | 0;
+          this.context.fillStyle = 'hsl(' + brickHue + ', 100%, 60%)';
+        }
+        this.context.fillRect(cx - pixWidth / 2, cy - pixHeight / 2, pixWidth, pixHeight);
+      }
+    }
+  };
   HelloWorld.prototype.blank = function () {
-    this.context.fillStyle = 'rgba(255,255,1,0.1)';
+    this.context.fillStyle = 'rgba(0, 0, 0, 0.5)';
     this.context.fillRect(0.0, 0.0, this.width, this.height);
   };
   function HelloWorld$run$lambda(this$HelloWorld) {
@@ -429,16 +483,15 @@ var web = function (_, Kotlin) {
       return Unit;
     };
   }
-  function HelloWorld$run$lambda_0(this$HelloWorld) {
-    return function () {
-      this$HelloWorld.blank();
+  HelloWorld.prototype.run = function () {
+    window.setInterval(HelloWorld$run$lambda(this), 20);
+  };
+  function HelloWorld_init$lambda(this$HelloWorld) {
+    return function (it) {
+      this$HelloWorld.mousePos = new Vec2d(it.pageX - canvas.offsetLeft, it.pageY - canvas.offsetTop);
       return Unit;
     };
   }
-  HelloWorld.prototype.run = function () {
-    window.setInterval(HelloWorld$run$lambda(this), 20);
-    window.setInterval(HelloWorld$run$lambda_0(this), 100);
-  };
   HelloWorld.$metadata$ = {
     kind: Kind_CLASS,
     simpleName: 'HelloWorld',
@@ -467,6 +520,8 @@ var web = function (_, Kotlin) {
     this.context.shadowBlur = 10.0;
     this.context.stroke();
     this.context.restore();
+  };
+  FancyLines.prototype.drawWall = function () {
   };
   FancyLines.prototype.blank = function () {
     this.context.fillStyle = 'rgba(255,255,1,0.1)';
