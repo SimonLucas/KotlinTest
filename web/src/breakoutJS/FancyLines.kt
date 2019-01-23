@@ -121,7 +121,7 @@ class HelloWorld() {
 //
 //        }
 
-        val action = agent.getAction(gameState, 0)
+        // val action = agent.getAction(gameState, 0)
 
         blank()
         drawWall()

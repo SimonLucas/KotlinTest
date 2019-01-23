@@ -1,6 +1,7 @@
 package agentsJS
 
 import ggiJS.*
+import mymath.RandomWrapper
 
 import kotlin.random.*
 
@@ -17,7 +18,8 @@ data class SimpleEvoAgent (
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ): SimplePlayerInterface {
 
-    // internal var random = Random()
+    internal var random = RandomWrapper()
+
 
     // these are all the parameters that control the agend
     internal var solution: IntArray = randomPoint(sequenceLength)
@@ -173,14 +175,14 @@ data class SimpleEvoAgent (
 
 data class MutationTransducer (var mutProb: Double = 0.2, var repeatProb: Double = 0.5){
 
-    // val random =
+    val random = RandomWrapper()
 
     fun mutate(input: IntArray, range: Int) : IntArray {
         val output = IntArray(input.size)
         // now copy across the input
 
         for (i in 0 until input.size) {
-            val p = Random().nextDouble()
+            val p = random.nextDouble()
 
             if (p < mutProb) {
                 // mutate
