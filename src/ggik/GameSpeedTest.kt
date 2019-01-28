@@ -44,6 +44,7 @@ fun main(args: Array<String>) {
 class GameRunner {
 
     var verbose = false
+    var maxTicks = 5000
 
     fun runGames(gameState: ExtendedAbstractGameState, agent: SimplePlayerInterface, nGames: Int = 100) {
         val message = "%s playing %s".format(agent, gameState)
@@ -62,7 +63,7 @@ class GameRunner {
         println(scores)
         println(timer)
         println("Total ticks: " + gameState.totalTicks())
-        println("Millions of ticks per second: %.1f".format(gameState.totalTicks() * 1e-3 / elapsed))
+        println("Millions of ticks per second: %.2f".format(gameState.totalTicks() * 1e-3 / elapsed))
         println()
 
     }
@@ -70,7 +71,8 @@ class GameRunner {
     fun runOneGame(gameState: AbstractGameState, player: SimplePlayerInterface): AbstractGameState {
         val playerId = 0
         player.reset()
-        while (!gameState.isTerminal()) {
+        var n = 0;
+        while (!gameState.isTerminal() && n++ < maxTicks ) {
             // val actions = intArrayOf(player.getAction(deepCopy(gameState)))
             val actions = intArrayOf(player.getAction(gameState, playerId))
             // println(Arrays.toString(actions))
