@@ -26,5 +26,7 @@ interface ExtendedAbstractGameState : AbstractGameState {
     fun totalTicks() : Long
 
     fun resetTotalTicks(): Unit
+
+    fun randomInitialState(): AbstractGameState
 }
 

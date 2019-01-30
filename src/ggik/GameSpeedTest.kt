@@ -54,6 +54,7 @@ class GameRunner {
 
         gameState.resetTotalTicks()
         for (i in 0 until nGames) {
+            gameState.randomInitialState()
             val finalState = runOneGame(gameState.copy(), agent)
             scores.add(finalState.score())
             durations.add(finalState.nTicks())

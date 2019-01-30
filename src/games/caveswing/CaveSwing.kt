@@ -86,6 +86,12 @@ class Map : Serializable {
 
 
 class CaveGameState : ExtendedAbstractGameState, Serializable {
+    override fun randomInitialState(): AbstractGameState {
+        // TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        println("Not actually randomised")
+        return this
+    }
+
     override fun resetTotalTicks() {
         totalTicks = 0
     }

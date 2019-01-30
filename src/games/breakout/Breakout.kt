@@ -101,6 +101,9 @@ var totalTicks: Long = 0
 // whereas the internal state just has the state data
 data class BreakoutGameState(public var state: InternalGameState = InternalGameState())
     : ExtendedAbstractGameState {
+    override fun randomInitialState(): AbstractGameState {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
 
     override fun resetTotalTicks() {
