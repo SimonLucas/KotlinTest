@@ -20,7 +20,7 @@ public class GridView extends JComponent {
         Grid grid = gridGame.getGrid();
         int n = grid.getW() * grid.getH();
         for (int i = 0; i < n; i++) {
-            float h = grid.getCell(i) == 0 ? 0.2f : 0.8f;
+            float h = grid.getCell(i) == 0 ? 0.35f : 0.89f;
             g.setColor(Color.getHSBColor(h, 1, 1));
             int x = cellSize * (i % grid.getW()), y = cellSize * (i / grid.getW());
             g.fillRect(x, y, cellSize, cellSize);

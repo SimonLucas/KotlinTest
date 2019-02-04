@@ -10,7 +10,7 @@ import ggi.SimplePlayerInterface
 
 fun main(args: Array<String>) {
     // now play a random game
-    val game = GridGame(10,10).setFast(false)
+    val game = GridGame(30,30).setFast(false)
     val games = listOf<ExtendedAbstractGameState>(
             game
 
@@ -21,7 +21,7 @@ fun main(args: Array<String>) {
             // SimpleEvoAgent(useShiftBuffer = false),
             // SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 20, nEvals = 10),
             // SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 10, nEvals = 20),
-            SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40),
+            // SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40),
             // SimpleEvoAgent(repeatProb = 0.0),
             // SimpleEvoAgent(repeatProb = 0.5)
             // SimpleEvoAgent(repeatProb = 0.8),
@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
     )
     val runner = GameRunner()
     runner.maxTicks = 500
-    val nGames = 30
+    val nGames = 10
     for (game in games) {
         for (agent in agents) {
             runner.runGames(game, agent, nGames)

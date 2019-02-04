@@ -21,8 +21,8 @@ fun main(args: Array<String>) {
     val frame = JEasyFrame(gv, "Life Game")
     val actions = intArrayOf(0, 0)
     var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
-    agent = RandomAgent()
-    agent = DoNothingAgent(game.doNothingAction())
+    // agent = RandomAgent()
+    // agent = DoNothingAgent(game.doNothingAction())
 
     while (true) {
         actions[0] = agent.getAction(game.copy(), Constants.player1)
