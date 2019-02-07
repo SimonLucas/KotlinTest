@@ -40,13 +40,13 @@ class GameState {
 
 fun main(args: Array<String>) {
 
-    val m1 = CityModel(name="Damascus")
+    val m1 = CityModel(name="Colchester")
 
     println(m1)
 
 
     val m2 = m1.deepCopy()
-    m2.name = "Tikrit"
+    m2.name = "Chelmsford"
 
     m2.population.citizens = 0
 
