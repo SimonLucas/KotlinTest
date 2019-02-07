@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9d917fc3-4c0a-445b-9a7c-2f7c0c5b4e90" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/KotlinTest/games/citygame/CityGameKt.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/KotlinTest/games/citygame/CityGameKt.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/Constants.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/Constants.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/FastUpdate.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/FastUpdate.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/Grid.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/Grid.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/GridGame.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/GridGame.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/GridGameKt.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/GridGameKt.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/MyRule.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/KotlinTest/games/gridgame/MyRule.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/games/citygame/CityGame.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/games/citygame/CityGame.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/games/gridgame/GridGame.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/games/gridgame/GridGame.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ggik/TestGridGameSpeed.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/ggik/TestGridGameSpeed.kt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,7 +17,8 @@
         <counts>
           <entry key="project.closed" value="1" />
           <entry key="project.open.time.4" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.open.time.9" value="1" />
+          <entry key="project.opened" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
@@ -36,7 +28,7 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Kotlin" value="193" />
+          <entry key="Kotlin" value="244" />
         </counts>
       </usages-collector>
     </session>
@@ -52,11 +44,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/games/gridgame/GridGame.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2685">
-              <caret line="187" lean-forward="true" selection-start-line="187" selection-end-line="187" />
+            <state relative-caret-position="630">
+              <caret line="50" lean-forward="true" selection-start-line="50" selection-end-line="50" />
             </state>
           </provider>
         </entry>
@@ -65,7 +57,7 @@
         <entry file="file://$PROJECT_DIR$/src/games/citygame/CityGame.kt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="225">
-              <caret line="15" column="32" lean-forward="true" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
+              <caret line="15" column="32" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
             </state>
           </provider>
         </entry>
@@ -74,7 +66,7 @@
         <entry file="file://$PROJECT_DIR$/src/ggik/GameSpeedTest.kt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="720">
-              <caret line="59" selection-start-line="59" selection-end-line="59" />
+              <caret line="48" column="8" selection-start-line="48" selection-start-column="8" selection-end-line="48" selection-end-column="8" />
               <folding>
                 <element signature="e#14#388#0" expanded="true" />
               </folding>
@@ -82,11 +74,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ggik/TestGridGameSpeed.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="15" selection-start-line="15" selection-end-line="15" />
+            <state relative-caret-position="336">
+              <caret line="24" column="112" selection-start-line="24" selection-start-column="112" selection-end-line="24" selection-end-column="112" />
               <folding>
                 <element signature="e#14#238#0" expanded="true" />
               </folding>
@@ -109,7 +101,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ggi/AbstractGameState.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
+            <state relative-caret-position="480">
               <caret line="32" selection-start-line="32" selection-end-line="32" />
             </state>
           </provider>
@@ -127,7 +119,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/games/breakout/Breakout.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1530">
+            <state relative-caret-position="1575">
               <caret line="111" selection-start-line="111" selection-end-line="111" />
               <folding>
                 <element signature="e#24#237#0" expanded="true" />
@@ -212,9 +204,9 @@
         <option value="$PROJECT_DIR$/src/ggik/GameSpeedTest.kt" />
         <option value="$PROJECT_DIR$/src/games/caveswing/CaveSwing.kt" />
         <option value="$PROJECT_DIR$/src/views/GridView.java" />
-        <option value="$PROJECT_DIR$/src/ggik/TestGridGameSpeed.kt" />
         <option value="$PROJECT_DIR$/src/games/citygame/CityGame.kt" />
         <option value="$PROJECT_DIR$/src/games/gridgame/GridGame.kt" />
+        <option value="$PROJECT_DIR$/src/ggik/TestGridGameSpeed.kt" />
       </list>
     </option>
   </component>
@@ -228,7 +220,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -311,10 +302,11 @@
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1549559627191" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1549563119897" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
@@ -339,7 +331,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Kotlin.games.gridgame.GridGameKt">
+  <component name="RunManager" selected="Kotlin.ggik.TestGridGameSpeedKt">
     <configuration name="games.breakout.BreakoutVisTestKt" type="JetRunConfigurationType" factoryName="Kotlin" temporary="true" nameIsGenerated="true">
       <module name="KotlinTest" />
       <option name="VM_PARAMETERS" />
@@ -414,8 +406,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Kotlin.games.gridgame.GridGameKt" />
         <item itemvalue="Kotlin.ggik.TestGridGameSpeedKt" />
+        <item itemvalue="Kotlin.games.gridgame.GridGameKt" />
         <item itemvalue="Kotlin.games.breakout.BreakoutVisTestKt" />
         <item itemvalue="Kotlin.games.citygame.CityGameKt" />
         <item itemvalue="Kotlin.ggik.GameSpeedTestKt" />
@@ -436,9 +428,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="2560" height="1344" extended-state="6" />
+    <frame x="0" y="23" width="2560" height="1338" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27402702" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20929308" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -447,7 +440,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32959327" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.28354633" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.36516854" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -455,7 +448,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Messages" order="10" weight="0.36421725" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.36276084" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -718,9 +711,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="8" column="26" selection-start-line="8" selection-start-column="26" selection-end-line="8" selection-end-column="26" />
-          <folding>
-            <element signature="e#16#103#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -787,23 +777,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ggik/GameSpeedTest.kt">
+    <entry file="file://$PROJECT_DIR$/src/games/citygame/CityGame.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
-          <caret line="59" selection-start-line="59" selection-end-line="59" />
-          <folding>
-            <element signature="e#14#388#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ggik/TestGridGameSpeed.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="15" selection-start-line="15" selection-end-line="15" />
-          <folding>
-            <element signature="e#14#238#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="225">
+          <caret line="15" column="32" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
         </state>
       </provider>
     </entry>
@@ -819,7 +796,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ggi/AbstractGameState.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
+        <state relative-caret-position="480">
           <caret line="32" selection-start-line="32" selection-end-line="32" />
         </state>
       </provider>
@@ -833,7 +810,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/games/breakout/Breakout.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1530">
+        <state relative-caret-position="1575">
           <caret line="111" selection-start-line="111" selection-end-line="111" />
           <folding>
             <element signature="e#24#237#0" expanded="true" />
@@ -851,17 +828,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/games/citygame/CityGame.kt">
+    <entry file="file://$PROJECT_DIR$/src/games/gridgame/GridGame.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="32" lean-forward="true" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
+        <state relative-caret-position="630">
+          <caret line="50" lean-forward="true" selection-start-line="50" selection-end-line="50" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/games/gridgame/GridGame.kt">
+    <entry file="file://$PROJECT_DIR$/src/ggik/GameSpeedTest.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2685">
-          <caret line="187" lean-forward="true" selection-start-line="187" selection-end-line="187" />
+        <state relative-caret-position="720">
+          <caret line="48" column="8" selection-start-line="48" selection-start-column="8" selection-end-line="48" selection-end-column="8" />
+          <folding>
+            <element signature="e#14#388#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ggik/TestGridGameSpeed.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="24" column="112" selection-start-line="24" selection-start-column="112" selection-end-line="24" selection-end-column="112" />
+          <folding>
+            <element signature="e#14#238#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
