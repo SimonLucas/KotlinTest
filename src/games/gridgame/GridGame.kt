@@ -16,6 +16,8 @@ import java.util.*
 fun main(args: Array<String>) {
     var game = GridGame(30, 30).setFast(false)
     game.updateRule.next = ::generalUpdate
+
+    game.rewardFactor = -1.0;
     // game.setFast(true)
     println(game.grid)
     val gv = GridView(game)
@@ -52,7 +54,6 @@ fun generalUpdate(centre: Int, sum: Int): Int {
     return lut[centre][sum]
 
 }
-
 
 
 val random = Random()
@@ -121,6 +122,9 @@ class GridGame : ExtendedAbstractGameState {
     var updateRule = MyRule()
     var grid: Grid = Grid()
     var nTicks = 0
+
+    // negate this to reward destroying life
+    var rewardFactor = 1.0
     var fastUpdate: FastUpdate? = null
 
     constructor(w: Int = 20, h: Int = 20) {
@@ -144,6 +148,7 @@ class GridGame : ExtendedAbstractGameState {
         gridGame.grid = grid.deepCopy()
         gridGame.fastUpdate = fastUpdate
         gridGame.updateRule = updateRule
+        gridGame.rewardFactor = rewardFactor
         return gridGame
     }
 
@@ -200,7 +205,7 @@ class GridGame : ExtendedAbstractGameState {
     }
 
     override fun score(): Double {
-        return grid.grid.sum().toDouble()
+        return rewardFactor * grid.grid.sum().toDouble()
     }
 
     override fun isTerminal(): Boolean {
@@ -267,7 +272,7 @@ class MyRule : UpdateRule {
 }
 
 
-// fast updateing only increases speed by about 20% therefore not worth the effort
+// fast updating only increases speed by about 20% therefore not worth the effort
 
 class FastUpdate {
     val index: ArrayList<IntArray> = ArrayList()
