@@ -1,7 +1,7 @@
 package breakoutJS
 
 // import games.breakout.BreakoutGameState
-import agents.SimpleEvoAgent
+// import agents.SimpleEvoAgent
 import jquery.jq
 import mymath.Vec2d
 import org.w3c.dom.CENTER
@@ -63,7 +63,7 @@ class HelloWorld() {
     // var mouseString = "mouse"
     var mousePos: Vec2d = Vec2d(width/2.0, 0.0)
 
-    val agent = SimpleEvoAgent()
+    // val agent = SimpleEvoAgent()
 
     var keyStr: String = "key"
 

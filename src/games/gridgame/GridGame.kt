@@ -14,25 +14,45 @@ import java.util.*
 
 
 fun main(args: Array<String>) {
-    val game = GridGame(30, 30).setFast(false)
+    var game = GridGame(30, 30).setFast(false)
+    game.updateRule.next = ::generalUpdate
     // game.setFast(true)
     println(game.grid)
     val gv = GridView(game)
     val frame = JEasyFrame(gv, "Life Game")
     val actions = intArrayOf(0, 0)
-    var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
+    var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
+    var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
     // agent = RandomAgent()
-    // agent = DoNothingAgent(game.doNothingAction())
+    agent1 = DoNothingAgent(game.doNothingAction())
 
     while (true) {
-        actions[0] = agent.getAction(game.copy(), Constants.player1)
-        game.next(actions, 0)
+        actions[0] = agent1.getAction(game.copy(), Constants.player1)
+        actions[1] = agent2.getAction(game.copy(), Constants.player2)
+        game.next(actions)
+
         gv.repaint()
         Thread.sleep(100)
         frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
         // System.exit(0)
+        // game = game.copy() as GridGame
+        // println(game.updateRule.next)
     }
 }
+
+fun generalUpdate(centre: Int, sum: Int): Int {
+
+    // println("Sum =" + sum)
+
+    val lut = arrayOf(
+            intArrayOf(1, 0, 0, 1, 0, 0, 0, 0, 0),
+            intArrayOf(0, 0, 1, 1, 0, 0, 1, 0, 0)
+    )
+
+    return lut[centre][sum]
+
+}
+
 
 
 val random = Random()
@@ -98,7 +118,7 @@ class GridGame : ExtendedAbstractGameState {
         return this
     }
 
-    val updateRule = MyRule()
+    var updateRule = MyRule()
     var grid: Grid = Grid()
     var nTicks = 0
     var fastUpdate: FastUpdate? = null
@@ -123,10 +143,12 @@ class GridGame : ExtendedAbstractGameState {
         gridGame.nTicks = nTicks
         gridGame.grid = grid.deepCopy()
         gridGame.fastUpdate = fastUpdate
+        gridGame.updateRule = updateRule
         return gridGame
     }
 
-    override fun next(actions: IntArray, playerId: Int): AbstractGameState {
+    override fun next(actions: IntArray): AbstractGameState {
+        // val playerId = 0
 
 //        val p1Action = actions[0]
 //        val p2Action = actions[1]
@@ -160,8 +182,9 @@ class GridGame : ExtendedAbstractGameState {
             }
         }
         grid = gridCopy
-        if (actions[playerId] != doNothingAction())
-            grid.invertCell(actions[playerId])
+        for (action in actions)
+        if (action != doNothingAction())
+            grid.invertCell(action)
 
         totalTicks++
         nTicks++
@@ -204,24 +227,42 @@ interface UpdateRule {
     fun cellUpdate(grid: Grid, x: Int, y: Int): Int
 }
 
+interface NeighbourSumFunction {
+    fun next(centre: Int, sum: Int) : Int
+}
+
+fun gameOfLife(centre: Int, sum: Int): Int {
+    if (centre == 1)
+        return if (sum < 3 || sum > 4) 0 else 1
+    else
+        return if (sum == 3) 1 else 0
+}
+
+
+
 class MyRule : UpdateRule {
 
-    fun sumFun(centre: Int, sum: Int): Int {
-        if (centre == 1)
-            return if (sum < 3 || sum > 4) 0 else 1
-        else
-            return if (sum == 3) 1 else 0
-    }
+
+    var next = ::gameOfLife
+
+//    override fun next(centre: Int, sum: Int): Int {
+//        if (centre == 1)
+//            return if (sum < 3 || sum > 4) 0 else 1
+//        else
+//            return if (sum == 3) 1 else 0
+//    }
 
     override fun cellUpdate(grid: Grid, x: Int, y: Int): Int {
         var sum = 0
         for (xx in x - 1..x + 1) {
             for (yy in y - 1..y + 1) {
-                if (!(xx == y && yy == x))
+                if (!(xx == x && yy == y)) {
                     sum += grid.getCell(xx, yy)
+                    // println(grid.getCell(xx, yy))
+                }
             }
         }
-        return sumFun(grid.getCell(x, y), sum)
+        return next(grid.getCell(x, y), sum)
     }
 }
 

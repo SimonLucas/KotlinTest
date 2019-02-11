@@ -160,7 +160,7 @@ class CaveGameState : ExtendedAbstractGameState, Serializable {
         return cp
     }
 
-    override fun next(actions: IntArray, playerId: Int): AbstractGameState {
+    override fun next(actions: IntArray): AbstractGameState {
         // the array of actions is to allow for a multi-player game
         // quick return if game over
         if (isTerminal()) return this

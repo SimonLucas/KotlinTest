@@ -21,7 +21,7 @@ fun main(args: Array<String>) {
     println()
     s1.state.bricks[0][0] = 55
     var s2 = s1.copy()
-    s1.next(intArrayOf(0), 0)
+    s1.next(intArrayOf(0))
 
     s1.state.bricks[0][0] = 99
     println(s1)
@@ -155,7 +155,7 @@ data class BreakoutGameState(public var state: InternalGameState = InternalGameS
         return this
     }
 
-    override fun next(actions: IntArray, playerId: Int): AbstractGameState {
+    override fun next(actions: IntArray): AbstractGameState {
         val action = actions[0]
         // println(action)
         with(state) {

@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
             frame.addKeyListener(player.keyListener)
         while (!gameState.isTerminal()) {
             val actions = intArrayOf(player.getAction(gameState.copy(), playerId))
-            gameState.next(actions, playerId)
+            gameState.next(actions)
             // println(actions)
             // if (player is SimpleEvoAgent)
                 // view.playouts = player.getSolutionsCopy()

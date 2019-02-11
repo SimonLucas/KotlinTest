@@ -125,7 +125,7 @@ data class SimpleEvoAgent (
         for (action in seq) {
             actions[playerId] = action
             actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
-            gameState = gameState.next(actions, playerId)
+            gameState = gameState.next(actions)
         }
         val delta = gameState.score() - current
         return if (playerId == 0)
@@ -143,7 +143,7 @@ data class SimpleEvoAgent (
         for (action in seq) {
             actions[playerId] = action
             actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
-            gameState = gameState.next(actions, playerId)
+            gameState = gameState.next(actions)
             val nextScore = gameState.score()
             val tickDelta = nextScore - currentScore
             currentScore = nextScore

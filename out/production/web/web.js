@@ -3,17 +3,328 @@ if (typeof kotlin === 'undefined') {
 }
 var web = function (_, Kotlin) {
   'use strict';
-  var Kind_OBJECT = Kotlin.Kind.OBJECT;
   var Kind_CLASS = Kotlin.Kind.CLASS;
+  var ensureNotNull = Kotlin.ensureNotNull;
+  var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_287e2$;
+  var Kind_OBJECT = Kotlin.Kind.OBJECT;
   var L0 = Kotlin.Long.ZERO;
   var Unit = Kotlin.kotlin.Unit;
   var numberToInt = Kotlin.numberToInt;
   var to = Kotlin.kotlin.to_ujzrz7$;
   var hashMapOf = Kotlin.kotlin.collections.hashMapOf_qfcya0$;
   var throwCCE = Kotlin.throwCCE;
-  var ensureNotNull = Kotlin.ensureNotNull;
   var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
   var toString = Kotlin.toString;
+  function DoNothingAgent(action) {
+    if (action === void 0)
+      action = 0;
+    this.action = action;
+  }
+  DoNothingAgent.prototype.getAction_1n92s3$ = function (gameState, playerId) {
+    return this.action;
+  };
+  DoNothingAgent.prototype.reset = function () {
+    return this;
+  };
+  DoNothingAgent.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'DoNothingAgent',
+    interfaces: [SimplePlayerInterface]
+  };
+  DoNothingAgent.prototype.component1 = function () {
+    return this.action;
+  };
+  DoNothingAgent.prototype.copy_za3lpa$ = function (action) {
+    return new DoNothingAgent(action === void 0 ? this.action : action);
+  };
+  DoNothingAgent.prototype.toString = function () {
+    return 'DoNothingAgent(action=' + Kotlin.toString(this.action) + ')';
+  };
+  DoNothingAgent.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.action) | 0;
+    return result;
+  };
+  DoNothingAgent.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && Kotlin.equals(this.action, other.action))));
+  };
+  function SimpleEvoAgent(flipAtLeastOneValue, probMutation, sequenceLength, nEvals, useShiftBuffer, useMutationTransducer, repeatProb, discountFactor, opponentModel) {
+    if (flipAtLeastOneValue === void 0)
+      flipAtLeastOneValue = true;
+    if (probMutation === void 0)
+      probMutation = 0.2;
+    if (sequenceLength === void 0)
+      sequenceLength = 200;
+    if (nEvals === void 0)
+      nEvals = 20;
+    if (useShiftBuffer === void 0)
+      useShiftBuffer = true;
+    if (useMutationTransducer === void 0)
+      useMutationTransducer = true;
+    if (repeatProb === void 0)
+      repeatProb = 0.5;
+    if (discountFactor === void 0)
+      discountFactor = null;
+    if (opponentModel === void 0)
+      opponentModel = new DoNothingAgent();
+    this.flipAtLeastOneValue = flipAtLeastOneValue;
+    this.probMutation = probMutation;
+    this.sequenceLength = sequenceLength;
+    this.nEvals = nEvals;
+    this.useShiftBuffer = useShiftBuffer;
+    this.useMutationTransducer = useMutationTransducer;
+    this.repeatProb = repeatProb;
+    this.discountFactor = discountFactor;
+    this.opponentModel = opponentModel;
+    this.random_8be2vx$ = new RandomWrapper();
+    this.solution_8be2vx$ = this.randomPoint_0(this.sequenceLength);
+    this.solutions = ArrayList_init();
+  }
+  SimpleEvoAgent.prototype.reset = function () {
+    this.solution_8be2vx$ = this.randomPoint_0(this.sequenceLength);
+    return this;
+  };
+  SimpleEvoAgent.prototype.getActions_1n92s3$ = function (gameState, playerId) {
+    var tmp$;
+    if (this.useShiftBuffer) {
+      this.solution_8be2vx$ = this.shiftLeftAndRandomAppend_0(this.solution_8be2vx$, gameState.nActions());
+    }
+     else {
+      this.solution_8be2vx$ = this.randomPoint_0(gameState.nActions());
+    }
+    this.solutions.clear();
+    this.solutions.add_11rb$(this.solution_8be2vx$);
+    tmp$ = this.nEvals;
+    for (var i = 0; i < tmp$; i++) {
+      var mut = this.mutate_0(this.solution_8be2vx$, this.probMutation, gameState.nActions());
+      var curScore = this.evalSeq_0(gameState.copy(), this.solution_8be2vx$, playerId);
+      var mutScore = this.evalSeq_0(gameState.copy(), mut, playerId);
+      if (mutScore >= curScore) {
+        this.solution_8be2vx$ = mut;
+      }
+      this.solutions.add_11rb$(this.solution_8be2vx$);
+    }
+    return this.solution_8be2vx$;
+  };
+  SimpleEvoAgent.prototype.mutate_0 = function (v, mutProb, nActions) {
+    if (this.useMutationTransducer) {
+      var mt = new MutationTransducer(mutProb, this.repeatProb);
+      return mt.mutate_u4kcgn$(v, nActions);
+    }
+    var n = v.length;
+    var x = new Int32Array(n);
+    var ix = this.random_8be2vx$.nextInt_za3lpa$(n);
+    if (!this.flipAtLeastOneValue) {
+      ix = -1;
+    }
+    for (var i = 0; i < n; i++) {
+      if (i === ix || this.random_8be2vx$.nextDouble() < mutProb) {
+        x[i] = this.mutateValue_0(v[i], nActions);
+      }
+       else {
+        x[i] = v[i];
+      }
+    }
+    return x;
+  };
+  SimpleEvoAgent.prototype.mutateValue_0 = function (cur, nPossible) {
+    if (nPossible <= 1)
+      return cur;
+    var rx = this.random_8be2vx$.nextInt_za3lpa$(nPossible - 1 | 0);
+    return rx >= cur ? rx + 1 | 0 : rx;
+  };
+  SimpleEvoAgent.prototype.randomPoint_0 = function (nValues) {
+    var p = new Int32Array(this.sequenceLength);
+    for (var i = 0; i !== p.length; ++i) {
+      p[i] = this.random_8be2vx$.nextInt_za3lpa$(nValues);
+    }
+    return p;
+  };
+  SimpleEvoAgent.prototype.shiftLeftAndRandomAppend_0 = function (v, nActions) {
+    var tmp$;
+    var p = new Int32Array(v.length);
+    tmp$ = p.length - 1 | 0;
+    for (var i = 0; i < tmp$; i++) {
+      p[i] = v[i + 1 | 0];
+    }
+    p[p.length - 1 | 0] = this.random_8be2vx$.nextInt_za3lpa$(nActions);
+    return p;
+  };
+  SimpleEvoAgent.prototype.evalSeq_0 = function (gameState, seq, playerId) {
+    var tmp$;
+    if (this.discountFactor == null) {
+      tmp$ = this.evalSeqNoDiscount_0(gameState, seq, playerId);
+    }
+     else {
+      tmp$ = this.evalSeqDiscounted_0(gameState, seq, playerId, ensureNotNull(this.discountFactor));
+    }
+    return tmp$;
+  };
+  SimpleEvoAgent.prototype.evalSeqNoDiscount_0 = function (gameState, seq, playerId) {
+    var tmp$;
+    var gameState_0 = gameState;
+    var current = gameState_0.score();
+    var actions = new Int32Array(2);
+    for (tmp$ = 0; tmp$ !== seq.length; ++tmp$) {
+      var action = seq[tmp$];
+      actions[playerId] = action;
+      actions[1 - playerId | 0] = this.opponentModel.getAction_1n92s3$(gameState_0, 1 - playerId | 0);
+      gameState_0 = gameState_0.next_u4kcgn$(actions, playerId);
+    }
+    var delta = gameState_0.score() - current;
+    return playerId === 0 ? delta : -delta;
+  };
+  SimpleEvoAgent.prototype.evalSeqDiscounted_0 = function (gameState, seq, playerId, discountFactor) {
+    var tmp$;
+    var gameState_0 = gameState;
+    var currentScore = gameState_0.score();
+    var delta = 0.0;
+    var discount = 1.0;
+    var actions = new Int32Array(2);
+    for (tmp$ = 0; tmp$ !== seq.length; ++tmp$) {
+      var action = seq[tmp$];
+      actions[playerId] = action;
+      actions[1 - playerId | 0] = this.opponentModel.getAction_1n92s3$(gameState_0, 1 - playerId | 0);
+      gameState_0 = gameState_0.next_u4kcgn$(actions, playerId);
+      var nextScore = gameState_0.score();
+      var tickDelta = nextScore - currentScore;
+      currentScore = nextScore;
+      delta += tickDelta * discount;
+      discount *= discountFactor;
+    }
+    return playerId === 0 ? delta : -delta;
+  };
+  SimpleEvoAgent.prototype.toString = function () {
+    return 'SEA: ' + this.nEvals + ' : ' + this.sequenceLength + ' : ' + this.opponentModel;
+  };
+  SimpleEvoAgent.prototype.getAction_1n92s3$ = function (gameState, playerId) {
+    return this.getActions_1n92s3$(gameState, playerId)[0];
+  };
+  SimpleEvoAgent.prototype.getSolutionsCopy = function () {
+    var x = ArrayList_init();
+    x.addAll_brywnq$(this.solutions);
+    return x;
+  };
+  SimpleEvoAgent.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'SimpleEvoAgent',
+    interfaces: [SimplePlayerInterface]
+  };
+  SimpleEvoAgent.prototype.component1 = function () {
+    return this.flipAtLeastOneValue;
+  };
+  SimpleEvoAgent.prototype.component2 = function () {
+    return this.probMutation;
+  };
+  SimpleEvoAgent.prototype.component3 = function () {
+    return this.sequenceLength;
+  };
+  SimpleEvoAgent.prototype.component4 = function () {
+    return this.nEvals;
+  };
+  SimpleEvoAgent.prototype.component5 = function () {
+    return this.useShiftBuffer;
+  };
+  SimpleEvoAgent.prototype.component6 = function () {
+    return this.useMutationTransducer;
+  };
+  SimpleEvoAgent.prototype.component7 = function () {
+    return this.repeatProb;
+  };
+  SimpleEvoAgent.prototype.component8 = function () {
+    return this.discountFactor;
+  };
+  SimpleEvoAgent.prototype.component9 = function () {
+    return this.opponentModel;
+  };
+  SimpleEvoAgent.prototype.copy_2d1rqs$ = function (flipAtLeastOneValue, probMutation, sequenceLength, nEvals, useShiftBuffer, useMutationTransducer, repeatProb, discountFactor, opponentModel) {
+    return new SimpleEvoAgent(flipAtLeastOneValue === void 0 ? this.flipAtLeastOneValue : flipAtLeastOneValue, probMutation === void 0 ? this.probMutation : probMutation, sequenceLength === void 0 ? this.sequenceLength : sequenceLength, nEvals === void 0 ? this.nEvals : nEvals, useShiftBuffer === void 0 ? this.useShiftBuffer : useShiftBuffer, useMutationTransducer === void 0 ? this.useMutationTransducer : useMutationTransducer, repeatProb === void 0 ? this.repeatProb : repeatProb, discountFactor === void 0 ? this.discountFactor : discountFactor, opponentModel === void 0 ? this.opponentModel : opponentModel);
+  };
+  SimpleEvoAgent.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.flipAtLeastOneValue) | 0;
+    result = result * 31 + Kotlin.hashCode(this.probMutation) | 0;
+    result = result * 31 + Kotlin.hashCode(this.sequenceLength) | 0;
+    result = result * 31 + Kotlin.hashCode(this.nEvals) | 0;
+    result = result * 31 + Kotlin.hashCode(this.useShiftBuffer) | 0;
+    result = result * 31 + Kotlin.hashCode(this.useMutationTransducer) | 0;
+    result = result * 31 + Kotlin.hashCode(this.repeatProb) | 0;
+    result = result * 31 + Kotlin.hashCode(this.discountFactor) | 0;
+    result = result * 31 + Kotlin.hashCode(this.opponentModel) | 0;
+    return result;
+  };
+  SimpleEvoAgent.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.flipAtLeastOneValue, other.flipAtLeastOneValue) && Kotlin.equals(this.probMutation, other.probMutation) && Kotlin.equals(this.sequenceLength, other.sequenceLength) && Kotlin.equals(this.nEvals, other.nEvals) && Kotlin.equals(this.useShiftBuffer, other.useShiftBuffer) && Kotlin.equals(this.useMutationTransducer, other.useMutationTransducer) && Kotlin.equals(this.repeatProb, other.repeatProb) && Kotlin.equals(this.discountFactor, other.discountFactor) && Kotlin.equals(this.opponentModel, other.opponentModel)))));
+  };
+  function MutationTransducer(mutProb, repeatProb) {
+    if (mutProb === void 0)
+      mutProb = 0.2;
+    if (repeatProb === void 0)
+      repeatProb = 0.5;
+    this.mutProb = mutProb;
+    this.repeatProb = repeatProb;
+    this.random = new RandomWrapper();
+  }
+  MutationTransducer.prototype.mutate_u4kcgn$ = function (input, range) {
+    var output = new Int32Array(input.length);
+    for (var i = 0; i < input.length; i++) {
+      var p = this.random.nextDouble();
+      if (p < this.mutProb) {
+        output[i] = this.random.nextInt_za3lpa$(range);
+      }
+       else if (p < this.mutProb + this.repeatProb && i > 0) {
+        output[i] = output[i - 1 | 0];
+      }
+       else {
+        output[i] = input[i];
+      }
+    }
+    return output;
+  };
+  MutationTransducer.prototype.randSeq_vux9f0$ = function (n, range) {
+    var array = new Int32Array(n);
+    var tmp$;
+    tmp$ = array.length - 1 | 0;
+    for (var i = 0; i <= tmp$; i++) {
+      array[i] = this.random.nextInt_za3lpa$(range);
+    }
+    return array;
+  };
+  MutationTransducer.prototype.repSeq_vux9f0$ = function (n, v) {
+    var array = new Int32Array(n);
+    var tmp$;
+    tmp$ = array.length - 1 | 0;
+    for (var i = 0; i <= tmp$; i++) {
+      array[i] = v;
+    }
+    return array;
+  };
+  MutationTransducer.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'MutationTransducer',
+    interfaces: []
+  };
+  MutationTransducer.prototype.component1 = function () {
+    return this.mutProb;
+  };
+  MutationTransducer.prototype.component2 = function () {
+    return this.repeatProb;
+  };
+  MutationTransducer.prototype.copy_lu1900$ = function (mutProb, repeatProb) {
+    return new MutationTransducer(mutProb === void 0 ? this.mutProb : mutProb, repeatProb === void 0 ? this.repeatProb : repeatProb);
+  };
+  MutationTransducer.prototype.toString = function () {
+    return 'MutationTransducer(mutProb=' + Kotlin.toString(this.mutProb) + (', repeatProb=' + Kotlin.toString(this.repeatProb)) + ')';
+  };
+  MutationTransducer.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.mutProb) | 0;
+    result = result * 31 + Kotlin.hashCode(this.repeatProb) | 0;
+    return result;
+  };
+  MutationTransducer.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.mutProb, other.mutProb) && Kotlin.equals(this.repeatProb, other.repeatProb)))));
+  };
   function Constants() {
     Constants_instance = this;
     this.doNothing = 0;
@@ -406,7 +717,10 @@ var web = function (_, Kotlin) {
     this.hue = 0.0;
     this.hueInc = 1;
     this.mousePos = new Vec2d(this.width / 2.0, 0.0);
+    this.keyStr = 'key';
     $(canvas).mousemove(HelloWorld_init$lambda(this));
+    document.onkeypress = HelloWorld_init$lambda_0;
+    window.onkeypress = HelloWorld_init$lambda_1;
   }
   HelloWorld.prototype.testRect = function () {
     var x = (this.width - this.square) * Math.random();
@@ -489,8 +803,15 @@ var web = function (_, Kotlin) {
   function HelloWorld_init$lambda(this$HelloWorld) {
     return function (it) {
       this$HelloWorld.mousePos = new Vec2d(it.pageX - canvas.offsetLeft, it.pageY - canvas.offsetTop);
+      this$HelloWorld.keyStr = 'll';
       return Unit;
     };
+  }
+  function HelloWorld_init$lambda_0(e) {
+    return Unit;
+  }
+  function HelloWorld_init$lambda_1(it) {
+    return Unit;
   }
   HelloWorld.$metadata$ = {
     kind: Kind_CLASS,
@@ -623,6 +944,19 @@ var web = function (_, Kotlin) {
   };
   MovableObject.prototype.equals = function (other) {
     return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.s, other.s) && Kotlin.equals(this.v, other.v)))));
+  };
+  function RandomWrapper() {
+  }
+  RandomWrapper.prototype.nextInt_za3lpa$ = function (range) {
+    return 0;
+  };
+  RandomWrapper.prototype.nextDouble = function () {
+    return 0.0;
+  };
+  RandomWrapper.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'RandomWrapper',
+    interfaces: []
   };
   function v(x, y) {
     return new Vec2d(x, y);
@@ -826,6 +1160,10 @@ var web = function (_, Kotlin) {
     $this.y = v.y;
     return $this;
   }
+  var package$agentsJS = _.agentsJS || (_.agentsJS = {});
+  package$agentsJS.DoNothingAgent = DoNothingAgent;
+  package$agentsJS.SimpleEvoAgent = SimpleEvoAgent;
+  package$agentsJS.MutationTransducer = MutationTransducer;
   var package$breakoutJS = _.breakoutJS || (_.breakoutJS = {});
   Object.defineProperty(package$breakoutJS, 'Constants', {
     get: Constants_getInstance
@@ -856,6 +1194,7 @@ var web = function (_, Kotlin) {
   package$ggiJS.ExtendedAbstractGameState = ExtendedAbstractGameState;
   var package$mymath = _.mymath || (_.mymath = {});
   package$mymath.MovableObject = MovableObject;
+  package$mymath.RandomWrapper = RandomWrapper;
   package$mymath.v_lu1900$ = v;
   package$mymath.Vec2d = Vec2d;
   package$mymath.Vector2d_init_lu1900$ = Vector2d_init;

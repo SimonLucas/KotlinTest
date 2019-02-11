@@ -77,7 +77,7 @@ class GameRunner {
             // val actions = intArrayOf(player.getAction(deepCopy(gameState)))
             val actions = intArrayOf(player.getAction(gameState, playerId))
             // println(Arrays.toString(actions))
-            gameState.next(actions, playerId)
+            gameState.next(actions)
         }
         if (verbose) {
             println("Game score: ${gameState.score()}")
