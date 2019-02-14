@@ -166,9 +166,16 @@ class GridGame : ExtendedAbstractGameState {
 
 
 
+
+        // capture the player input
+
+        // apply the player actions
         for (action in actions)
             if (action != doNothingAction())
                 grid.invertCell(action)
+
+
+        // capture the local grid pattern input
 
         val gridCopy = grid.copy()
 
