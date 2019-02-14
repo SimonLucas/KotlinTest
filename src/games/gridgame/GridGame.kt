@@ -26,7 +26,8 @@ fun main(args: Array<String>) {
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
     // agent = RandomAgent()
-    agent1 = DoNothingAgent(game.doNothingAction())
+    // agent1 = DoNothingAgent(game.doNothingAction())
+    agent2 = DoNothingAgent(game.doNothingAction())
 
     while (true) {
         actions[0] = agent1.getAction(game.copy(), Constants.player1)
@@ -47,8 +48,8 @@ fun generalUpdate(centre: Int, sum: Int): Int {
     // println("Sum =" + sum)
 
     val lut = arrayOf(
-            intArrayOf(1, 0, 0, 1, 0, 0, 0, 0, 0),
-            intArrayOf(0, 0, 1, 1, 0, 0, 1, 0, 0)
+            intArrayOf(0, 0, 0, 1, 0, 0, 0, 0, 0),
+            intArrayOf(0, 0, 1, 1, 0, 0, 0, 0, 0)
     )
 
     return lut[centre][sum]
@@ -164,6 +165,11 @@ class GridGame : ExtendedAbstractGameState {
 //        grid.invertCell(p2Action)
 
 
+
+        for (action in actions)
+            if (action != doNothingAction())
+                grid.invertCell(action)
+
         val gridCopy = grid.copy()
 
         if (fastUpdate != null) {
@@ -187,9 +193,6 @@ class GridGame : ExtendedAbstractGameState {
             }
         }
         grid = gridCopy
-        for (action in actions)
-        if (action != doNothingAction())
-            grid.invertCell(action)
 
         totalTicks++
         nTicks++
@@ -233,7 +236,7 @@ interface UpdateRule {
 }
 
 interface NeighbourSumFunction {
-    fun next(centre: Int, sum: Int) : Int
+    fun next(centre: Int, sum: Int): Int
 }
 
 fun gameOfLife(centre: Int, sum: Int): Int {
@@ -242,7 +245,6 @@ fun gameOfLife(centre: Int, sum: Int): Int {
     else
         return if (sum == 3) 1 else 0
 }
-
 
 
 class MyRule : UpdateRule {
