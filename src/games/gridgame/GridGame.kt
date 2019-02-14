@@ -9,6 +9,8 @@ import ggi.SimplePlayerInterface
 import utilities.JEasyFrame
 import views.GridView
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 // started at 20:44
 
@@ -17,7 +19,7 @@ fun main(args: Array<String>) {
     var game = GridGame(30, 30).setFast(false)
     game.updateRule.next = ::generalUpdate
 
-    game.rewardFactor = -1.0;
+    game.rewardFactor = 1.0;
     // game.setFast(true)
     println(game.grid)
     val gv = GridView(game)
@@ -25,11 +27,12 @@ fun main(args: Array<String>) {
     val actions = intArrayOf(0, 0)
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
-    // agent = RandomAgent()
+    agent1 = RandomAgent()
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
-    while (true) {
+    val nSteps = 5
+    for (i in 0 until nSteps) {
         actions[0] = agent1.getAction(game.copy(), Constants.player1)
         actions[1] = agent2.getAction(game.copy(), Constants.player2)
         game.next(actions)
@@ -41,7 +44,28 @@ fun main(args: Array<String>) {
         // game = game.copy() as GridGame
         // println(game.updateRule.next)
     }
+
+    if (harvestData) {
+        val set = HashSet<Pattern>()
+        val input = HashSet<ArrayList<Int>>()
+        for (p in data) {
+            println(p)
+            set.add(p)
+            input.add(p.ip)
+        }
+        println("\nUnique IP / OP pairs:")
+        set.forEach { println(it) }
+        println("\nUnique Inputs:")
+        input.forEach { println(it) }
+        println("\nN Patterns  =  " + data.size)
+        println("Unique size = " + set.size)
+        println("Unique ips  = " + input.size)
+
+    }
 }
+
+
+
 
 fun generalUpdate(centre: Int, sum: Int): Int {
 
@@ -56,6 +80,14 @@ fun generalUpdate(centre: Int, sum: Int): Int {
 
 }
 
+val harvestData = true
+val includeNeighbourInputs = true
+
+data class Pattern(val ip: ArrayList<Int>, val op: Int)
+
+
+
+val data = ArrayList<Pattern>()
 
 val random = Random()
 
@@ -73,6 +105,8 @@ data class Grid(val w: Int = 20, val h: Int = 20, val wrap: Boolean = true) {
     var grid: IntArray = randomGrid()
 
     fun randomGrid() = IntArray(w * h, { random.nextInt(2) })
+
+    fun setAll (v: Int) {grid.fill(v)}
 
     fun getCell(i: Int): Int = grid[i]
 
@@ -100,7 +134,6 @@ data class Grid(val w: Int = 20, val h: Int = 20, val wrap: Boolean = true) {
     init {
 
         // println(grid)
-
 
     }
 
@@ -165,8 +198,6 @@ class GridGame : ExtendedAbstractGameState {
 //        grid.invertCell(p2Action)
 
 
-
-
         // capture the player input
 
         // apply the player actions
@@ -199,6 +230,9 @@ class GridGame : ExtendedAbstractGameState {
                 }
             }
         }
+
+        if (harvestData) addData(grid, gridCopy, actions, data)
+
         grid = gridCopy
 
         totalTicks++
@@ -235,6 +269,36 @@ class GridGame : ExtendedAbstractGameState {
         totalTicks = 0;
     }
 
+
+
+    fun addData(grid: Grid, next: Grid, actions: IntArray, data: ArrayList<Pattern>) {
+
+
+        val off = 0
+        val on = 1
+
+        // make a grid for the inputs
+        // set them all to zero apart from where the actions are being played
+        val inputs = grid.copy()
+        inputs.setAll(off)
+
+        for (action in actions)
+            if (action != doNothingAction())
+                inputs.setCell(action, on)
+
+
+        for (i in 0 until grid.w) {
+            for (j in 0 until grid.h) {
+                val p = Pattern(vectorExtractor(grid, i, j), next.getCell(i, j))
+                if (includeNeighbourInputs) {
+                    // the clear() option is to run a sanity check that codes only the actions
+                    // p.ip.clear()
+                    p.ip.addAll(vectorExtractor(inputs, i, j))
+                }
+                data.add(p)
+            }
+        }
+    }
 }
 
 
@@ -280,6 +344,15 @@ class MyRule : UpdateRule {
     }
 }
 
+fun vectorExtractor(grid: Grid, x: Int, y: Int): ArrayList<Int> {
+    val v = ArrayList<Int>()
+    for (xx in x - 1..x + 1) {
+        for (yy in y - 1..y + 1) {
+            v.add(grid.getCell(xx, yy))
+        }
+    }
+    return v
+}
 
 // fast updating only increases speed by about 20% therefore not worth the effort
 
