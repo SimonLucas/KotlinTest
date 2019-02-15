@@ -7,6 +7,7 @@ import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
 import utilities.JEasyFrame
+import utilities.StatSummary
 import views.GridView
 import java.util.*
 import kotlin.collections.ArrayList
@@ -14,6 +15,11 @@ import kotlin.collections.HashSet
 
 // started at 20:44
 
+val harvestData = false
+val includeNeighbourInputs = true
+
+// set this to null to turn off learning
+var learner = StatLearner()
 
 fun main(args: Array<String>) {
     var game = GridGame(30, 30).setFast(false)
@@ -31,35 +37,42 @@ fun main(args: Array<String>) {
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
-    val nSteps = 5
+
+
+    val nSteps = 2000
     for (i in 0 until nSteps) {
         actions[0] = agent1.getAction(game.copy(), Constants.player1)
         actions[1] = agent2.getAction(game.copy(), Constants.player2)
         game.next(actions)
 
         gv.repaint()
-        Thread.sleep(100)
+        Thread.sleep(50)
         frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
         // System.exit(0)
         // game = game.copy() as GridGame
         // println(game.updateRule.next)
+        println("$i\t N distinct patterns learned = ${learner.lut.size}")
     }
 
+    val learner = StatLearner()
     if (harvestData) {
         val set = HashSet<Pattern>()
         val input = HashSet<ArrayList<Int>>()
         for (p in data) {
-            println(p)
+            // println(p)
             set.add(p)
             input.add(p.ip)
+            // learner.add(p.ip, p.op)
         }
-        println("\nUnique IP / OP pairs:")
-        set.forEach { println(it) }
-        println("\nUnique Inputs:")
-        input.forEach { println(it) }
+        // println("\nUnique IP / OP pairs:")
+        // set.forEach { println(it) }
+        // println("\nUnique Inputs:")
+        // input.forEach { println(it) }
         println("\nN Patterns  =  " + data.size)
         println("Unique size = " + set.size)
         println("Unique ips  = " + input.size)
+
+        // learner.report()
 
     }
 }
@@ -80,11 +93,41 @@ fun generalUpdate(centre: Int, sum: Int): Int {
 
 }
 
-val harvestData = true
-val includeNeighbourInputs = true
-
 data class Pattern(val ip: ArrayList<Int>, val op: Int)
 
+class StatLearner () {
+    val lut = HashMap<ArrayList<Int>,StatSummary>()
+
+    fun add(pattern: ArrayList<Int>, value: Int) {
+        var ss = lut.get(pattern)
+        if (ss == null) {
+            ss = StatSummary()
+            lut.put(pattern, ss)
+        }
+        ss.add(value)
+    }
+
+    // not using epsilon yet
+    val epsilon = 0.1;
+    fun getProb(pattern: ArrayList<Int>) : Double {
+        // return the probability of it being one or zero
+        // based on the observed stats
+        val ss = lut.get(pattern)
+        // assume an equal likelihood of being on or off if we've not observed anything yet
+        if (ss == null) return 0.5;
+        // otherwise, calculate the probability with an epsilon backoff to regularise small samples
+        return ss.mean()
+    }
+
+    fun getStats(pattern: ArrayList<Int>) : StatSummary? = lut.get(pattern)
+
+    fun report() {
+        for (p in lut.keys) {
+            println("${p} \t ${getProb(p)}" )
+        }
+    }
+
+}
 
 
 val data = ArrayList<Pattern>()
@@ -231,7 +274,7 @@ class GridGame : ExtendedAbstractGameState {
             }
         }
 
-        if (harvestData) addData(grid, gridCopy, actions, data)
+        if (harvestData || learner!=null) addData(grid, gridCopy, actions, data)
 
         grid = gridCopy
 
@@ -295,7 +338,10 @@ class GridGame : ExtendedAbstractGameState {
                     // p.ip.clear()
                     p.ip.addAll(vectorExtractor(inputs, i, j))
                 }
-                data.add(p)
+                if (learner != null) {
+                    learner.add(p.ip, p.op)
+                }
+                if (harvestData) data.add(p)
             }
         }
     }
