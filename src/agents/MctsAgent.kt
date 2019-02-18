@@ -22,9 +22,9 @@ val random = Random()
 
 fun main(args: Array<String>) {
 
-    var game = MaxGame(n=5)
+    var game = MaxGame(n=10)
     // val agent = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 20, nEvals = 5, useShiftBuffer = false)
-    val agent = MctsAgent()
+    val agent = MctsAgent(k=200.0)
     val playerId = 0
     // get it to play the game
     var nSteps = 1
@@ -47,7 +47,7 @@ fun main(args: Array<String>) {
     for ((action, node) in agent.root.actions) {
         println("$action -> ${node}")
     }
-    println(agent.root.report())
+    agent.root.report()
 
 }
 
@@ -55,7 +55,7 @@ data class Expansion(val node: TreeNode, val action: Int, val state: AbstractGam
 
 data class MctsAgent (
         var rolloutLength: Int = 200,
-        var nPlayouts: Int = 200,
+        var nPlayouts: Int = 20,
         var k: Double = 10.0,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ): SimplePlayerInterface {
@@ -71,6 +71,8 @@ data class MctsAgent (
             val toExpand = treePolicy(root, state, playerId)
             // todo fix bug: currently all children have the exact same value
             expand(toExpand, playerId)
+            root.report()
+            println()
         }
         return recommendation(root, gameState)
     }
@@ -119,12 +121,13 @@ data class MctsAgent (
     }
 
     fun rollout(state: AbstractGameState, playerId: Int, maxSteps: Int) : Double {
-        val startScore = state.score()
+        // val startScore = state.score()
         while(maxSteps > 0 && !state.isTerminal()) {
             val ourAction = random.nextInt(state.nActions())
             act(state, ourAction, playerId)
         }
-        val delta = state.score() - startScore
+        val delta = state.score()
+        println()
         // assume player zero is the maximising player
         return if (playerId == 0)
             delta
