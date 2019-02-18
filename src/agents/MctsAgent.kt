@@ -27,7 +27,8 @@ fun main(args: Array<String>) {
     val agent = MctsAgent()
     val playerId = 0
     // get it to play the game
-    while (!game.isTerminal()) {
+    var nSteps = 1
+    while (!game.isTerminal() && nSteps-- >0) {
         // take an action
         var action = agent.getAction(game.copy(), playerId)
         println(agent.root.size())
@@ -48,7 +49,7 @@ data class Expansion(val node: TreeNode, val action: Int, val state: AbstractGam
 data class MctsAgent (
         var rolloutLength: Int = 200,
         var nPlayouts: Int = 20,
-        var k: Double = 1.0,
+        var k: Double = 10.0,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ): SimplePlayerInterface {
 
@@ -83,12 +84,17 @@ data class MctsAgent (
         ex.node.actions[ex.action] = child
         // val reward
         val state = act(ex.state, ex.action, playerId)
+        // roll out from this state
+        val reward = rollout(state, playerId, rolloutLength)
+        child.backup(reward)
+        println("Added a node at depth: " + child.depth())
     }
 
     // return the node to expand with the selected action
     fun treePolicy(node: TreeNode, state: AbstractGameState, playerId: Int) : Expansion {
         // while we keep getting tree nodes, go down the tree
         val action = node.bestUCT(state)
+        println("Tree policy at depth ${node.depth()}, UCT action =  ${action}")
         val child = node.actions[action]
         if (child!=null)
             return treePolicy(child, act(state, action, playerId), playerId)
@@ -155,7 +161,7 @@ data class TreeNode (val k: Double = 1.0){
     // note that this could be either an already tried action
     // or one we're about to try for the first time
     fun bestUCT(state: AbstractGameState) : Int {
-        val picker = Picker<Int>()
+        val picker = Picker<Int>(Picker.MAX_FIRST)
         for (i in 0 until state.nActions()) {
             var node = actions.get(i)
             var value = epsilon * random.nextDouble()
@@ -163,6 +169,7 @@ data class TreeNode (val k: Double = 1.0){
             picker.add(value, i)
         }
         val best = picker.best
+        println("n = ${n}, best UCT = ${picker.bestScore}")
         if (best != null) return best
         else return random.nextInt(state.nActions())
     }
@@ -175,7 +182,7 @@ data class TreeNode (val k: Double = 1.0){
 
     fun mean() = sum / n
 
-    fun uct(N: Int) = mean() + k * sqrt(log2(N.toDouble()) / n)
+    fun uct(N: Int) = mean() + k * sqrt(log2(N.toDouble() + epsilon) / (n+epsilon))
 
     // make sure we can check the tree size
     fun size() : Int {
