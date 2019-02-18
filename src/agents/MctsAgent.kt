@@ -22,7 +22,7 @@ val random = Random()
 
 fun main(args: Array<String>) {
 
-    var game = MaxGame()
+    var game = MaxGame(n=5)
     // val agent = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 20, nEvals = 5, useShiftBuffer = false)
     val agent = MctsAgent()
     val playerId = 0
@@ -30,8 +30,9 @@ fun main(args: Array<String>) {
     var nSteps = 1
     while (!game.isTerminal() && nSteps-- >0) {
         // take an action
+        println("Size = " + agent.root.size())
         var action = agent.getAction(game.copy(), playerId)
-        println(agent.root.size())
+        println("Size = " + agent.root.size())
         // action = 100
         // println(Arrays.toString(agent.buffer))
         println("Action: ${action}")
@@ -42,29 +43,33 @@ fun main(args: Array<String>) {
     println("Final score = " + game.score)
     println("Total ticks = ${game.totalTicks()}")
 
+    println("Root id: " + agent.root)
+    for ((action, node) in agent.root.actions) {
+        println("$action -> ${node}")
+    }
+    println(agent.root.report())
+
 }
 
 data class Expansion(val node: TreeNode, val action: Int, val state: AbstractGameState)
 
 data class MctsAgent (
         var rolloutLength: Int = 200,
-        var nPlayouts: Int = 20,
+        var nPlayouts: Int = 200,
         var k: Double = 10.0,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ): SimplePlayerInterface {
 
+    // declare it here to have access to it after getAction has finished
+    // and leave possibility of saving tree after each call to getAction
     var root = TreeNode()
 
     override fun getAction(gameState: AbstractGameState, playerId: Int): Int {
-        // for now reset each time an action is required
-        root = TreeNode()
         for (i in 0 until nPlayouts) {
-            // val toExpand = treePolicy(root)
             var state = gameState.copy()
             // now navigate down the tree to pick a node to expand
             val toExpand = treePolicy(root, state, playerId)
-            // toExpand.expand()
-            // todo several things to finish here including making the rollout and backing up the reward
+            // todo fix bug: currently all children have the exact same value
             expand(toExpand, playerId)
         }
         return recommendation(root, gameState)
@@ -87,14 +92,14 @@ data class MctsAgent (
         // roll out from this state
         val reward = rollout(state, playerId, rolloutLength)
         child.backup(reward)
-        println("Added a node at depth: " + child.depth())
+        // println("Added a node at depth: " + child.depth())
     }
 
     // return the node to expand with the selected action
     fun treePolicy(node: TreeNode, state: AbstractGameState, playerId: Int) : Expansion {
         // while we keep getting tree nodes, go down the tree
         val action = node.bestUCT(state)
-        println("Tree policy at depth ${node.depth()}, UCT action =  ${action}")
+        // println("Tree policy at depth ${node.depth()}, UCT action =  ${action}")
         val child = node.actions[action]
         if (child!=null)
             return treePolicy(child, act(state, action, playerId), playerId)
@@ -135,41 +140,56 @@ data class MctsAgent (
     internal var random = Random()
 
     // we will expand a node by adding the entry to the HashMap
-
-
 }
+
+var nodeCount = 0
 
 data class TreeNode (val k: Double = 1.0){
 
     val epsilon = 1e-6
 
+    val id = nodeCount++
     var n : Int = 0
     var sum: Double = 0.0
     val actions = HashMap<Int,TreeNode>()
     var parent: TreeNode? = null
 
-    // constructor()
+    fun report() {
+         println(this.toString())
+         actions.values.forEach({it.report()})
+    }
+
+    override fun toString() : String {
+        return "id: $id\t n: $n\t mean: ${mean()}"
+    }
 
     fun bestAction() : Int? {
         val picker = Picker<Int>()
-        actions.forEach{(action,stats) -> picker.add(stats.mean(), action)}
+        actions.forEach{(action,stats) ->
+            run {
+                picker.add(stats.mean(), action)
+                println("Action: $action, n = ${stats.n}, mean=${stats.mean()}")
+            }
+        }
         // for (action in actions.keys)
         return picker.best
     }
 
-    // should this return an int for the action or a node?
-    // note that this could be either an already tried action
-    // or one we're about to try for the first time
     fun bestUCT(state: AbstractGameState) : Int {
         val picker = Picker<Int>(Picker.MAX_FIRST)
         for (i in 0 until state.nActions()) {
-            var node = actions.get(i)
+            // start with small random noise then add in the UCT value
             var value = epsilon * random.nextDouble()
-            if (node != null) value = node.uct(n)
+            // calculate the UCT value depending on whether we've already expanded the
+            // node for this action or not
+            val child = actions.get(i)
+            if (child == null) value += uct(0.0, 0, n)
+            else value += uct(child.mean(), child.n, n)
             picker.add(value, i)
         }
         val best = picker.best
-        println("n = ${n}, best UCT = ${picker.bestScore}")
+
+        // println("\n n = ${n}, bestAction = $best, best UCT = ${picker.bestScore} ")
         if (best != null) return best
         else return random.nextInt(state.nActions())
     }
@@ -182,7 +202,7 @@ data class TreeNode (val k: Double = 1.0){
 
     fun mean() = sum / n
 
-    fun uct(N: Int) = mean() + k * sqrt(log2(N.toDouble() + epsilon) / (n+epsilon))
+    fun uct(mean: Double, n: Int, N: Int) = mean + k * sqrt(log2(N.toDouble() + epsilon) / (n+epsilon))
 
     // make sure we can check the tree size
     fun size() : Int {
