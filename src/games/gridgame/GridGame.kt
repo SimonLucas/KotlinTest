@@ -3,6 +3,7 @@ package games.gridgame
 import agents.DoNothingAgent
 import agents.RandomAgent
 import agents.SimpleEvoAgent
+import decisiontree.com.machine.learning.decisiontrees.DecisionTree
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
@@ -12,6 +13,7 @@ import views.GridView
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
+import decisiontree.test.ForwardModelTrainer;
 
 // started at 20:44
 
@@ -23,6 +25,8 @@ var learner = StatLearner()
 
 fun main(args: Array<String>) {
     var game = GridGame(30, 30).setFast(false)
+    var decisionTree : DecisionTree
+
     game.updateRule.next = ::generalUpdate
 
     game.rewardFactor = 1.0;
@@ -38,7 +42,6 @@ fun main(args: Array<String>) {
     agent2 = DoNothingAgent(game.doNothingAction())
 
 
-
     val nSteps = 2000
     for (i in 0 until nSteps) {
         actions[0] = agent1.getAction(game.copy(), Constants.player1)
@@ -52,6 +55,9 @@ fun main(args: Array<String>) {
         // game = game.copy() as GridGame
         // println(game.updateRule.next)
         println("$i\t N distinct patterns learned = ${learner.lut.size}")
+
+        decisionTree = ForwardModelTrainer.trainDecisionTree(data) as DecisionTree
+
     }
 
     val learner = StatLearner()
