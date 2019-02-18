@@ -6,10 +6,10 @@ import ggi.SimplePlayerInterface
 
 import java.util.Random
 
-data class SimpleEvoAgent (
+data class SimpleEvoAgent(
         var flipAtLeastOneValue: Boolean = true,
         // var expectedMutations: Double = 10.0,
-        var probMutation:Double = 0.2,
+        var probMutation: Double = 0.2,
         var sequenceLength: Int = 200,
         var nEvals: Int = 20,
         var useShiftBuffer: Boolean = true,
@@ -17,23 +17,31 @@ data class SimpleEvoAgent (
         var repeatProb: Double = 0.5,  // only used with mutation transducer
         var discountFactor: Double? = null,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
-): SimplePlayerInterface {
+) : SimplePlayerInterface {
 
     internal var random = Random()
 
     // these are all the parameters that control the agend
-    internal var solution: IntArray = randomPoint(sequenceLength)
+    internal var buffer: IntArray? = null // randomPoint(sequenceLength)
+
     // SimplePlayerInterface opponentModel = new RandomAgent();
     override fun reset(): SimplePlayerInterface {
-        solution = randomPoint(sequenceLength)
+        // buffer = null
         return this
     }
 
     val solutions = ArrayList<IntArray>()
 
+    var x: Int? = 1
+
+
     fun getActions(gameState: AbstractGameState, playerId: Int): IntArray {
+        var solution = buffer ?: randomPoint(gameState.nActions())
         if (useShiftBuffer) {
-            solution = shiftLeftAndRandomAppend(solution, gameState.nActions())
+            if (solution == null)
+                solution = randomPoint(gameState.nActions())
+            else
+                solution = shiftLeftAndRandomAppend(solution, gameState.nActions())
         } else {
             // System.out.println("New random solution with nActions = " + gameState.nActions())
             solution = randomPoint(gameState.nActions())
@@ -50,6 +58,7 @@ data class SimpleEvoAgent (
             }
             solutions.add(solution)
         }
+        buffer = solution
         return solution
     }
 
