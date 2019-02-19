@@ -129,7 +129,7 @@ public class ForwardModelTrainer {
 			trainingData.add(instance.toString());
 		}
 		tree.train(trainingData);
-		//System.out.println("Seen patterns: "+ size + "; Accuracy: " + measureAccuracy(tree));
+		System.out.println("Seen patterns: "+ size + "; Accuracy: " + measureAccuracy(tree));
 		return tree;
 	}
 
