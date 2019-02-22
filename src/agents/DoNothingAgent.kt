@@ -5,6 +5,9 @@ import ggi.SimplePlayerInterface
 
 
 data class DoNothingAgent (var action: Int = 0) : SimplePlayerInterface {
+    override fun getAgentType(): String {
+        return "DoNothingAgent"
+    }
 
     override fun getAction(gameState: AbstractGameState, playerId: Int): Int {
         // return zero without knowing what this will do

@@ -6,6 +6,10 @@ import ggi.game.GeneralKeyController
 import java.awt.event.KeyEvent
 
 class BreakoutKeyController : SimplePlayerInterface {
+    override fun getAgentType(): String {
+        return "BreakoutKeyController"
+    }
+
     val keyMap: HashMap<Int, Int> =
             hashMapOf(KeyEvent.VK_LEFT to Constants.left, KeyEvent.VK_RIGHT to Constants.right)
     val keyListener = GeneralKeyController()

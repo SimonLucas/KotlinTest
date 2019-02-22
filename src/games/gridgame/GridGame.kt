@@ -15,9 +15,6 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 import forwardmodels.modelinterface.ForwardModelTrainer;
 
-// started at 20:44
-
-val harvestData = true
 val includeNeighbourInputs = InputType.PlayerInt
 
 enum class InputType {
@@ -28,7 +25,10 @@ enum class InputType {
 var learner = StatLearner()
 
 fun main(args: Array<String>) {
-    var game = GridGame(30, 30).setFast(false)
+
+    val harvestData = true
+
+    var game = GridGame(30, 30, harvestData).setFast(false)
     var decisionTree : DecisionTree
 
     (game.updateRule as MyRule).next = ::generalUpdate
@@ -54,7 +54,7 @@ fun main(args: Array<String>) {
         game.next(actions)
 
         gv.repaint()
-        Thread.sleep(50)
+        //Thread.sleep(50)
         frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
         // System.exit(0)
         // game = game.copy() as GridGame
@@ -154,7 +154,7 @@ object Constants {
     // val range = 0..1
 }
 
-data class Grid(val w: Int = 20, val h: Int = 20, val wrap: Boolean = true) {
+data class Grid(val w: Int = 20, val h: Int = 20, val wrap: Boolean = true, val seed: Long = -1) {
     var grid: IntArray = randomGrid()
 
     fun randomGrid() = IntArray(w * h, { random.nextInt(2) })
@@ -186,7 +186,11 @@ data class Grid(val w: Int = 20, val h: Int = 20, val wrap: Boolean = true) {
 
     init {
 
-        // println(grid)
+        // Random seed is -1
+        if(seed != -1L) {
+            random.setSeed(seed);
+        }
+        // println(gridGame)
 
     }
 
@@ -210,12 +214,15 @@ open class GridGame : ExtendedAbstractGameState {
     var grid: Grid = Grid()
     var nTicks = 0
 
+    val harvestData: Boolean
+
     // negate this to reward destroying life
     var rewardFactor = 1.0
     var fastUpdate: FastUpdate? = null
 
-    constructor(w: Int = 20, h: Int = 20) {
-        grid = Grid(w, h)
+    constructor(w: Int = 20, h: Int = 20, harvestData: Boolean = false ,seed: Long = -1) {
+        grid = Grid(w, h, seed=seed)
+        this.harvestData = harvestData
     }
 
     fun doNothingAction() = grid.grid.size
@@ -247,8 +254,8 @@ open class GridGame : ExtendedAbstractGameState {
 //        // if both players choose the same action then do nothing
 //
 //        // otherwise invert at each position - or if inverting then no need to ignore
-//        grid.invertCell(p1Action)
-//        grid.invertCell(p2Action)
+//        gridGame.invertCell(p1Action)
+//        gridGame.invertCell(p2Action)
 
 
         // capture the player input
@@ -259,7 +266,7 @@ open class GridGame : ExtendedAbstractGameState {
                 grid.invertCell(action)
 
 
-        // capture the local grid pattern input
+        // capture the local gridGame pattern input
 
         val gridCopy = grid.copy()
 
@@ -330,7 +337,7 @@ open class GridGame : ExtendedAbstractGameState {
         val off = 0
         val on = 1
 
-        // make a grid for the inputs
+        // make a gridGame for the inputs
         // set them all to zero apart from where the actions are being played
         val inputs = grid.copy()
         inputs.setAll(off)
@@ -393,7 +400,7 @@ class MyRule : UpdateRule {
             for (yy in y - 1..y + 1) {
                 if (!(xx == x && yy == y)) {
                     sum += grid.getCell(xx, yy)
-                    // println(grid.getCell(xx, yy))
+                    // println(gridGame.getCell(xx, yy))
                 }
             }
         }
@@ -445,7 +452,7 @@ class FastUpdate {
         var j = 0
         for (xx in x - 1..x + 1) {
             for (yy in y - 1..y + 1) {
-                // wrap the grid position
+                // wrap the gridGame position
                 val ix = (xx + grid.w) % grid.w
                 val iy = (yy + grid.h) % grid.h
                 lut[j] = ix + grid.w * iy

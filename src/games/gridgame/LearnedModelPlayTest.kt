@@ -10,7 +10,10 @@ import utilities.JEasyFrame
 import views.GridView
 
 fun main(args: Array<String>) {
-    var game = GridGame(30, 30).setFast(false)
+
+    val harvestData = true
+
+    var game = GridGame(30, 30, harvestData).setFast(false)
     var decisionTree : DecisionTree? = null
 
     (game.updateRule as MyRule).next = ::generalUpdate
@@ -116,7 +119,7 @@ class FMGridGame : GridGame {
                 grid.invertCell(action)
 
 
-        // capture the local grid pattern input
+        // capture the local gridGame pattern input
 
         val gridCopy = grid.copy()
 

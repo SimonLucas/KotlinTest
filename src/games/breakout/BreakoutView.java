@@ -37,11 +37,11 @@ public class BreakoutView extends JComponent {
 
     public void paintComponent(Graphics go) {
         Graphics2D g = (Graphics2D) go;
-        // calculate the upper left of the grid
+        // calculate the upper left of the gridGame
         // and how it should map to the game view
         g.setColor(bg);
         g.fillRect(0, 0, getWidth(), getHeight());
-        // start by drawing the grid
+        // start by drawing the gridGame
         ViewParams vp = new ViewParams(gameState.getState().getParams());
         drawWall(g, vp);
         drawBat(g, vp);

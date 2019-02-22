@@ -7,6 +7,11 @@ import java.util.*
 // import java.util.*
 
 class RandomAgent : SimplePlayerInterface {
+
+    override fun getAgentType(): String {
+        return "RandomAgent"
+    }
+
     val random = Random()
     override fun getAction(gameState: AbstractGameState, playerId: Int): Int {
         return random.nextInt(gameState.nActions())
