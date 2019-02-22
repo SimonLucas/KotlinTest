@@ -26,9 +26,9 @@ fun main(args: Array<String>) {
             SimpleEvoAgent(useShiftBuffer = false),
             SimpleEvoAgent(useMutationTransducer = false),
             // SimpleEvoAgent(repeatProb = 0.0),
-            SimpleEvoAgent(repeatProb = 0.5),
-            SimpleEvoAgent(repeatProb = 0.8),
-            SimpleEvoAgent(probMutation = 0.1, repeatProb = 0.8)
+            SimpleEvoAgent(repeatProb = 0.5)
+            //SimpleEvoAgent(repeatProb = 0.8),
+            //SimpleEvoAgent(probMutation = 0.1, repeatProb = 0.8)
             // RandomAgent()
 
     )
