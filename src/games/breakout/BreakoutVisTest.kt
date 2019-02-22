@@ -25,15 +25,15 @@ fun main(args: Array<String>) {
             player.nEvals *= 2
             player.useShiftBuffer = true
             player.useMutationTransducer = true
-            player.probMutation = 0.1
-            player.repeatProb = 0.8
+            player.probMutation = 0.2
+            player.repeatProb = 0.5
         }
         // player = BreakoutKeyController()
         if (player is BreakoutKeyController)
             frame.addKeyListener(player.keyListener)
         while (!gameState.isTerminal()) {
             val actions = intArrayOf(player.getAction(gameState.copy(), playerId))
-            gameState.next(actions, playerId)
+            gameState.next(actions)
             // println(actions)
             // if (player is SimpleEvoAgent)
                 // view.playouts = player.getSolutionsCopy()

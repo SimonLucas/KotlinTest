@@ -1,37 +1,15 @@
-package games.breakout
+package breakoutJS
 
-import games.caveswing.CaveGameState
-import ggi.AbstractGameState
-import ggi.ExtendedAbstractGameState
-import ggi.game.MovableObject
-import math.Vector2d
-import javax.swing.JComponent
-import kotlin.test.assertTrue
+import mymath.MovableObject
+import mymath.Vector2d
+import ggiJS.*
+import kotlin.math.*
 
 object Constants {
     val doNothing = 0
     val left = 1
     val right = 2
     val empytyCell = 0
-}
-
-fun main(args: Array<String>) {
-    var s1 = BreakoutGameState()
-    println(s1)
-    println()
-    s1.state.bricks[0][0] = 55
-    var s2 = s1.copy()
-    s1.next(intArrayOf(0))
-
-    s1.state.bricks[0][0] = 99
-    println(s1)
-    println(s2)
-
-    println("Checking arrays")
-    println(s1.state.bricks[0][0])
-    if (s2 is BreakoutGameState)
-        println(s2.state.bricks[0][0])
-
 }
 
 data class BreakoutParams(
@@ -101,9 +79,6 @@ var totalTicks: Long = 0
 // whereas the internal state just has the state data
 data class BreakoutGameState(public var state: InternalGameState = InternalGameState())
     : ExtendedAbstractGameState {
-    override fun randomInitialState(): AbstractGameState {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
 
     override fun resetTotalTicks() {
@@ -127,6 +102,12 @@ data class BreakoutGameState(public var state: InternalGameState = InternalGameS
         val score: Int? = brickValues.get(j)
         if (score != null) return score
         else return defaultScore
+    }
+
+    fun reset(): BreakoutGameState {
+        state = InternalGameState()
+        setUp()
+        return this
     }
 
     fun setUp(): BreakoutGameState {
@@ -155,7 +136,7 @@ data class BreakoutGameState(public var state: InternalGameState = InternalGameS
         return this
     }
 
-    override fun next(actions: IntArray): AbstractGameState {
+    override fun next(actions: IntArray, playerId: Int): AbstractGameState {
         val action = actions[0]
         // println(action)
         with(state) {
@@ -208,7 +189,7 @@ data class BreakoutGameState(public var state: InternalGameState = InternalGameS
                     // also only collide if it's heading down (i.e. if v.y is positive
 
                     val xDiff = nextS.x - bat.x
-                    if (Math.abs(xDiff) < batWidth / 2 && nextS.y > bat.y - batHeight / 2 && nextS.y < bat.y + batHeight / 2) {
+                    if (abs(xDiff) < batWidth / 2 && nextS.y > bat.y - batHeight / 2 && nextS.y < bat.y + batHeight / 2) {
                         v.y = -ballSpeed
                         v.x = xDiff * batInfluence * ballSpeed / batWidth
                     }
@@ -230,7 +211,7 @@ data class BreakoutGameState(public var state: InternalGameState = InternalGameS
             nTicks++
         }
         totalTicks++
-        return this;
+        return this
     }
 
 

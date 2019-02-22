@@ -1,15 +1,14 @@
-package agents
+package agentsJS
 
-import ggi.AbstractGameState
-import ggi.SimplePlayerInterface
+import ggiJS.*
+import mymath.RandomWrapper
 
+import kotlin.random.*
 
-import java.util.Random
-
-data class SimpleEvoAgent(
+data class SimpleEvoAgent (
         var flipAtLeastOneValue: Boolean = true,
         // var expectedMutations: Double = 10.0,
-        var probMutation: Double = 0.2,
+        var probMutation:Double = 0.2,
         var sequenceLength: Int = 200,
         var nEvals: Int = 20,
         var useShiftBuffer: Boolean = true,
@@ -17,31 +16,24 @@ data class SimpleEvoAgent(
         var repeatProb: Double = 0.5,  // only used with mutation transducer
         var discountFactor: Double? = null,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
-) : SimplePlayerInterface {
+): SimplePlayerInterface {
 
-    internal var random = Random()
+    internal var random = RandomWrapper()
+
 
     // these are all the parameters that control the agend
-    internal var buffer: IntArray? = null // randomPoint(sequenceLength)
-
+    internal var solution: IntArray = randomPoint(sequenceLength)
     // SimplePlayerInterface opponentModel = new RandomAgent();
     override fun reset(): SimplePlayerInterface {
-        // buffer = null
+        solution = randomPoint(sequenceLength)
         return this
     }
 
     val solutions = ArrayList<IntArray>()
 
-    var x: Int? = 1
-
-
     fun getActions(gameState: AbstractGameState, playerId: Int): IntArray {
-        var solution = buffer ?: randomPoint(gameState.nActions())
         if (useShiftBuffer) {
-            if (solution == null)
-                solution = randomPoint(gameState.nActions())
-            else
-                solution = shiftLeftAndRandomAppend(solution, gameState.nActions())
+            solution = shiftLeftAndRandomAppend(solution, gameState.nActions())
         } else {
             // System.out.println("New random solution with nActions = " + gameState.nActions())
             solution = randomPoint(gameState.nActions())
@@ -58,7 +50,6 @@ data class SimpleEvoAgent(
             }
             solutions.add(solution)
         }
-        buffer = solution
         return solution
     }
 
@@ -134,7 +125,7 @@ data class SimpleEvoAgent(
         for (action in seq) {
             actions[playerId] = action
             actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
-            gameState = gameState.next(actions)
+            gameState = gameState.next(actions, playerId)
         }
         val delta = gameState.score() - current
         return if (playerId == 0)
@@ -152,7 +143,7 @@ data class SimpleEvoAgent(
         for (action in seq) {
             actions[playerId] = action
             actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
-            gameState = gameState.next(actions)
+            gameState = gameState.next(actions, playerId)
             val nextScore = gameState.score()
             val tickDelta = nextScore - currentScore
             currentScore = nextScore
@@ -180,3 +171,43 @@ data class SimpleEvoAgent(
         return x
     }
 }
+
+
+data class MutationTransducer (var mutProb: Double = 0.2, var repeatProb: Double = 0.5){
+
+    val random = RandomWrapper()
+
+    fun mutate(input: IntArray, range: Int) : IntArray {
+        val output = IntArray(input.size)
+        // now copy across the input
+
+        for (i in 0 until input.size) {
+            val p = random.nextDouble()
+
+            if (p < mutProb) {
+                // mutate
+                output[i] = random.nextInt(range)
+
+            } else if (p < mutProb + repeatProb && i>0) {
+                output[i] = output[i-1]
+            }
+            else {
+                // faithful copy
+                output[i] = input[i]
+
+            }
+
+        }
+
+        return output
+
+    }
+
+    fun randSeq(n: Int, range: Int) : IntArray {
+        return IntArray(n, {x -> random.nextInt(range)})
+    }
+    fun repSeq(n: Int, v: Int) : IntArray {
+        return IntArray(n, {x -> v})
+    }
+}
+

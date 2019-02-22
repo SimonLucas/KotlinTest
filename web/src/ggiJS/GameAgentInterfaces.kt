@@ -1,4 +1,11 @@
-package ggi
+package ggiJS
+
+
+interface SimplePlayerInterface {
+    fun getAction(gameState: AbstractGameState, playerId: Int) : Int
+    fun reset() : SimplePlayerInterface
+}
+
 
 interface AbstractGameState {
 
@@ -9,8 +16,7 @@ interface AbstractGameState {
     // set of actions
     // this can either be for the 'real' game
     // or for a copy of the game to use in statistical forward planning, for example
-    // fun next(actions: IntArray, playerId: Int): AbstractGameState
-    fun next(actions: IntArray): AbstractGameState
+    fun next(actions: IntArray, playerId: Int): AbstractGameState
 
     // the number of actions available to a player in the current state
     fun nActions(): Int
@@ -27,7 +33,5 @@ interface ExtendedAbstractGameState : AbstractGameState {
     fun totalTicks() : Long
 
     fun resetTotalTicks(): Unit
-
-    fun randomInitialState(): AbstractGameState
 }
 

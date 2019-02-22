@@ -155,7 +155,7 @@ public class CaveView extends JComponent {
         path.moveTo(pos.getX(), pos.getY());
         int playerId = 0;
         for (int a : seq) {
-            gameState.next(new int[]{a}, playerId);
+            gameState.next(new int[]{a});
             pos = internalState.getAvatar().getS();
             path.lineTo(pos.getX(), pos.getY());
         }
