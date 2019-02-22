@@ -1,10 +1,9 @@
-package decisiontree.com.machine.learning.decisiontrees;
+package forwardmodels.decisiontree;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -14,8 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import decisiontree.com.machine.learning.decisiontrees.conditions.Condition;
-import decisiontree.com.machine.learning.decisiontrees.conditions.EqualCondition;
+import forwardmodels.decisiontree.conditions.Condition;
+import forwardmodels.decisiontree.conditions.EqualCondition;
+import games.gridgame.Pattern;
+
 
 /**
  *
@@ -50,7 +51,7 @@ public class DecisionTree {
 	/**
 	 * @param row
 	 * @return
-	 * Classify new Patterns
+	 * Classify new patterns encoded as String
 	 */
 	public String classify(String row) {
 
@@ -58,6 +59,21 @@ public class DecisionTree {
 
 		return classify(attrs, rootNode);
 	}
+
+	/**
+	 * @param pattern
+	 * @return
+	 * Classify new patterns encoded as Pattern object
+	 */
+	public String classify(Pattern pattern) {
+
+		String[] attrs = new String[pattern.getIp().size()];
+		for (int i = 0; i < pattern.getIp().size(); i++)
+			attrs[i] = "" + pattern.getIp().get(i);
+
+		return classify(attrs, rootNode);
+	}
+
 
 	/**
 	 * 
@@ -102,7 +118,6 @@ public class DecisionTree {
 		System.out.println("Class count: " + this.classesCount);
 		System.out.println("Columns count: " + this.columnsCount);
 		System.out.println("Rows count: " + this.rowsCount);
-
 	}
 
 
@@ -126,7 +141,6 @@ public class DecisionTree {
 		//System.out.println("Class count: " + this.classesCount);
 		//System.out.println("Columns count: " + this.columnsCount);
 		//System.out.println("Rows count: " + this.rowsCount);
-
 	}
 
 
@@ -195,12 +209,6 @@ public class DecisionTree {
 				}
 			}
 		}
-
-
-
-
-
-
 	}
 
 	/**

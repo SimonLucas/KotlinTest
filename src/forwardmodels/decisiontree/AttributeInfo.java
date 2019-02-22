@@ -1,4 +1,4 @@
-package decisiontree.com.machine.learning.decisiontrees;
+package forwardmodels.decisiontree;
 
 import java.util.Map;
 

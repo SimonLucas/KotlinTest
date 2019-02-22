@@ -3,7 +3,7 @@ package games.gridgame
 import agents.DoNothingAgent
 import agents.RandomAgent
 import agents.SimpleEvoAgent
-import decisiontree.com.machine.learning.decisiontrees.DecisionTree
+import forwardmodels.decisiontree.DecisionTree
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
@@ -13,12 +13,16 @@ import views.GridView
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
-import decisiontree.test.ForwardModelTrainer;
+import forwardmodels.modelinterface.ForwardModelTrainer;
 
 // started at 20:44
 
-val harvestData = false
-val includeNeighbourInputs = true
+val harvestData = true
+val includeNeighbourInputs = InputType.PlayerInt
+
+enum class InputType {
+    None, PlayerInt, PlayerOneHot
+}
 
 // set this to null to turn off learning
 var learner = StatLearner()
@@ -27,7 +31,7 @@ fun main(args: Array<String>) {
     var game = GridGame(30, 30).setFast(false)
     var decisionTree : DecisionTree
 
-    game.updateRule.next = ::generalUpdate
+    (game.updateRule as MyRule).next = ::generalUpdate
 
     game.rewardFactor = 1.0;
     // game.setFast(true)
@@ -41,6 +45,7 @@ fun main(args: Array<String>) {
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
+    val modelTrainer = ForwardModelTrainer()
 
     val nSteps = 2000
     for (i in 0 until nSteps) {
@@ -56,8 +61,7 @@ fun main(args: Array<String>) {
         // println(game.updateRule.next)
         println("$i\t N distinct patterns learned = ${learner.lut.size}")
 
-        decisionTree = ForwardModelTrainer.trainDecisionTree(data) as DecisionTree
-
+        decisionTree = modelTrainer.trainDecisionTree(data) as DecisionTree
     }
 
     val learner = StatLearner()
@@ -196,13 +200,13 @@ data class Grid(val w: Int = 20, val h: Int = 20, val wrap: Boolean = true) {
 
 var totalTicks: Long = 0
 
-class GridGame : ExtendedAbstractGameState {
+open class GridGame : ExtendedAbstractGameState {
     override fun randomInitialState(): AbstractGameState {
         grid.grid = grid.randomGrid()
         return this
     }
 
-    var updateRule = MyRule()
+    var updateRule : UpdateRule = MyRule()
     var grid: Grid = Grid()
     var nTicks = 0
 
@@ -321,7 +325,7 @@ class GridGame : ExtendedAbstractGameState {
 
 
     fun addData(grid: Grid, next: Grid, actions: IntArray, data: ArrayList<Pattern>) {
-
+        data.clear()
 
         val off = 0
         val on = 1
@@ -339,10 +343,11 @@ class GridGame : ExtendedAbstractGameState {
         for (i in 0 until grid.w) {
             for (j in 0 until grid.h) {
                 val p = Pattern(vectorExtractor(grid, i, j), next.getCell(i, j))
-                if (includeNeighbourInputs) {
+                when (includeNeighbourInputs) {
+                    InputType.PlayerInt -> p.ip.add(getActionInt(inputs, i, j))
+                    InputType.PlayerOneHot -> p.ip.addAll(vectorExtractor(inputs, i, j))
                     // the clear() option is to run a sanity check that codes only the actions
                     // p.ip.clear()
-                    p.ip.addAll(vectorExtractor(inputs, i, j))
                 }
                 if (learner != null) {
                     learner.add(p.ip, p.op)
@@ -401,6 +406,17 @@ fun vectorExtractor(grid: Grid, x: Int, y: Int): ArrayList<Int> {
     for (xx in x - 1..x + 1) {
         for (yy in y - 1..y + 1) {
             v.add(grid.getCell(xx, yy))
+        }
+    }
+    return v
+}
+
+fun getActionInt(grid: Grid, x: Int, y: Int): Int {
+    var v = 0
+    for (xx in x - 1..x + 1) {
+        for (yy in y - 1..y + 1) {
+            if (grid.getCell(xx, yy)==1) return v
+            else v++
         }
     }
     return v

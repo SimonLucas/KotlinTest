@@ -1,10 +1,10 @@
-package decisiontree.test;
+package forwardmodels.modelinterface;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import decisiontree.com.machine.learning.decisiontrees.DecisionTree;
+import forwardmodels.decisiontree.DecisionTree;
+import games.gridgame.GridGameKt;
 import games.gridgame.Pattern;
 
 /**
@@ -16,6 +16,8 @@ import games.gridgame.Pattern;
 public class ForwardModelTrainer {
 
 	private static ArrayList<String> data;
+
+	HashSet<Pattern> dataset = new HashSet<Pattern>();
 
 	public static ArrayList<String> getDataset() {
 		if (data == null || data.size()!=5211){
@@ -51,7 +53,11 @@ public class ForwardModelTrainer {
 	private static ArrayList<String> createDataset(int[][] gamemodel){
 		//define attributes
 		ArrayList<String> list = new ArrayList<>(5121);
-		list.add("att1,att2,att3,att4,att5,att6,att7,att8,att9,att10,class");
+		switch (GridGameKt.getIncludeNeighbourInputs()){
+			case PlayerInt: list.add("tl,l,bl,t,c,b,tr,r,br,pint,class"); break;
+			case PlayerOneHot: list.add("tl,l,bl,t,c,b,tr,r,ptl,pl,pbl,pt,pc,pb,ptr,pr,pbl,class"); break;
+			default: break;
+		}
 
 		//fill data set
 		int size = 9;
@@ -103,33 +109,29 @@ public class ForwardModelTrainer {
 		return measureAccuracy(tree, testData);
 	}
 
-	public static DecisionTree trainDecisionTree(ArrayList<Pattern> data){
+	public  DecisionTree trainDecisionTree(ArrayList<Pattern> data){
 		DecisionTree tree = new DecisionTree();
 		ArrayList<String> trainingData = new ArrayList<String>();
-		trainingData.add("att1,att2,att3,att4,att5,att6,att7,att8,att9,att10,class");
+		switch (GridGameKt.getIncludeNeighbourInputs()){
+			case PlayerInt: trainingData.add("tl,l,bl,t,c,b,tr,r,br,pint,class"); break;
+			case PlayerOneHot: trainingData.add("tl,l,bl,t,c,b,tr,r,ptl,pl,pbl,pt,pc,pb,ptr,pr,pbl,class"); break;
+			default: break;
+		}
 
-		HashSet<Pattern> dataset = new HashSet<Pattern>(data);
+		this.dataset.addAll(data);
 		int size = dataset.size();
 
-		for (Pattern pattern : dataset){
+		for (Pattern pattern : this.dataset){
 			StringBuilder instance = new StringBuilder();
-			for (int i = 0; i < 9; i++)
+			for (int i = 0; i < pattern.getIp().size(); i++)
 				instance.append("" + pattern.getIp().get(i) + ",");
 
-			for (int i = 9; i < 18; i++){
-				if (pattern.getIp().get(i) == i){
-					instance.append("" + (i-9) + ",");
-				}
-			}
+			instance.append("" + pattern.getOp());
 
-			if (pattern.getOp() == 1)
-				instance.append("5");
-			else
-				instance.append("9");
 			trainingData.add(instance.toString());
 		}
 		tree.train(trainingData);
-		System.out.println("Seen patterns: "+ size + "; Accuracy: " + measureAccuracy(tree));
+		//System.out.println("Seen patterns: "+ size + "; Accuracy: " + measureAccuracy(tree));
 		return tree;
 	}
 

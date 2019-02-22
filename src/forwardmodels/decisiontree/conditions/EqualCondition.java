@@ -1,6 +1,6 @@
-package decisiontree.com.machine.learning.decisiontrees.conditions;
+package forwardmodels.decisiontree.conditions;
 
-import decisiontree.com.machine.learning.decisiontrees.Node;
+import forwardmodels.decisiontree.Node;
 
 public class EqualCondition extends Condition
 {
