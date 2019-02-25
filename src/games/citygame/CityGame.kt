@@ -9,6 +9,9 @@ var indexCount: Int = 0
 
 data class CityModel(var name: String, val location:Vector2d = Vector2d(), val population: CityPop=CityPop())
 
+
+
+
 {
 
     var index: Int = indexCount++
@@ -17,7 +20,10 @@ data class CityModel(var name: String, val location:Vector2d = Vector2d(), val p
         // println("Copying: $population")
         return CityModel(name = this.name, population = population.copy())
     }
+
 }
+
+
 
 data class CityGraph(var cities: List<CityModel>) {
 
