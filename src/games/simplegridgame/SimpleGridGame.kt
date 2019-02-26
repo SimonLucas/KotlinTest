@@ -226,6 +226,7 @@ open class SimpleGridGame : ExtendedAbstractGameState {
     }
 
 
+    
     // in this version the actions have already been applied to the grid,
     // so there is no separate coding of the actions array
     fun addData(grid: Grid, next: Grid, data: ArrayList<Pattern>) {

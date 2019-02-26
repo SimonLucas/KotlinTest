@@ -46,6 +46,8 @@ fun main(args: Array<String>) {
     }
     println(t)
 
+    // todo: fix the error in the way the learner learns or is applied
+    // even when trained with DoNothing agents and it sees ALL the patterns,
     predictionTest(learner)
 
 
