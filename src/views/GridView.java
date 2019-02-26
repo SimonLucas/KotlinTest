@@ -9,16 +9,20 @@ import java.awt.*;
 public class GridView extends JComponent {
 
     int cellSize = 20;
-    float inc = 0.01f;
-    GridGame gridGame;
+    // GridGame gridGame;
+    public Grid grid;
     boolean deadBlack = true;
 
-    public GridView(GridGame gridGame) {
-        this.gridGame = gridGame;
+//    public GridView(GridGame gridGame) {
+//        this.gridGame = gridGame;
+//    }
+
+
+    public GridView(Grid grid) {
+        this.grid = grid;
     }
 
     public void paintComponent(Graphics g) {
-        Grid grid = gridGame.getGrid();
         int n = grid.getW() * grid.getH();
         for (int i = 0; i < n; i++) {
             float h = grid.getCell(i) == 0 ? 0.35f : 0.89f;
@@ -30,7 +34,6 @@ public class GridView extends JComponent {
     }
 
     public Dimension getPreferredSize() {
-        Grid grid = gridGame.getGrid();
         return new Dimension(cellSize * grid.getW(), cellSize * grid.getH());
     }
 }
