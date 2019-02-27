@@ -19,10 +19,10 @@ import games.gridgame.MyRule
 import games.gridgame.UpdateRule
 import games.gridgame.vectorExtractor
 
-// started at 20:44
+// todo: need to fix the problem with this - definitely some error
+// the one-step prediction test fails, so no surprise that it fails later ...
 
-val harvestData = true
-val includeNeighbourInputs = InputType.PlayerInt
+var harvestData = false
 
 enum class InputType {
     None, PlayerInt, PlayerOneHot
@@ -33,7 +33,7 @@ var learner = StatLearner()
 
 fun main(args: Array<String>) {
 
-    var game = SimpleGridGame(30, 30)
+    var game = SimpleGridGame(60, 60)
     (game.updateRule as MyRule).next = ::generalSumUpdate
 
     game.rewardFactor = 1.0;
@@ -47,8 +47,6 @@ fun main(args: Array<String>) {
     agent1 = RandomAgent()
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
-
-    val modelTrainer = ForwardModelTrainer()
 
     val nSteps = 2000
     for (i in 0 until nSteps) {
@@ -83,47 +81,6 @@ fun generalSumUpdate(centre: Int, sum: Int): Int {
 }
 
 data class Pattern(val ip: ArrayList<Int>, val op: Int)
-
-class StatLearner() : UpdateRule {
-
-    override fun cellUpdate(grid: Grid, x: Int, y: Int): Int {
-        val probOn = getProb(vectorExtractor(grid, x, y))
-        return if (random.nextDouble() < probOn) 1 else 0
-    }
-
-    val lut = HashMap<ArrayList<Int>, StatSummary>()
-
-    fun add(pattern: ArrayList<Int>, value: Int) {
-        var ss = lut.get(pattern)
-        if (ss == null) {
-            ss = StatSummary()
-            lut.put(pattern, ss)
-        }
-        ss.add(value)
-    }
-
-    // not using epsilon yet
-    val epsilon = 0.1;
-
-    fun getProb(pattern: ArrayList<Int>): Double {
-        // return the probability of it being one or zero
-        // based on the observed stats
-        val ss = lut.get(pattern)
-        // assume an equal likelihood of being on or off if we've not observed anything yet
-        if (ss == null) return 0.5;
-        // otherwise, calculate the probability with an epsilon backoff to regularise small samples
-        return ss.mean()
-    }
-
-    fun getStats(pattern: ArrayList<Int>): StatSummary? = lut.get(pattern)
-
-    fun report() {
-        for (p in lut.keys) {
-            println("${p} \t ${getProb(p)}")
-        }
-    }
-
-}
 
 
 val data = ArrayList<Pattern>()
@@ -187,7 +144,7 @@ open class SimpleGridGame : ExtendedAbstractGameState {
             }
         }
 
-        if (harvestData || learner != null) addData(grid, gridCopy, data)
+        if (harvestData && learner != null) addData(grid, gridCopy, data)
 
         grid = gridCopy
 
@@ -226,7 +183,7 @@ open class SimpleGridGame : ExtendedAbstractGameState {
     }
 
 
-    
+
     // in this version the actions have already been applied to the grid,
     // so there is no separate coding of the actions array
     fun addData(grid: Grid, next: Grid, data: ArrayList<Pattern>) {
@@ -237,8 +194,19 @@ open class SimpleGridGame : ExtendedAbstractGameState {
                 if (learner != null) {
                     learner.add(p.ip, p.op)
                 }
-                if (harvestData) data.add(p)
+                // if (harvestData) data.add(p)
             }
+        }
+    }
+
+    fun lifeRule(ip: ArrayList<Int>) : Int {
+        assert(ip.size == 9)
+        // find total excluding the centre
+        var tot = ip.sum() - ip.get(4)
+        if (ip.get(4) == 0) {
+            return if (tot == 3) 1 else 0
+        } else {
+            return if (tot == 2 || tot == 3) 1 else 0
         }
     }
 }

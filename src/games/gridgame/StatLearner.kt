@@ -17,6 +17,7 @@ class StatLearner () {
 
     // not using epsilon yet
     val epsilon = 0.1;
+
     fun getProb(pattern: ArrayList<Int>) : Double {
         // return the probability of it being one or zero
         // based on the observed stats
@@ -34,6 +35,5 @@ class StatLearner () {
             println("${p} \t ${getProb(p)}" )
         }
     }
-
 }
 
