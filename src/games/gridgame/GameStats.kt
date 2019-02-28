@@ -65,6 +65,7 @@ open class GenerateGameData(val width: Int = 20, val height: Int = 20, seed: Lon
 
         val stateStatsWriter = StateStatsWriter(possibleStates, statsInterval, nSteps, agent1, agent2, seed)
         val dataSetWriter = DataSetWriter(nSteps, agent1, agent2, seed)
+        val outputWriter = OutputWriter(nSteps, agent1, agent2, seed)
 
         val actions = intArrayOf(0, 0)
 
@@ -84,6 +85,8 @@ open class GenerateGameData(val width: Int = 20, val height: Int = 20, seed: Lon
 
             stateStatsWriter.addData(patterns, actions)
             dataSetWriter.addData(patterns, actions)
+            outputWriter.addData(patterns, actions, i)
+
         }
     }
 
@@ -179,7 +182,7 @@ class StateStatsWriter(val possibleStates: List<String>, val interval: Int, val 
             patternCounter.compute(patternString) { key: String, value: Int? -> value?.let { it + 1 } ?: 1 }
         }
 
-        totalPatterns+=patterns.size
+        totalPatterns += patterns.size
 
         // Once we have enough patterns (interval) create stats for this interval and push to csv
         if (totalSteps % interval == 0) {
@@ -200,11 +203,11 @@ class StateStatsWriter(val possibleStates: List<String>, val interval: Int, val 
     }
 
     private fun printStatsSummary(patternCounter: Map<String, Int>, totalPatterns: Int) {
-        val sorted = patternCounter.toList().sortedBy { (_, value) -> value}.reversed()
+        val sorted = patternCounter.toList().sortedBy { (_, value) -> value }.reversed()
 
         println("Top 10 states observed")
-        for(i in 0 until 10) {
-            println(sorted[i].first + " -> %.4f".format(sorted[i].second/totalPatterns.toDouble()))
+        for (i in 0 until 10) {
+            println(sorted[i].first + " -> %.4f".format(sorted[i].second / totalPatterns.toDouble()))
         }
         println()
     }
@@ -224,6 +227,44 @@ open class DataSetWriter(nSteps: Int, agent1: SimplePlayerInterface, agent2: Sim
 
 }
 
+open class OutputWriter(val nSteps: Int, agent1: SimplePlayerInterface, agent2: SimplePlayerInterface, seed: Long) :
+        CSVWriter("Output-Seed:" + seed + "-A1:" + agent1.getAgentType() + "-A2:" + agent2.getAgentType() + "-nSteps:" + nSteps + ".csv") {
+
+    // When the pattern was first seen
+    val firstSeen = HashMap<String, Int>()
+
+    // What the output was
+    val output = HashMap<String, Int>()
+
+
+    fun addData(patterns: List<Pattern>, actions: IntArray, step: Int) {
+
+        patterns.forEach { pattern: Pattern ->
+            run {
+
+                val patternString = pattern.ip.joinToString(separator = "")
+                // if we have never seen this state before, set the step number
+                firstSeen.computeIfAbsent(patternString) { step }
+
+                // If we have never seen this state before, set the output
+                output.computeIfAbsent(patternString) { pattern.op }
+            }
+        }
+
+        if (step == nSteps-1) {
+            printCSV()
+        }
+    }
+
+    private fun printCSV() {
+        firstSeen.forEach { k, v ->
+            run {
+                writeLine(listOf(k, v.toString(), output[k].toString()))
+            }
+        }
+    }
+}
+
 fun main(args: Array<String>) {
 
     val seed = 10L
@@ -232,5 +273,5 @@ fun main(args: Array<String>) {
     val agent1 = RandomAgent()
     val agent2 = DoNothingAgent()
 
-    dataGenerator.generateData(100000, 1000, agent1, agent2, seed)
+    dataGenerator.generateData(1000, 10, agent1, agent2, seed)
 }
