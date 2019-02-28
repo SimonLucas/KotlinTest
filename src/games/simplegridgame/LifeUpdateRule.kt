@@ -7,7 +7,7 @@ import games.gridgame.vectorExtractor
 class LifeUpdateRule : UpdateRule {
     override fun cellUpdate(grid: Grid, x: Int, y: Int): Int {
         val cells =  vectorExtractor(grid, x, y)
-        return SimpleGridGame().lifeRule(cells)
+        return SimpleGridGame.lifeRule(cells)
     }
 }
 

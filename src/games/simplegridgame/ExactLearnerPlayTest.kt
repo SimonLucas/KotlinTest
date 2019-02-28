@@ -17,27 +17,30 @@ import views.GridView
 // step 1: train the agent for a number of steps
 // step 2: run a number of games using its forward model
 
-val learnSteps = 1
+val learnSteps = 10
 val testSteps = 100
 val gamesPerEval = 10
 val nPredictionTests = 30
 val w = 30
 val h = 30
 val visual = false
-val lutSizeLimit = 480
+val lutSizeLimit = 448
 val diceRoll = false
+
+
 
 fun main(args: Array<String>) {
 
-    var game = SimpleGridGame(w, h)
+    var learner = StatLearner(diceRoll = diceRoll, lutSizeLimit = lutSizeLimit)
+
+    var game = SimpleGridGame(learner, w, h)
     // (game.updateRule as MyRule).next = ::generalSumUpdate
     //
     //
     game.updateRule = LifeUpdateRule()
     // game.updateRule =
     game.rewardFactor = 1.0;
-    learner.lutSizeLimit = lutSizeLimit
-    learner.diceRoll = diceRoll
+
 
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
@@ -81,8 +84,11 @@ fun main(args: Array<String>) {
 
 fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Boolean): StatSummary {
     val ss = StatSummary()
+
+    // Use the same learner for all games
     for (i in 0 until gamesPerEval) {
-        val game = SimpleGridGame(w, h)
+
+        val game = SimpleGridGame(null, w, h)
         game.updateRule = LifeUpdateRule()
 
         // game.updateRule = learnedRule
@@ -129,7 +135,10 @@ fun predictionTest(learnedRule: UpdateRule) {
     // test and checking the differences a number of times
     val ss = StatSummary("Prediction errors")
     for (i in 0 until nPredictionTests) {
-        val game = SimpleGridGame(w, h)
+
+        var learner = StatLearner()
+
+        val game = SimpleGridGame(learner, w, h)
         val other = game.copy() as SimpleGridGame
         other.updateRule = learnedRule
         // game.updateRule = learnedRule

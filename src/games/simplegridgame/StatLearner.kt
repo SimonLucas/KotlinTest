@@ -7,10 +7,11 @@ import games.gridgame.vectorExtractor
 import utilities.StatSummary
 import java.util.HashMap
 
-class StatLearner() : UpdateRule {
+abstract class Learner {
+    abstract fun add(pattern: ArrayList<Int>, value: Int)
+}
 
-    var diceRoll = false;
-    var lutSizeLimit = 400
+class StatLearner(val diceRoll: Boolean = false, val lutSizeLimit: Int = 400) : UpdateRule, Learner() {
 
     override fun cellUpdate(grid: Grid, x: Int, y: Int): Int {
         val probOn = getProb(vectorExtractor(grid, x, y))
@@ -22,7 +23,7 @@ class StatLearner() : UpdateRule {
 
     val lut = HashMap<ArrayList<Int>, StatSummary>()
 
-    fun add(pattern: ArrayList<Int>, value: Int) {
+    override fun add(pattern: ArrayList<Int>, value: Int) {
         if (lut.size >= lutSizeLimit) return
         var ss = lut.get(pattern)
         if (ss == null) {
@@ -60,8 +61,8 @@ class StatLearner() : UpdateRule {
             val centre = p.get(4)
             val sum = p.sum() - centre
             val otherPrediction = otherRule.next(centre, sum)
-            println("${p} \t ${getProb(p)} \t ${SimpleGridGame().lifeRule(p)} \t ${otherPrediction}}")
-            ss.add(getProb(p) - SimpleGridGame().lifeRule(p))
+            println("${p} \t ${getProb(p)} \t ${SimpleGridGame.lifeRule(p)} \t ${otherPrediction}}")
+            ss.add(getProb(p) - SimpleGridGame.lifeRule(p))
         }
         println(ss)
     }

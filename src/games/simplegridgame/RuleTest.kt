@@ -13,7 +13,7 @@ fun main() {
         val centre = a[4]
         val sum = a.sum() - centre
         val x = gameOfLife(centre, sum)
-        val y = SimpleGridGame().lifeRule(a)
+        val y = SimpleGridGame.lifeRule(a)
         if (x != y) {
             println("${a}\t $x, $y, -> centre = $centre, sum = $sum")
             totErrors++

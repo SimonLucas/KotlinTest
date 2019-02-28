@@ -29,11 +29,12 @@ enum class InputType {
 }
 
 // set this to null to turn off learning
-var learner = StatLearner()
 
 fun main(args: Array<String>) {
 
-    var game = SimpleGridGame(60, 60)
+    var learner = StatLearner()
+
+    var game = SimpleGridGame(learner, 60, 60)
     (game.updateRule as MyRule).next = ::generalSumUpdate
 
     game.rewardFactor = 1.0;
@@ -99,7 +100,8 @@ object Constants {
 
 var totalTicks: Long = 0
 
-open class SimpleGridGame : ExtendedAbstractGameState {
+open class SimpleGridGame(val learner: Learner?, val w: Int = 20, val h: Int = 20) : ExtendedAbstractGameState {
+
     override fun randomInitialState(): AbstractGameState {
         grid.grid = grid.randomGrid()
         return this
@@ -112,14 +114,14 @@ open class SimpleGridGame : ExtendedAbstractGameState {
     // negate this to reward destroying life
     var rewardFactor = 1.0
 
-    constructor(w: Int = 20, h: Int = 20) {
+    init {
         grid = Grid(w, h)
     }
 
     fun doNothingAction() = grid.grid.size
 
     override fun copy(): AbstractGameState {
-        val gridGame = SimpleGridGame()
+        val gridGame = SimpleGridGame(null, w, h)
         gridGame.nTicks = nTicks
         gridGame.grid = grid.deepCopy()
         gridGame.updateRule = updateRule
@@ -183,7 +185,6 @@ open class SimpleGridGame : ExtendedAbstractGameState {
     }
 
 
-
     // in this version the actions have already been applied to the grid,
     // so there is no separate coding of the actions array
     fun addData(grid: Grid, next: Grid, data: ArrayList<Pattern>) {
@@ -199,16 +200,19 @@ open class SimpleGridGame : ExtendedAbstractGameState {
         }
     }
 
-    fun lifeRule(ip: ArrayList<Int>) : Int {
-        assert(ip.size == 9)
-        // find total excluding the centre
-        var tot = ip.sum() - ip.get(4)
-        if (ip.get(4) == 0) {
-            return if (tot == 3) 1 else 0
-        } else {
-            return if (tot == 2 || tot == 3) 1 else 0
+    companion object {
+        fun lifeRule(ip: ArrayList<Int>): Int {
+            assert(ip.size == 9)
+            // find total excluding the centre
+            var tot = ip.sum() - ip.get(4)
+            if (ip.get(4) == 0) {
+                return if (tot == 3) 1 else 0
+            } else {
+                return if (tot == 2 || tot == 3) 1 else 0
+            }
         }
     }
+
 }
 
 
