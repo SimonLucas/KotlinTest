@@ -1,8 +1,9 @@
-
-.idea/workspace.xml
-
-\.idea/
+*.iml
+.idea/
+out/
+build/
 
 *.class
-.idea/workspace.xml
+*.csv
+*.orig
 *.kotlin_module

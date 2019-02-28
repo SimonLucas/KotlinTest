@@ -18,6 +18,9 @@ data class SimpleEvoAgent(
         var discountFactor: Double? = null,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ) : SimplePlayerInterface {
+    override fun getAgentType(): String {
+        return "SimpleEvoAgent"
+    }
 
     internal var random = Random()
 

@@ -7,6 +7,9 @@ import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 
 class GeneralKeyController : KeyAdapter(), SimplePlayerInterface {
+    override fun getAgentType(): String {
+        return "GeneralKeyController"
+    }
 
     internal var selectedAction = Constants.doNothing
     var keyMap: HashMap<Int,Int> = HashMap()

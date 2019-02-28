@@ -32,7 +32,7 @@ public class ForwardModelTrainer {
 	};
 
 	private static String applyGameModel(String[] values, int[][] gamemodel){
-		//apply player action (flip bit of another grid cell or do nothing)
+		//apply player action (flip bit of another gridGame cell or do nothing)
 		if (Integer.parseInt(values[9]) != 9)
 			values[Integer.parseInt(values[9])] = "" + (1- Integer.parseInt(values[Integer.parseInt(values[9])]));
 
@@ -64,7 +64,7 @@ public class ForwardModelTrainer {
 		int numRows = (int)Math.pow(2, size);
 		boolean[][] bools = new boolean[numRows][size];
 
-		//create binary vector of all possible grid patterns
+		//create binary vector of all possible gridGame patterns
 		for(int i = 0; i<bools.length; i++)
 		{
 			StringBuilder tempinstance = new StringBuilder();
