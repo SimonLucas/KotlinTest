@@ -17,14 +17,15 @@ import views.GridView
 // step 1: train the agent for a number of steps
 // step 2: run a number of games using its forward model
 
-
 val learnSteps = 1
 val testSteps = 100
-val gamesPerEval = 1
+val gamesPerEval = 10
 val nPredictionTests = 30
 val w = 30
 val h = 30
-val visual = true
+val visual = false
+val lutSizeLimit = 480
+val diceRoll = false
 
 fun main(args: Array<String>) {
 
@@ -33,7 +34,10 @@ fun main(args: Array<String>) {
     //
     //
     game.updateRule = LifeUpdateRule()
+    // game.updateRule =
     game.rewardFactor = 1.0;
+    learner.lutSizeLimit = lutSizeLimit
+    learner.diceRoll = diceRoll
 
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
@@ -55,57 +59,21 @@ fun main(args: Array<String>) {
         println("$i\t N distinct patterns learned = ${learner.lut.size}")
     }
 
-    learner.reportComparison()
-
-
+    // learner.reportComparison()
     println(t)
 
     // todo: fix the error in the way the learner learns or is applied
     // even when trained with DoNothing agents and it sees ALL the patterns,
     harvestData = false
-    predictionTest(learner)
+    // predictionTest(learner)
 
     // System.exit(0)
 
     println("Testing")
     val ss = runGames(agent1, learner, visual)
-
-
     println(ss)
-
-    learner.reportComparison()
+    // learner.reportComparison()
     println(t)
-
-}
-
-fun predictionTest(learnedRule: UpdateRule) {
-
-    // test and checking the differences a number of times
-
-    val ss = StatSummary("Prediction errors")
-    for (i in 0 until nPredictionTests) {
-        val game = SimpleGridGame(w, h)
-        val other = game.copy() as SimpleGridGame
-        other.updateRule = learnedRule
-        // game.updateRule = learnedRule
-        game.updateRule = LifeUpdateRule()
-
-        val agent = DoNothingAgent()
-
-        // see if the two grids end in the same state
-        val action = agent.getAction(game.copy(), 0)
-        val actions = intArrayOf(action, action)
-
-        // now see what goes next... one with learned rule, one with not
-
-        game.next(actions)
-        other.next(actions)
-        val diff = game.grid.difference(other.grid)
-        println("Test ${i}, \t diff = ${diff}")
-        ss.add(diff)
-
-    }
-    println(ss)
 }
 
 
@@ -135,14 +103,14 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
             // need to know how good this is
             actions[0] = agent.getAction(agentCopy, Constants.player1)
 
-            actions[0] = RandomAgent().getAction(agentCopy, Constants.player1)
+            // actions[0] = RandomAgent().getAction(agentCopy, Constants.player1)
 
             // println("Selected action: ${actions[0]}")
 
             // play against a DoNothing opponent for now...
             actions[1] = DoNothingAgent().getAction(game.copy(), Constants.player2)
             game.next(actions)
-            println(game.score())
+            // println(game.score())
             if (visual) {
                 gridView.grid = game.grid
                 gridView.repaint()
@@ -155,3 +123,33 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
     }
     return ss
 }
+
+
+fun predictionTest(learnedRule: UpdateRule) {
+    // test and checking the differences a number of times
+    val ss = StatSummary("Prediction errors")
+    for (i in 0 until nPredictionTests) {
+        val game = SimpleGridGame(w, h)
+        val other = game.copy() as SimpleGridGame
+        other.updateRule = learnedRule
+        // game.updateRule = learnedRule
+        game.updateRule = LifeUpdateRule()
+
+        val agent = DoNothingAgent()
+
+        // see if the two grids end in the same state
+        val action = agent.getAction(game.copy(), 0)
+        val actions = intArrayOf(action, action)
+
+        // now see what goes next... one with learned rule, one with not
+
+        game.next(actions)
+        other.next(actions)
+        val diff = game.grid.difference(other.grid)
+        println("Test ${i}, \t diff = ${diff}")
+        ss.add(diff)
+
+    }
+    println(ss)
+}
+

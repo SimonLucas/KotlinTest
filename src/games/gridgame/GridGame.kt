@@ -342,11 +342,18 @@ interface NeighbourSumFunction {
     fun next(centre: Int, sum: Int): Int
 }
 
-fun gameOfLife(centre: Int, sum: Int): Int {
+fun gameOfLife(centre: Int, nSum: Int): Int {
     if (centre == 1)
-        return if (sum < 3 || sum > 4) 0 else 1
+        return if (nSum < 2 || nSum > 3) 0 else 1
     else
-        return if (sum == 3) 1 else 0
+        return if (nSum == 3) 1 else 0
+}
+
+fun hardLife(centre: Int, nSum: Int): Int {
+    if (centre == 1)
+        return if (nSum < 3 || nSum > 4) 0 else 1
+    else
+        return if (nSum == 3) 1 else 0
 }
 
 

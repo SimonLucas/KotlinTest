@@ -1,6 +1,7 @@
 package games.simplegridgame
 
 import games.gridgame.Grid
+import games.gridgame.MyRule
 import games.gridgame.UpdateRule
 import games.gridgame.vectorExtractor
 import utilities.StatSummary
@@ -14,7 +15,7 @@ class StatLearner() : UpdateRule {
     override fun cellUpdate(grid: Grid, x: Int, y: Int): Int {
         val probOn = getProb(vectorExtractor(grid, x, y))
         if (diceRoll)
-        return if (random.nextDouble() < probOn) 1 else 0
+            return if (random.nextDouble() < probOn) 1 else 0
         else
             return if (0.5 < probOn) 1 else 0
     }
@@ -53,9 +54,14 @@ class StatLearner() : UpdateRule {
     // quick hack for debugging
     fun reportComparison() {
         val ss = StatSummary("Differences")
+        val otherRule = MyRule()
+        otherRule.next = ::generalSumUpdate
         for (p in lut.keys) {
-            // println("${p} \t ${getProb(p)} \t ${SimpleGridGame().lifeRule(p)}" )
-            ss.add( getProb(p) - SimpleGridGame().lifeRule(p) )
+            val centre = p.get(4)
+            val sum = p.sum() - centre
+            val otherPrediction = otherRule.next(centre, sum)
+            println("${p} \t ${getProb(p)} \t ${SimpleGridGame().lifeRule(p)} \t ${otherPrediction}}")
+            ss.add(getProb(p) - SimpleGridGame().lifeRule(p))
         }
         println(ss)
     }
