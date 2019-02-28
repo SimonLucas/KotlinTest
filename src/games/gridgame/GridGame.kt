@@ -31,12 +31,12 @@ fun main(args: Array<String>) {
     var game = GridGame(30, 30, harvestData).setFast(false)
     var decisionTree : DecisionTree
 
-    (game.updateRule as MyRule).next = ::generalUpdate
+    (game.updateRule as MyRule).next = ::generalSumUpdate
 
     game.rewardFactor = 1.0;
     // game.setFast(true)
     println(game.grid)
-    val gv = GridView(game)
+    val gv = GridView(game.grid)
     val frame = JEasyFrame(gv, "Life Game")
     val actions = intArrayOf(0, 0)
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
@@ -53,6 +53,7 @@ fun main(args: Array<String>) {
         actions[1] = agent2.getAction(game.copy(), Constants.player2)
         game.next(actions)
 
+        gv.grid = game.grid
         gv.repaint()
         //Thread.sleep(50)
         frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
@@ -90,7 +91,7 @@ fun main(args: Array<String>) {
 
 
 
-fun generalUpdate(centre: Int, sum: Int): Int {
+fun generalSumUpdate(centre: Int, sum: Int): Int {
 
     // println("Sum =" + sum)
 
@@ -104,40 +105,6 @@ fun generalUpdate(centre: Int, sum: Int): Int {
 }
 
 data class Pattern(val ip: ArrayList<Int>, val op: Int)
-
-class StatLearner () {
-    val lut = HashMap<ArrayList<Int>,StatSummary>()
-
-    fun add(pattern: ArrayList<Int>, value: Int) {
-        var ss = lut.get(pattern)
-        if (ss == null) {
-            ss = StatSummary()
-            lut.put(pattern, ss)
-        }
-        ss.add(value)
-    }
-
-    // not using epsilon yet
-    val epsilon = 0.1;
-    fun getProb(pattern: ArrayList<Int>) : Double {
-        // return the probability of it being one or zero
-        // based on the observed stats
-        val ss = lut.get(pattern)
-        // assume an equal likelihood of being on or off if we've not observed anything yet
-        if (ss == null) return 0.5;
-        // otherwise, calculate the probability with an epsilon backoff to regularise small samples
-        return ss.mean()
-    }
-
-    fun getStats(pattern: ArrayList<Int>) : StatSummary? = lut.get(pattern)
-
-    fun report() {
-        for (p in lut.keys) {
-            println("${p} \t ${getProb(p)}" )
-        }
-    }
-
-}
 
 
 val data = ArrayList<Pattern>()
@@ -182,6 +149,14 @@ data class Grid(val w: Int = 20, val h: Int = 20, val wrap: Boolean = true, val 
     fun setCell(x: Int, y: Int, value: Int) {
         if (x < 0 || y < 0 || x >= w || y >= h) return
         grid[x + w * y] = value
+    }
+
+    fun difference (other: Grid) : Int {
+        var tot = 0
+        // lazily assume same dimensions...
+        for (i in 0 until grid.size)
+            tot += if (grid[i] == other.grid[i]) 0 else 1
+        return tot
     }
 
     init {
@@ -374,11 +349,18 @@ interface NeighbourSumFunction {
     fun next(centre: Int, sum: Int): Int
 }
 
-fun gameOfLife(centre: Int, sum: Int): Int {
+fun gameOfLife(centre: Int, nSum: Int): Int {
     if (centre == 1)
-        return if (sum < 3 || sum > 4) 0 else 1
+        return if (nSum < 2 || nSum > 3) 0 else 1
     else
-        return if (sum == 3) 1 else 0
+        return if (nSum == 3) 1 else 0
+}
+
+fun hardLife(centre: Int, nSum: Int): Int {
+    if (centre == 1)
+        return if (nSum < 3 || nSum > 4) 0 else 1
+    else
+        return if (nSum == 3) 1 else 0
 }
 
 

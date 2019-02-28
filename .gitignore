@@ -6,3 +6,4 @@ build/
 *.class
 *.csv
 *.orig
+*.kotlin_module

@@ -16,12 +16,12 @@ fun main(args: Array<String>) {
     var game = GridGame(30, 30, harvestData).setFast(false)
     var decisionTree : DecisionTree? = null
 
-    (game.updateRule as MyRule).next = ::generalUpdate
+    (game.updateRule as MyRule).next = ::generalSumUpdate
 
     game.rewardFactor = 1.0
     // game.setFast(true)
     println(game.grid)
-    val gv = GridView(game)
+    val gv = GridView(game.grid)
     val frame = JEasyFrame(gv, "Life Game")
     val actions = intArrayOf(0, 0)
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
