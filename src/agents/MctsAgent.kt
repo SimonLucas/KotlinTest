@@ -53,6 +53,7 @@ fun main(args: Array<String>) {
 
 data class Expansion(val node: TreeNode, val action: Int, val state: AbstractGameState)
 
+
 data class MctsAgent (
         var rolloutLength: Int = 200,
         var nPlayouts: Int = 20,

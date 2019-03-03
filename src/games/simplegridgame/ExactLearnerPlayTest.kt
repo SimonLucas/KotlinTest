@@ -23,17 +23,17 @@ val gamesPerEval = 10
 val nPredictionTests = 30
 val w = 30
 val h = 30
-val visual = false
-val lutSizeLimit = 480
+val visual = true
+val lutSizeLimit = 0
 val diceRoll = false
 
 fun main(args: Array<String>) {
 
     var game = SimpleGridGame(w, h)
-    // (game.updateRule as MyRule).next = ::generalSumUpdate
+    (game.updateRule as MyRule).next = ::generalSumUpdate
     //
     //
-    game.updateRule = LifeUpdateRule()
+    // game.updateRule = LifeUpdateRule()
     // game.updateRule =
     game.rewardFactor = 1.0;
     learner.lutSizeLimit = lutSizeLimit
