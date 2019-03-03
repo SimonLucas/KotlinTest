@@ -19,9 +19,11 @@ class MultiLutStatLearner(val minLut: Int, val maxLut: Int, val interval: Int) :
 
             lut += interval
             learners ++
+
         }
 
         numLearners = learners
+        println("NumLearners = ${numLearners}")
 
     }
 

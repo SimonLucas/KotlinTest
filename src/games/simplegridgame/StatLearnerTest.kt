@@ -1,17 +1,21 @@
 package games.simplegridgame
 
+import agents.DoNothingAgent
 import agents.SimpleEvoAgent
 import games.gridgame.UpdateRule
 import ggi.AbstractGameState
 import ggi.SimplePlayerInterface
+import utilities.ElapsedTimer
 import utilities.StatSummary
 import java.util.concurrent.ForkJoinPool
 
 val minLut = 0
 val maxLut = 512
-val lutInteval = 5
+val lutInteval = 32
 
 fun main(args: Array<String>) {
+
+    val t = ElapsedTimer()
 
     val executor = ForkJoinPool()
 
@@ -23,7 +27,8 @@ fun main(args: Array<String>) {
     game.rewardFactor = 1.0
 
     val agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
-    val agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
+    var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
+    agent2 = DoNothingAgent()
 
     train(game, agent1, agent2, 10)
 
@@ -35,7 +40,7 @@ fun main(args: Array<String>) {
             val learner = entry.value
             return@map executor.submit {
                 println("Playing with lut limit {$lut}")
-                statSummaries.put(lut, testGames(agent1, learner, 10))
+                statSummaries.put(lut, testGames(agent1, learner, 20))
             }
     }
 
@@ -44,9 +49,19 @@ fun main(args: Array<String>) {
 
     statSummaries.toSortedMap().forEach { lut, summary ->
         run {
-            println("Lut: ${lut}, Average Score: ${summary.mean()}")
+            println("Lut: ${lut}, Average Score: ${summary.mean()}, s.e. = ${summary.stdErr()}")
         }
     }
+
+    // one formatted more conveniently for reading in to a plot routine
+    statSummaries.toSortedMap().forEach { lut, summary ->
+        run {
+            println("%d,  \t %.1f, \t %.1f".format(lut, summary.mean(), summary.stdErr()))
+        }
+    }
+
+    println(t)
+
 }
 
 fun train(game: AbstractGameState, agent1: SimplePlayerInterface, agent2: SimplePlayerInterface, trainingSteps: Int = 100) {
