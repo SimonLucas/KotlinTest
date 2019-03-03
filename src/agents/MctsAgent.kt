@@ -61,6 +61,10 @@ data class MctsAgent (
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ): SimplePlayerInterface {
 
+    override fun getAgentType(): String {
+        return "MCTSAgent"
+    }
+
     // declare it here to have access to it after getAction has finished
     // and leave possibility of saving tree after each call to getAction
     var root = TreeNode()

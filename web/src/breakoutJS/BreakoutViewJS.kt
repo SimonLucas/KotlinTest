@@ -18,11 +18,11 @@ class BreakoutViewJS {
 
     override fun paintComponent(go: Graphics) {
         val g = go as Graphics2D
-        // calculate the upper left of the grid
+        // calculate the upper left of the gridGame
         // and how it should map to the game view
         g.setColor(bg)
         g.fillRect(0, 0, getWidth(), getHeight())
-        // start by drawing the grid
+        // start by drawing the gridGame
         val vp = ViewParams(gameState.state.params)
         drawWall(g, vp)
         drawBat(g, vp)

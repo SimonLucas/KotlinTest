@@ -13,7 +13,7 @@ object Constants {
 }
 
 data class BreakoutParams(
-        // grid size in cells
+        // gridGame size in cells
         var gridWidth: Int = 11,
         var gridHeight: Int = 15,
         // cell size in "pixels" - just to give an idea
@@ -24,7 +24,7 @@ data class BreakoutParams(
         var batWidth: Double = 0.1,
         var batHeight: Double = 0.05,
 
-        // these control which grid cells will be occupied with bricks
+        // these control which gridGame cells will be occupied with bricks
         var topGap: Double = 0.2,
         var wallBottom: Double = 0.5,
         var edgeGap: Double = 0.0,
@@ -122,7 +122,7 @@ data class BreakoutGameState(public var state: InternalGameState = InternalGameS
                 for (i in 0 until gridWidth) {
                     for (j in 0 until gridHeight) {
                         // calculate position of centre of potential brick
-                        // as ration of grid size to work out whether
+                        // as ration of gridGame size to work out whether
                         // it should be there or not
                         val x = (i + 0.5) / gridWidth
                         val y = (j + 0.5) / gridHeight
@@ -161,7 +161,7 @@ data class BreakoutGameState(public var state: InternalGameState = InternalGameS
 
                     val inArena = !flipX && !flipY
                     // only do the following checks if still in the arena
-                    // now do the grid calculation for where the next position would be
+                    // now do the gridGame calculation for where the next position would be
 
                     if (inArena) {
 
