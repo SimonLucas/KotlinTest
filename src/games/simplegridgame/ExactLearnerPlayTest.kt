@@ -10,6 +10,7 @@ import utilities.ElapsedTimer
 import utilities.JEasyFrame
 import utilities.StatSummary
 import views.GridView
+import java.util.*
 
 // this test is to see how well we play when a learned model
 // is used as a substitute for the true forward model
@@ -19,15 +20,46 @@ import views.GridView
 
 val learnSteps = 1
 val testSteps = 100
-val gamesPerEval = 10
+val gamesPerEval = 3
 val nPredictionTests = 30
 val w = 30
 val h = 30
-val visual = true
+val visual = false
 val lutSizeLimit = 0
 val diceRoll = false
 
-fun main(args: Array<String>) {
+// made an update with
+
+
+fun main() {
+
+    val t = ElapsedTimer()
+
+    val nReps = 10
+
+    val lutSizes = 0 .. 512 step 32
+    println(lutSizes)
+    val results = TreeMap<Int,StatSummary>()
+    for (lut in lutSizes) {
+        println("Getting results for lut size: $lut")
+        val ss = StatSummary()
+        for (i in 0 until nReps)
+            ss.add(trainAndPlay(lut))
+        results.put(lut,ss)
+        println(ss)
+        println()
+    }
+
+    // now format the results
+
+    results.forEach{key, value -> println("$key\t %.1f\t %.1f".format(value.mean(), value.stdErr()))}
+
+    println("Total time: " + t)
+}
+
+
+
+fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
 
     var game = SimpleGridGame(w, h)
     (game.updateRule as MyRule).next = ::generalSumUpdate
@@ -74,6 +106,9 @@ fun main(args: Array<String>) {
     println(ss)
     // learner.reportComparison()
     println(t)
+
+    return ss
+
 }
 
 
