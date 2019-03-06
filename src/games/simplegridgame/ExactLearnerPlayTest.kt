@@ -35,9 +35,9 @@ fun main() {
 
     val t = ElapsedTimer()
 
-    val nReps = 10
+    val nReps = 5
 
-    val lutSizes = 512 .. 512 step 32
+    val lutSizes = 480 .. 512 step 32
     println(lutSizes)
     val results = TreeMap<Int,StatSummary>()
     for (lut in lutSizes) {
@@ -65,9 +65,9 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
     // (game.updateRule as MyRule).next = ::generalSumUpdate
     //
     //
-    game.updateRule = LifeUpdateRule()
+    // game.updateRule = LifeUpdateRule()
 
-    // game.updateRule = CaveUpdateRule()
+    game.updateRule = CaveUpdateRule()
     // game.updateRule =
     game.rewardFactor = 1.0;
     learner.lutSizeLimit = lutSizeLimit
@@ -120,8 +120,8 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
     val ss = StatSummary()
     for (i in 0 until gamesPerEval) {
         val game = SimpleGridGame(w, h)
-        game.rewardFactor = -1.0;
-        // game.updateRule = CaveUpdateRule()
+        game.rewardFactor = 1.0;
+        game.updateRule = CaveUpdateRule()
         // game.updateRule = LifeUpdateRule()
 
         // game.updateRule = learnedRule
