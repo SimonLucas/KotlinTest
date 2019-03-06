@@ -120,6 +120,7 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
     val ss = StatSummary()
     for (i in 0 until gamesPerEval) {
         val game = SimpleGridGame(w, h)
+        game.updateRule = CaveUpdateRule()
         // game.updateRule = LifeUpdateRule()
 
         // game.updateRule = learnedRule
