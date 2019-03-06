@@ -11,3 +11,11 @@ class LifeUpdateRule : UpdateRule {
     }
 }
 
+class CaveUpdateRule : UpdateRule {
+    val t = 4
+    override fun cellUpdate(grid: Grid, x: Int, y: Int): Int {
+        val cells =  vectorExtractor(grid, x, y)
+        return if (cells.sum() > t) 1 else 0
+    }
+}
+

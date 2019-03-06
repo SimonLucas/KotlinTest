@@ -209,6 +209,11 @@ open class SimpleGridGame : ExtendedAbstractGameState {
             return if (tot == 2 || tot == 3) 1 else 0
         }
     }
+    fun caveRule(ip: ArrayList<Int>) : Int {
+        assert(ip.size == 9)
+        // find total excluding the centre
+        return if (ip.sum() > 4) 1 else 0
+    }
 }
 
 
