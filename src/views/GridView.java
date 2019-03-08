@@ -13,6 +13,8 @@ public class GridView extends JComponent {
     public Grid grid;
     boolean deadBlack = true;
 
+    public boolean gridLines = true;
+
 //    public GridView(GridGame gridGame) {
 //        this.gridGame = gridGame;
 //    }
@@ -30,6 +32,14 @@ public class GridView extends JComponent {
             if (deadBlack && grid.getCell(i) == 0) g.setColor(Color.black);
             int x = cellSize * (i % grid.getW()), y = cellSize * (i / grid.getW());
             g.fillRect(x, y, cellSize, cellSize);
+        }
+        // paint faint gridlines separately
+        if (gridLines) {
+            g.setColor(new Color(128, 128, 128, 128));
+            for (int i = 0; i < n; i++) {
+                int x = cellSize * (i % grid.getW()), y = cellSize * (i / grid.getW());
+                g.drawRect(x, y, cellSize, cellSize);
+            }
         }
     }
 
