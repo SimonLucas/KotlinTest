@@ -18,13 +18,19 @@ import java.util.*
 // step 1: train the agent for a number of steps
 // step 2: run a number of games using its forward model
 
-val learnSteps = 1
+// learnSteps is the number of simulation ticks (state transitions)
+// to run the model for to collect the training data
+// however, there is a bug in that SimpleEvoAgent will run
+// many simulations and the data harvester by default will
+// collect data from all of them!
+
+val learnSteps = 3
 val testSteps = 100
 val gamesPerEval = 1
 val nPredictionTests = 30
 val w = 30
 val h = 30
-val visual = true
+val visual = false
 val lutSizeLimit = 0
 val diceRoll = false
 
@@ -37,7 +43,7 @@ fun main() {
 
     val nReps = 5
 
-    val lutSizes = 480 .. 512 step 32
+    val lutSizes = 0 .. 512 step 32
     println(lutSizes)
     val results = TreeMap<Int,StatSummary>()
     for (lut in lutSizes) {
@@ -67,7 +73,7 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
     //
     // game.updateRule = LifeUpdateRule()
 
-    game.updateRule = CaveUpdateRule()
+    // game.updateRule = CaveUpdateRule()
     // game.updateRule =
     game.rewardFactor = 1.0;
     learner.lutSizeLimit = lutSizeLimit
@@ -75,7 +81,7 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
 
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
-    // agent1 = RandomAgent()
+    agent1 = RandomAgent()
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
@@ -99,7 +105,8 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
     // todo: fix the error in the way the learner learns or is applied
     // even when trained with DoNothing agents and it sees ALL the patterns,
     harvestData = false
-    // predictionTest(learner)
+
+    predictionTest(learner)
 
     // System.exit(0)
 
@@ -121,7 +128,8 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
     for (i in 0 until gamesPerEval) {
         val game = SimpleGridGame(w, h)
         game.rewardFactor = 1.0;
-        game.updateRule = CaveUpdateRule()
+
+        // game.updateRule = CaveUpdateRule()
         // game.updateRule = LifeUpdateRule()
 
         // game.updateRule = learnedRule
