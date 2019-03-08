@@ -44,9 +44,9 @@ fun main() {
 
     val t = ElapsedTimer()
 
-    val nReps = 5
+    val nReps = 30
 
-    val lutSizes = 0 .. 512 step 32
+    val lutSizes = 512 .. 512 step 32
     println(lutSizes)
     val results = TreeMap<Int,StatSummary>()
     for (lut in lutSizes) {
@@ -81,7 +81,8 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
     learner.lutSizeLimit = lutSizeLimit
     learner.diceRoll = diceRoll
 
-    var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
+    // var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 3, nEvals = 50)
+    var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 25, nEvals = 5)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
     agent1 = RandomAgent()
     // agent1 = DoNothingAgent(game.doNothingAction())
@@ -108,7 +109,7 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
     // even when trained with DoNothing agents and it sees ALL the patterns,
     harvestData = false
 
-    predictionTest(learner)
+    // predictionTest(learner)
 
     // System.exit(0)
 
