@@ -26,6 +26,9 @@ import java.io.File;
 // collect data from all of them!
 
 data class Experiment(
+        val updateRule: Int,
+        val agent: Int,
+        val trueModel: Boolean,
         val learnSteps: Int,
         val testSteps: Int,
         val gamesPerEval: Int,
@@ -36,9 +39,7 @@ data class Experiment(
         val lutSizeLimit: Int,
         val diceRoll:Boolean,
         val nReps:Int,
-        val startLut:Int,
-        val endLut:Int,
-        val stepLut:Int,
+        val lutSize:Int,
         val outFileName:String
 ){
 
@@ -46,19 +47,29 @@ data class Experiment(
 
         val t = ElapsedTimer()
 
-        val lutSizes = startLut .. endLut step stepLut
-        println(lutSizes)
-        val results = TreeMap<Int,StatSummary>()
-        for (lut in lutSizes) {
-            println("Getting results for lut size: $lut")
-            val ss = StatSummary()
-            for (i in 0 until nReps)
-                ss.add(trainAndPlay(lut))
-            results.put(lut,ss)
-            println(ss)
-            println()
-        }
+        var game = setUpGame()
 
+        val ss = StatSummary()
+        //default agent is Simple EvoAgent
+        for (i in 0 until nReps) {
+            if (agent == 1) {
+                ss.add(runGames(DoNothingAgent(game.doNothingAction()), game.updateRule, visual))
+            } else if (agent == 2) {
+                ss.add(runGames(RandomAgent(), game.updateRule, visual))
+            } else {
+                var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
+                if(!trueModel){
+                    var learner = train(lutSize, game, agent1)
+                    ss.add(runGames(agent1, learner, visual))
+                }else{
+                    ss.add(runGames(agent1, game.updateRule, visual))
+                }
+            }
+        }
+        val results = TreeMap<Int,StatSummary>()
+        results.put(lutSize, ss)
+
+        //output result
         // now format the results
         var outFile =  File(outFileName)
         val isNewFileCreated: Boolean = outFile.createNewFile()
@@ -73,27 +84,26 @@ data class Experiment(
         println("Total time: " + t)
     }
 
-
-
-    fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
-
+    fun setUpGame() : SimpleGridGame{
         var game = SimpleGridGame(w, h)
         // (game.updateRule as MyRule).next = ::generalSumUpdate
-        //
-        //
-        // game.updateRule = LifeUpdateRule()
-
-        // game.updateRule = CaveUpdateRule()
-        // game.updateRule =
+        //default is default rule (whatever that is? TODO)
+        if(updateRule==1){
+            game.updateRule = CaveUpdateRule()
+        }else{
+            game.updateRule = LifeUpdateRule()
+        }
         game.rewardFactor = 1.0;
+        return game
+    }
+
+
+    fun train(lutSizeLimit: Int, game : SimpleGridGame, agent1 : SimplePlayerInterface) : StatLearner {
+
         learner.lutSizeLimit = lutSizeLimit
         learner.diceRoll = diceRoll
 
-        var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
-        var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
-        agent1 = RandomAgent()
-        // agent1 = DoNothingAgent(game.doNothingAction())
-        agent2 = DoNothingAgent(game.doNothingAction())
+        var agent2 = DoNothingAgent(game.doNothingAction())
 
         // first of all train the learner
 
@@ -115,25 +125,15 @@ data class Experiment(
         // todo: fix the error in the way the learner learns or is applied
         // even when trained with DoNothing agents and it sees ALL the patterns,
         harvestData = false
-
         predictionTest(learner)
-
-        // System.exit(0)
-
-        println("Testing")
-        val ss = runGames(agent1, learner, visual)
-        println(ss)
-        // learner.reportComparison()
-        println(t)
-
-        return ss
-
+        return learner
     }
 
 
 
 
     fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Boolean): StatSummary {
+        println("Testing")
         val ss = StatSummary()
         for (i in 0 until gamesPerEval) {
             val game = SimpleGridGame(w, h)
