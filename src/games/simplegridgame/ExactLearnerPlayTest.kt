@@ -36,7 +36,6 @@ data class Experiment(
         val w: Int,
         val h: Int,
         val visual:Boolean,
-        val lutSizeLimit: Int,
         val diceRoll:Boolean,
         val nReps:Int,
         val lutSize:Int,
@@ -50,50 +49,62 @@ data class Experiment(
         var game = setUpGame()
 
         val ss = StatSummary()
+        val predss = StatSummary()
+        val obss = StatSummary()
         //default agent is Simple EvoAgent
         for (i in 0 until nReps) {
             if (agent == 1) {
-                ss.add(runGames(DoNothingAgent(game.doNothingAction()), game.updateRule, visual))
+                ss.add(runGames(DoNothingAgent(game.doNothingAction()), visual, false))
             } else if (agent == 2) {
-                ss.add(runGames(RandomAgent(), game.updateRule, visual))
+                ss.add(runGames(RandomAgent(), visual, false))
             } else {
                 var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
                 if(!trueModel){
-                    var learner = train(lutSize, game, agent1)
-                    ss.add(runGames(agent1, learner, visual))
+                    ss.add(runGames(agent1, visual, true, lutSize))
                 }else{
-                    ss.add(runGames(agent1, game.updateRule, visual))
+                    ss.add(runGames(agent1, visual, false))
                 }
             }
         }
-        val results = TreeMap<Int,StatSummary>()
-        results.put(lutSize, ss)
-
         //output result
         // now format the results
         var outFile =  File(outFileName)
         val isNewFileCreated: Boolean = outFile.createNewFile()
         if(!isNewFileCreated){
             println("Error in creating outFile, not writing to file")
-            results.forEach{key, value -> println("$key\t %.1f\t %.1f".format(value.mean(), value.stdErr())) }
+            println("max lut size\t average AI performance\t sd AI performance\t pred error mean\t pred error sd\t patterns observed mean\t patterns observed sd\n")
+            print("%d\t %.1f\t %.1f\t".format(lutSize, ss.mean(), ss.stdErr()))
+            if(predss.n()>0){
+                print("%.1f\t %.1f\t".format(predss.mean(), predss.stdErr()))
+                print("%.1f\t %.1f\n".format(obss.mean(), obss.stdErr()))
+            }else{
+                print("%s\t %s\t".format("-", "-"))
+                print("%s\t %s\n".format("-", "-"))
+            }
 
         }else {
-            outFile.writeText("patterns seen\t average AI performance\t sd AI performance\n")
-            results.forEach { key, value -> outFile.appendText("$key\t %.1f\t %.1f\n".format(value.mean(), value.stdErr())) }
+            outFile.writeText("max lut size\t average AI performance\t sd AI performance\t pred error mean\t pred error sd\t patterns observed mean\t patterns observed sd\n")
+            outFile.appendText("%d\t %.1f\t %.1f\t".format(lutSize, ss.mean(), ss.stdErr()))
+            if(predss.n()>0){
+                outFile.appendText("%.1f\t %.1f\t".format(predss.mean(), predss.stdErr()))
+                outFile.appendText("%.1f\t %.1f\n".format(obss.mean(), obss.stdErr()))
+
+            }else{
+                outFile.appendText("%s\t %s\t".format("-", "-"))
+                outFile.appendText("%s\t %s\n".format("-", "-"))
+            }
         }
         println("Total time: " + t)
     }
 
     fun setUpGame() : SimpleGridGame{
         var game = SimpleGridGame(w, h)
-        // (game.updateRule as MyRule).next = ::generalSumUpdate
-        //default is default rule (whatever that is? TODO)
         if(updateRule==1){
             game.updateRule = CaveUpdateRule()
         }else{
             game.updateRule = LifeUpdateRule()
         }
-        game.rewardFactor = 1.0;
+        game.rewardFactor = 1.0
         return game
     }
 
@@ -125,55 +136,63 @@ data class Experiment(
         // todo: fix the error in the way the learner learns or is applied
         // even when trained with DoNothing agents and it sees ALL the patterns,
         harvestData = false
-        predictionTest(learner)
         return learner
     }
 
 
-
-
-    fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Boolean): StatSummary {
+    fun runGames(agent: SimplePlayerInterface, visual: Boolean, learn: Boolean, lutSizeLimit: Int=0): StatSummary {
         println("Testing")
         val ss = StatSummary()
+        val predResults = TreeMap<Int,StatSummary>()
         for (i in 0 until gamesPerEval) {
-            val game = SimpleGridGame(w, h)
-            game.rewardFactor = 1.0;
+            val game = setUpGame()
 
-            // game.updateRule = CaveUpdateRule()
-            // game.updateRule = LifeUpdateRule()
+            var learner = StatLearner()
+            learner.lutSizeLimit = lutSizeLimit
+            learner.diceRoll = diceRoll
 
-            // game.updateRule = learnedRule
+            if(learn){
+                harvestData = true
+            }
 
             val gridView = GridView(game.grid)
             if (visual) {
                 JEasyFrame(gridView, "Grid Game")
             }
-            for (i in 0 until testSteps) {
+            for (j in 0 until testSteps) {
                 val actions = intArrayOf(0, 0)
 
                 val agentCopy = game.copy() as SimpleGridGame
-                if (learnedRule != null) {
-                    agentCopy.updateRule = learnedRule
-                    // game.updateRule = learnedRule
+                if(learn){
+                    agentCopy.updateRule = learner
                 }
 
                 // need to know how good this is
-                actions[0] = agent.getAction(agentCopy, Constants.player1)
-
-                // actions[0] = RandomAgent().getAction(agentCopy, Constants.player1)
-
-                // println("Selected action: ${actions[0]}")
-
-                // play against a DoNothing opponent for now...
+                actions[0] = agent.getAction(agentCopy.copy(), Constants.player1)
                 actions[1] = DoNothingAgent().getAction(game.copy(), Constants.player2)
                 game.next(actions)
+                agentCopy.next(actions)
+
+                val diff = game.grid.difference(agentCopy.grid)
+                println("Test ${j}, \t diff = ${diff}")
+                println("Game: ${j}, score = ${game.score()}")
+                /*if(predResults.containsKey(i)){
+                    var predss = predResults.get(i)
+                    if(predss!= null){ //kotlin complains otherwise
+                        predss.add(diff)
+                        predResults.put(i, predss)
+                    }
+                }else{
+                    var predss = StatSummary()
+                    predss.add(diff)
+                    predResults.put(i, predss)
+                }*/
                 // println(game.score())
                 if (visual) {
                     gridView.grid = game.grid
                     gridView.repaint()
                     Thread.sleep(100)
                 }
-
             }
             println("Game: ${i+1}, score = ${game.score()}")
             ss.add(game.score())
@@ -182,21 +201,18 @@ data class Experiment(
     }
 
 
-    fun predictionTest(learnedRule: UpdateRule) {
+    fun predictionTest(agent: SimplePlayerInterface, learnedRule: UpdateRule): StatSummary {
         // test and checking the differences a number of times
         val ss = StatSummary("Prediction errors")
         for (i in 0 until nPredictionTests) {
-            val game = SimpleGridGame(w, h)
+            val game = setUpGame()
             val other = game.copy() as SimpleGridGame
             other.updateRule = learnedRule
-            // game.updateRule = learnedRule
-            game.updateRule = LifeUpdateRule()
-
-            val agent = DoNothingAgent()
 
             // see if the two grids end in the same state
-            val action = agent.getAction(game.copy(), 0)
-            val actions = intArrayOf(action, action)
+            val actions = intArrayOf(0, 0)
+            actions[0] = agent.getAction(other.copy(), Constants.player1)
+            actions[1] = DoNothingAgent().getAction(game.copy(), Constants.player2)
 
             // now see what goes next... one with learned rule, one with not
 
@@ -207,7 +223,7 @@ data class Experiment(
             ss.add(diff)
 
         }
-        println(ss)
+        return ss
     }
 }
 
