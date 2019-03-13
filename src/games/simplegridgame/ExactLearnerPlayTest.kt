@@ -29,10 +29,8 @@ data class Experiment(
         val updateRule: Int,
         val agent: Int,
         val trueModel: Boolean,
-        val learnSteps: Int,
         val testSteps: Int,
         val gamesPerEval: Int,
-        val nPredictionTests: Int,
         val w: Int,
         val h: Int,
         val visual:Boolean,
@@ -48,53 +46,52 @@ data class Experiment(
 
         var game = setUpGame()
 
-        val ss = StatSummary()
-        val predss = StatSummary()
         val obss = StatSummary()
+        val predResults = TreeMap<Int,StatSummary>()
+        val scoreResults = TreeMap<Int,StatSummary>()
         //default agent is Simple EvoAgent
         for (i in 0 until nReps) {
             if (agent == 1) {
-                ss.add(runGames(DoNothingAgent(game.doNothingAction()), visual, false))
+                runGames(DoNothingAgent(game.doNothingAction()), visual, predResults, scoreResults)
             } else if (agent == 2) {
-                ss.add(runGames(RandomAgent(), visual, false))
+                runGames(RandomAgent(), visual, predResults, scoreResults)
             } else {
                 var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
                 if(!trueModel){
-                    ss.add(runGames(agent1, visual, true, lutSize))
+                    var learner = train(lutSize, game, agent1)
+                    obss.add(learner.lut.size)
+                    //predictionTest(agent1, learner)
+                    runGames(agent1, visual, predResults, scoreResults, learner)
                 }else{
-                    ss.add(runGames(agent1, visual, false))
+                    runGames(agent1, visual, predResults, scoreResults)
                 }
             }
         }
         //output result
-        // now format the results
         var outFile =  File(outFileName)
         val isNewFileCreated: Boolean = outFile.createNewFile()
-        if(!isNewFileCreated){
-            println("Error in creating outFile, not writing to file")
-            println("max lut size\t average AI performance\t sd AI performance\t pred error mean\t pred error sd\t patterns observed mean\t patterns observed sd\n")
-            print("%d\t %.1f\t %.1f\t".format(lutSize, ss.mean(), ss.stdErr()))
-            if(predss.n()>0){
-                print("%.1f\t %.1f\t".format(predss.mean(), predss.stdErr()))
-                print("%.1f\t %.1f\n".format(obss.mean(), obss.stdErr()))
-            }else{
-                print("%s\t %s\t".format("-", "-"))
-                print("%s\t %s\n".format("-", "-"))
-            }
-
-        }else {
-            outFile.writeText("max lut size\t average AI performance\t sd AI performance\t pred error mean\t pred error sd\t patterns observed mean\t patterns observed sd\n")
-            outFile.appendText("%d\t %.1f\t %.1f\t".format(lutSize, ss.mean(), ss.stdErr()))
-            if(predss.n()>0){
-                outFile.appendText("%.1f\t %.1f\t".format(predss.mean(), predss.stdErr()))
-                outFile.appendText("%.1f\t %.1f\n".format(obss.mean(), obss.stdErr()))
-
-            }else{
-                outFile.appendText("%s\t %s\t".format("-", "-"))
-                outFile.appendText("%s\t %s\n".format("-", "-"))
-            }
+        log("max lut size\t average AI performance\t sd AI performance\t pred error mean\t pred error sd\t patterns observed mean\t patterns observed sd\n",
+                outFile, isNewFileCreated)
+        log("%d\t %.1f\t %.1f\t %.1f\t %.1f\t %.1f\t %.1f\n".format(lutSize, scoreResults[testSteps-1]?.mean(), scoreResults[testSteps-1]?.stdErr(),
+                predResults[testSteps-1]?.mean(), predResults[testSteps-1]?.stdErr(),
+                obss.mean(), obss.stdErr()),
+                outFile, isNewFileCreated)
+        log("time step\t average AI performance\t sd AI performance\t pred error mean\t pred error sd\n",
+                outFile, isNewFileCreated)
+        for(i in 0 until testSteps){
+            log("%d\t %.1f\t %.1f\t %.1f\t %.1f\n".format(i, scoreResults[i]?.mean(), scoreResults[i]?.stdErr(),
+                    predResults[i]?.mean(), predResults[i]?.stdErr()),
+                    outFile, isNewFileCreated)
         }
         println("Total time: " + t)
+    }
+
+    fun log(text: String, outFile: File, toFile: Boolean){
+        if(!toFile){
+            print(text)
+        }else{
+            outFile.appendText(text)
+        }
     }
 
     fun setUpGame() : SimpleGridGame{
@@ -122,12 +119,13 @@ data class Experiment(
 
         println("Training")
         val t = ElapsedTimer()
-        for (i in 0 until learnSteps) {
+        loop@ for (i in 0 until testSteps) {
             val actions = intArrayOf(0, 0)
             actions[0] = agent1.getAction(game.copy(), Constants.player1)
             actions[1] = agent2.getAction(game.copy(), Constants.player2)
             game.next(actions)
             println("$i\t N distinct patterns learned = ${learner.lut.size}")
+            if(learner.lut.size>=lutSizeLimit) break@loop
         }
 
         // learner.reportComparison()
@@ -140,21 +138,11 @@ data class Experiment(
     }
 
 
-    fun runGames(agent: SimplePlayerInterface, visual: Boolean, learn: Boolean, lutSizeLimit: Int=0): StatSummary {
+    fun runGames(agent: SimplePlayerInterface, visual: Boolean, predResults: TreeMap<Int,StatSummary>,
+                 scoreResults: TreeMap<Int,StatSummary>, learner: StatLearner? = null) {
         println("Testing")
-        val ss = StatSummary()
-        val predResults = TreeMap<Int,StatSummary>()
         for (i in 0 until gamesPerEval) {
             val game = setUpGame()
-
-            var learner = StatLearner()
-            learner.lutSizeLimit = lutSizeLimit
-            learner.diceRoll = diceRoll
-
-            if(learn){
-                harvestData = true
-            }
-
             val gridView = GridView(game.grid)
             if (visual) {
                 JEasyFrame(gridView, "Grid Game")
@@ -163,7 +151,7 @@ data class Experiment(
                 val actions = intArrayOf(0, 0)
 
                 val agentCopy = game.copy() as SimpleGridGame
-                if(learn){
+                if(learner!=null){
                     agentCopy.updateRule = learner
                 }
 
@@ -174,34 +162,29 @@ data class Experiment(
                 agentCopy.next(actions)
 
                 val diff = game.grid.difference(agentCopy.grid)
-                println("Test ${j}, \t diff = ${diff}")
-                println("Game: ${j}, score = ${game.score()}")
-                /*if(predResults.containsKey(i)){
-                    var predss = predResults.get(i)
-                    if(predss!= null){ //kotlin complains otherwise
-                        predss.add(diff)
-                        predResults.put(i, predss)
-                    }
-                }else{
-                    var predss = StatSummary()
-                    predss.add(diff)
-                    predResults.put(i, predss)
-                }*/
-                // println(game.score())
+                //println("Test ${j}, \t diff = ${diff}")
+                //println("Game: ${j}, score = ${game.score()}")
+                if(!predResults.containsKey(j)) {
+                    predResults[j] = StatSummary()
+                }
+                predResults[j]?.add(diff)
+                if(!scoreResults.containsKey(j)) {
+                    scoreResults[j] = StatSummary()
+                }
+                scoreResults[j]?.add(game.score())
                 if (visual) {
                     gridView.grid = game.grid
                     gridView.repaint()
                     Thread.sleep(100)
                 }
             }
-            println("Game: ${i+1}, score = ${game.score()}")
-            ss.add(game.score())
+            println("Game: ${i+1}, \t score = ${game.score()}")
         }
-        return ss
+        return
     }
 
 
-    fun predictionTest(agent: SimplePlayerInterface, learnedRule: UpdateRule): StatSummary {
+   /* fun predictionTest(agent: SimplePlayerInterface, learnedRule: UpdateRule): StatSummary {
         // test and checking the differences a number of times
         val ss = StatSummary("Prediction errors")
         for (i in 0 until nPredictionTests) {
@@ -220,11 +203,12 @@ data class Experiment(
             other.next(actions)
             val diff = game.grid.difference(other.grid)
             println("Test ${i}, \t diff = ${diff}")
+            println("Game: ${i}, score = ${game.score()}")
             ss.add(diff)
 
         }
         return ss
-    }
+    }*/
 }
 
 
