@@ -8,21 +8,18 @@ import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
 import utilities.JEasyFrame
-import utilities.StatSummary
 import views.GridView
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
-import forwardmodels.modelinterface.ForwardModelTrainer;
-import games.gridgame.Grid
-import games.gridgame.MyRule
-import games.gridgame.UpdateRule
-import games.gridgame.vectorExtractor
+
+import forwardmodels.modelinterface.ForwardModelTrainer
+import games.gridgame.*
+import games.gridgame.InputType
 
 // todo: need to fix the problem with this - definitely some error
 // the one-step prediction test fails, so no surprise that it fails later ...
 
-var harvestData = false
+var harvestData = true
 
 enum class InputType {
     None, PlayerInt, PlayerOneHot
@@ -33,7 +30,7 @@ var learner = StatLearner()
 
 fun main(args: Array<String>) {
 
-    var game = SimpleGridGame(60, 60)
+    var game = SimpleGridGame(10, 10)
     (game.updateRule as MyRule).next = ::generalSumUpdate
 
     game.rewardFactor = 1.0;
@@ -44,9 +41,12 @@ fun main(args: Array<String>) {
     val actions = intArrayOf(0, 0)
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
-    agent1 = RandomAgent()
+    // agent1 = RandomAgent()
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
+
+    var decisionTree : DecisionTree? = null
+    val modelTrainer = ForwardModelTrainer(InputType.Simple)
 
     val nSteps = 2000
     for (i in 0 until nSteps) {
@@ -54,14 +54,14 @@ fun main(args: Array<String>) {
         actions[1] = agent2.getAction(game.copy(), Constants.player2)
         game.next(actions)
 
-        gv.repaint()
-        Thread.sleep(50)
+        //gv.grid = game.grid
+        //gv.repaint()
+        //Thread.sleep(50)
         frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
         // System.exit(0)
-        // game = game.copy() as GridGame
-        // println(game.updateRule.next)
-        println("$i\t N distinct patterns learned = ${learner.lut.size}")
+        //println("$i\t N distinct patterns learned = ${learner.lut.size}")
 
+        decisionTree = modelTrainer.trainModel(data) as DecisionTree
     }
 
 }
@@ -80,10 +80,10 @@ fun generalSumUpdate(centre: Int, sum: Int): Int {
 
 }
 
-data class Pattern(val ip: ArrayList<Int>, val op: Int)
+data class SimplePattern(val ip: ArrayList<Int>, val op: Int)
 
 
-val data = ArrayList<Pattern>()
+val data = ArrayList<SimplePattern>()
 
 val random = Random()
 
@@ -132,11 +132,8 @@ open class SimpleGridGame : ExtendedAbstractGameState {
             if (action != doNothingAction())
                 grid.invertCell(action)
 
-
         // capture the local grid pattern input
-
         val gridCopy = grid.copy()
-
 
         for (i in 0 until grid.w) {
             for (j in 0 until grid.h) {
@@ -179,22 +176,22 @@ open class SimpleGridGame : ExtendedAbstractGameState {
     }
 
     override fun resetTotalTicks() {
-        totalTicks = 0;
+        totalTicks = 0
     }
 
 
 
     // in this version the actions have already been applied to the grid,
     // so there is no separate coding of the actions array
-    fun addData(grid: Grid, next: Grid, data: ArrayList<Pattern>) {
+    fun addData(grid: Grid, next: Grid, data: ArrayList<SimplePattern>) {
         data.clear()
         for (i in 0 until grid.w) {
             for (j in 0 until grid.h) {
-                val p = Pattern(vectorExtractor(grid, i, j), next.getCell(i, j))
+                val p = SimplePattern(vectorExtractor(grid, i, j), next.getCell(i, j))
                 if (learner != null) {
                     learner.add(p.ip, p.op)
                 }
-                // if (harvestData) data.add(p)
+                if (harvestData) data.add(p)
             }
         }
     }

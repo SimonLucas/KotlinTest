@@ -63,7 +63,7 @@ public class DecisionTree {
 	/**
 	 * @param pattern
 	 * @return
-	 * Classify new patterns encoded as Pattern object
+	 * Classify new patterns encoded as SimplePattern object
 	 */
 	public String classify(Pattern pattern) {
 

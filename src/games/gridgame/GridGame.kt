@@ -13,13 +13,14 @@ import views.GridView
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
-import forwardmodels.modelinterface.ForwardModelTrainer;
+import forwardmodels.modelinterface.ForwardModelTrainer
 
-val includeNeighbourInputs = InputType.PlayerInt
 
 enum class InputType {
-    None, PlayerInt, PlayerOneHot
+    None, PlayerInt, PlayerOneHot, Simple
 }
+
+val includeNeighbourInputs = InputType.PlayerInt
 
 // set this to null to turn off learning
 var learner = StatLearner()
@@ -41,11 +42,11 @@ fun main(args: Array<String>) {
     val actions = intArrayOf(0, 0)
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
-    agent1 = RandomAgent()
+    //agent1 = RandomAgent()
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
-    val modelTrainer = ForwardModelTrainer()
+    val modelTrainer = ForwardModelTrainer(InputType.PlayerInt)
 
     val nSteps = 2000
     for (i in 0 until nSteps) {
@@ -55,14 +56,14 @@ fun main(args: Array<String>) {
 
         gv.grid = game.grid
         gv.repaint()
-        //Thread.sleep(50)
+        Thread.sleep(50)
         frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
         // System.exit(0)
         // game = game.copy() as GridGame
         // println(game.updateRule.next)
         println("$i\t N distinct patterns learned = ${learner.lut.size}")
 
-        decisionTree = modelTrainer.trainDecisionTree(data) as DecisionTree
+        //decisionTree = modelTrainer.trainModel(data) as DecisionTree
     }
 
     val learner = StatLearner()
