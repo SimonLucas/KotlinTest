@@ -10,8 +10,11 @@ import utilities.ElapsedTimer
 import utilities.JEasyFrame
 import utilities.StatSummary
 import views.GridView
+import java.awt.Color
+import java.awt.FlowLayout
 import java.util.*
 import java.io.File;
+import javax.swing.JComponent
 
 // this test is to see how well we play when a learned model
 // is used as a substitute for the true forward model

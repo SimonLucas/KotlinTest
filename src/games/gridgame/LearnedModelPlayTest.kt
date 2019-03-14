@@ -30,7 +30,7 @@ fun main(args: Array<String>) {
     //agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
-    val modelTrainer = ForwardModelTrainer()
+    val modelTrainer = ForwardModelTrainer(InputType.PlayerInt)
 
     val nSteps = 200
     for (i in 0 until nSteps) {
@@ -55,7 +55,7 @@ fun main(args: Array<String>) {
         println("$i\t N distinct patterns learned = ${learner.lut.size}")
 
         //print("Update tree ...")
-        decisionTree = modelTrainer.trainDecisionTree(data) as DecisionTree
+        //decisionTree = modelTrainer.trainModel(data) as DecisionTree
         //println(" done")
     }
 
