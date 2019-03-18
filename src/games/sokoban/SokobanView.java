@@ -37,30 +37,33 @@ public class SokobanView extends JComponent {
         for (int i = 0; i < n; i++) {
             Color col = new Color(1,1,1);
             char tile = grid.getCell(i);
-            switch(tile)
-            {
-                case EMPTY:
-                    col = Color.WHITE;
-                    break;
-                case BOX:
-                    col = new Color(250, 160, 0);
-                    break;
-                case HOLE:
-                    col = Color.BLACK;
-                    break;
-                case WALL:
-                    col = Color.DARK_GRAY;
-                    break;
-                case BOXIN:
-                    col = new Color(250, 212, 0);
-                    break;
-            }
-            g.setColor(col);
+
 
             int pX = grid.getPlayerX();
             int pY = grid.getPlayerY();
-            if (pX == i % grid.getWidth() && pY == (i / grid.getHeight()) - 1)
+            if (pX == i % grid.getWidth() && pY == (i / grid.getHeight()) - 1) {
                 g.setColor(Color.CYAN);
+            } else {
+                switch (tile) {
+                    case EMPTY:
+                        col = Color.WHITE;
+                        break;
+                    case BOX:
+                        col = new Color(250, 160, 0);
+                        break;
+                    case HOLE:
+                        col = Color.BLACK;
+                        break;
+                    case WALL:
+                        col = Color.DARK_GRAY;
+                        break;
+                    case BOXIN:
+                        col = new Color(250, 212, 0);
+                        break;
+                }
+                g.setColor(col);
+            }
+
 
 //            float h = grid.getCell(i) == 0 ? 0.35f : 0.89f;
 //            g.setColor(Color.getHSBColor(h, 1, 1));

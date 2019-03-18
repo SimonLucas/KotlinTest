@@ -29,9 +29,9 @@ fun main(args: Array<String>) {
         actions[0] = agent.getAction(game.copy(), Constants.player1)
         game.next(actions)
 
-        //gv.grid = game.grid
-        //gv.repaint()
-        //Thread.sleep(50)
+        gv.grid = game.board
+        gv.repaint()
+        Thread.sleep(50)
         frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
         // System.exit(0)
         //println("$i\t N distinct patterns learned = ${learner.lut.size}")
