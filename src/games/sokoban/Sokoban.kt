@@ -24,7 +24,7 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
     {
         var level: String =     "wwwwwwww" +
                                 "ww.....w" +
-                                "ww.o*o.w" +
+                                "ww.o.o.w" +
                                 "ww.*.*.w" +
                                 "w..o*o.w" +
                                 "w..A...w" +
@@ -97,7 +97,7 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
                 println()
 
         }
-        println("Player at: " + playerX + " " + playerY + "; " + count(BOX) + " boxes.")
+        println("Player at: " + playerX + " " + playerY + "; " + count(BOX) + " boxes")
     }
 
     init {
@@ -124,12 +124,6 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         var c2 = getCell(x2, y2)
         setCell(x,y,c2)
         setCell(x2,y2,c1)
-    }
-
-    fun exchange (x: Int, y: Int, x2: Int, y2: Int, newType: Char) {
-        var c2 = getCell(x2, y2)
-        setCell(x,y,c2)
-        setCell(x2,y2,newType)
     }
 
 }
@@ -180,7 +174,7 @@ open class Sokoban : ExtendedAbstractGameState {
 
         var destCell : Char = board.getCell(nextX, nextY)
 
-        println("Moving into: " + destCell)
+//        println("Moving into: " + destCell)
 
         when(destCell) {
             board.WALL -> return        //Moves against walls
@@ -188,7 +182,9 @@ open class Sokoban : ExtendedAbstractGameState {
             board.EMPTY -> {           //Move with no obstacle, ALLOWED
                 //Empty, we move player at the end.
             }
-            board.HOLE -> return        //Move to a hole position.
+            board.HOLE -> {           //Move to a hole, ALLOWED
+                //Empty, we move player at the end.
+            }
             board.BOX ->                //GOOD MOVE?
             {
                 //Against a box. Will move if empty on the other side.
@@ -207,7 +203,8 @@ open class Sokoban : ExtendedAbstractGameState {
                            board.exchange(nextX, nextY, forwardX, forwardY)
                     }
                     board.HOLE -> {             //EUREKA!
-                        board.exchange(nextX, nextY, forwardX, forwardY, board.BOXIN)
+                        board.setCell(nextX, nextY, board.EMPTY)
+                        board.setCell(forwardX, forwardY, board.BOXIN)
                     }
                 }
             }
@@ -252,11 +249,46 @@ open class Sokoban : ExtendedAbstractGameState {
         return sokobanCopy
     }
 
+    fun print() {
+        board.print()
+        println("Score: " + score() + ", terminal: " + isTerminal())
+    }
 }
 
 fun main(args: Array<String>) {
     var sokoban : Sokoban = Sokoban()
-    sokoban.board.print()
+    sokoban.print()
+    sokoban.next(intArrayOf(UP))
+
+//    THIS FAILS TO SOLVE THE LEVEL
+//    sokoban.print()
+//    sokoban.next(intArrayOf(RIGHT))
+//    sokoban.print()
+//    sokoban.next(intArrayOf(DOWN))
+//    sokoban.next(intArrayOf(RIGHT))
+//    sokoban.next(intArrayOf(RIGHT))
+//    sokoban.next(intArrayOf(UP))
+//    sokoban.next(intArrayOf(UP))
+//    sokoban.next(intArrayOf(UP))
+//    sokoban.next(intArrayOf(LEFT))
+//    sokoban.print()
+//    sokoban.next(intArrayOf(DOWN))
+
+//    THIS SOLVES THE LEVEL
+    sokoban.next(intArrayOf(UP))
+    sokoban.next(intArrayOf(UP))
+    sokoban.print()
     sokoban.next(intArrayOf(DOWN))
-    sokoban.board.print()
+    sokoban.next(intArrayOf(DOWN))
+    sokoban.next(intArrayOf(RIGHT))
+    sokoban.next(intArrayOf(RIGHT))
+    sokoban.next(intArrayOf(UP))
+    sokoban.next(intArrayOf(UP))
+    sokoban.print()
+    sokoban.next(intArrayOf(DOWN))
+    sokoban.next(intArrayOf(LEFT))
+
+    
+    sokoban.print()
+
 }
