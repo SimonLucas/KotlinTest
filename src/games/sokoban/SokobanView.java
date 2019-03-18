@@ -2,10 +2,12 @@ package games.sokoban;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
 
 public class SokobanView extends JComponent {
 
-    int cellSize = 20;
+
+    int cellSize = 50;
     // GridGame gridGame;
     public Grid grid;
     boolean deadBlack = true;
@@ -15,6 +17,8 @@ public class SokobanView extends JComponent {
 //    public GridView(GridGame gridGame) {
 //        this.gridGame = gridGame;
 //    }
+
+
 
     public SokobanView(Grid grid) {
         this.grid = grid;

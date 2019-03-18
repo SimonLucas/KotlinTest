@@ -288,7 +288,7 @@ fun main(args: Array<String>) {
     sokoban.next(intArrayOf(DOWN))
     sokoban.next(intArrayOf(LEFT))
 
-    
+
     sokoban.print()
 
 }
