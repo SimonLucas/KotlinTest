@@ -100,6 +100,14 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         println("Player at: " + playerX + " " + playerY + "; " + count(BOX) + " boxes")
     }
 
+    fun getWidth() : Int {
+        return this.w
+    }
+
+    fun getHeight() : Int {
+        return this.h
+    }
+
     init {
 
         //print()
