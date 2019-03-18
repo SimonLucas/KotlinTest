@@ -12,8 +12,11 @@ fun main() {
         while (a.size < 9) a.add(0, 0)
         val centre = a[4]
         val sum = a.sum() - centre
-        val x = gameOfLife(centre, sum)
+        // val x = gameOfLife(centre, sum)
+        val t = 4
+        val x = if (a.sum() > t) 1 else 0
         println("${a}\t $x")
+
 
     }
 

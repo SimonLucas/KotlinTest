@@ -1,8 +1,9 @@
 package games.sokoban
 
-import games.sokogame.SokobanGame
+import utilities.JEasyFrame
 
 fun main() {
-    val sokoban = SokobanGame()
+    val sokoban = Sokoban()
     val view = SokobanView(sokoban.board)
+    JEasyFrame(view, "Sokoban")
 }
