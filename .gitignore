@@ -3,7 +3,10 @@
 out/
 build/
 
+.DS_Store
+
 *.class
 *.csv
+!experiments/**/.csv
 *.orig
 *.kotlin_module
