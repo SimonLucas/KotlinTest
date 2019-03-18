@@ -7,6 +7,6 @@ build/
 
 *.class
 *.csv
-!experiments/**/.csv
+!experiments/**/*.csv
 *.orig
 *.kotlin_module
