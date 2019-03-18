@@ -8,7 +8,7 @@ class SokobanState {
     val avatar: Vector2d = Vector2d()
 
 
-    
+
 
 
 
