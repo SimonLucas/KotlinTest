@@ -26,6 +26,8 @@ public class SokobanView extends JComponent {
 
 
 
+
+
     public SokobanView(Grid grid) {
         this.grid = grid;
     }
