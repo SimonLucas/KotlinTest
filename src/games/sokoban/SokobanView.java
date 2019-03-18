@@ -12,12 +12,9 @@ public class SokobanView extends JComponent {
 
     public boolean gridLines = true;
 
-
-
 //    public GridView(GridGame gridGame) {
 //        this.gridGame = gridGame;
 //    }
-
 
     public SokobanView(Grid grid) {
         this.grid = grid;
