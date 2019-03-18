@@ -11,6 +11,7 @@ class SokobanState {
     
 
 
+
 }
 
 class SokobanGame : ExtendedAbstractGameState {
