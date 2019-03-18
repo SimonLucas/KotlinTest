@@ -33,7 +33,7 @@ val gamesPerEval = 1
 val nPredictionTests = 30
 val w = 30
 val h = 30
-val visual = false
+val visual = true
 val lutSizeLimit = 0
 val diceRoll = false
 
@@ -132,7 +132,7 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
         val game = SimpleGridGame(w, h)
         game.rewardFactor = 1.0;
 
-        // game.updateRule = CaveUpdateRule()
+        game.updateRule = CaveUpdateRule()
         // game.updateRule = LifeUpdateRule()
 
         // game.updateRule = learnedRule
