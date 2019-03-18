@@ -36,7 +36,7 @@ val h = 30
 val visual = true
 val lutSizeLimit = 0
 val diceRoll = false
-val rewardFactor = -1.0
+val rewardFactor = 1.0
 
 // made an update with
 
@@ -47,7 +47,7 @@ fun main() {
 
     val nReps = 30
 
-    val lutSizes = 512 .. 512 step 32
+    val lutSizes = 480 .. 512 step 32
     println(lutSizes)
     val results = TreeMap<Int,StatSummary>()
     for (lut in lutSizes) {
