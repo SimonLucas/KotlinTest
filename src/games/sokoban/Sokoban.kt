@@ -11,7 +11,13 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
     var playerX: Int = -1
     var playerY: Int = -1
     var grid: CharArray = readGrid()
-
+    
+    val EMPTY: Char = '.'
+    val BOX: Char = '*'
+    val HOLE: Char = 'o'
+    val AVATAR: Char = 'A'
+    val WALL: Char = 'w'
+    val BOXIN: Char = '+'
 
     fun readGrid() : CharArray
     {
@@ -80,29 +86,44 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
 
     fun print() {
         for (i in 0 until grid.size) {
-            if ((i + 1) % w == 0)
-                println(grid[i])
+
+            if (playerX == i % w && playerY == (i / h) - 1)
+                print("A")
             else
                 print(grid[i])
+
+            if ((i + 1) % w == 0)
+                println()
+
         }
         println("Player at: " + playerX + " " + playerY + "; " + count('*') + " boxes.")
     }
 
     init {
 
-        print()
+        //print()
 
     }
 
     fun deepCopy(): Grid {
         val gc = this.copy()
         gc.grid = grid.copyOf()
+        gc.playerX = playerX
+        gc.playerY = playerY
+
         return gc
     }
 
 }
 
 var totalTicks: Long = 0
+val NIL: Int = 0
+val UP: Int = 1
+val RIGHT: Int = 2
+val DOWN: Int = 3
+val LEFT: Int = 4
+val ACTIONS: IntArray = intArrayOf(NIL, UP, RIGHT, DOWN, LEFT)
+
 
 open class Sokoban : ExtendedAbstractGameState {
 
@@ -111,16 +132,40 @@ open class Sokoban : ExtendedAbstractGameState {
 
 
     override fun next(actions: IntArray): AbstractGameState {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 
+        var playerAction : Int = actions[0]
 
-        games.simplegridgame.totalTicks++
+        if(playerAction != NIL)
+        {
+            when(playerAction) {
+                UP -> move(intArrayOf(0, -1))
+                RIGHT -> move(intArrayOf(1, 0))
+                DOWN -> move(intArrayOf(0, 1))
+                LEFT -> move(intArrayOf(-1,0))
+                else -> println("INVALID ACTION: " + playerAction)
+            }
+        }
+
+        totalTicks++
         nTicks++
+        return this
+    }
 
+    fun move(dir : IntArray)
+    {
+        var nextX : Int = board.playerX + dir[0]
+        var nextY : Int = board.playerY + dir[1]
+
+
+
+
+
+        board.playerX = nextX
+        board.playerY = nextY
     }
 
     override fun nActions(): Int {
-        return 5
+        return ACTIONS.size
     }
 
     override fun score(): Double {
@@ -158,4 +203,7 @@ open class Sokoban : ExtendedAbstractGameState {
 
 fun main(args: Array<String>) {
     var sokoban : Sokoban = Sokoban()
+    sokoban.board.print()
+    sokoban.next(intArrayOf(LEFT))
+    sokoban.board.print()
 }
