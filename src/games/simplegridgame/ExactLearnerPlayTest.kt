@@ -132,7 +132,7 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
         val game = SimpleGridGame(w, h)
         game.rewardFactor = 1.0;
 
-        // game.updateRule = CaveUpdateRule()
+        game.updateRule = CaveUpdateRule()
         // game.updateRule = LifeUpdateRule()
 
         // game.updateRule = learnedRule
