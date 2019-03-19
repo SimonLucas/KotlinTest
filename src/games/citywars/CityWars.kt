@@ -150,6 +150,8 @@ open class CityWars : ExtendedAbstractGameState {
 
     var nTicks = 0
 
+    //fun doNothingAction() = intArrayOf(NIL,NIL)
+    fun doNothingAction() = NIL
 
     override fun next(actions: IntArray): AbstractGameState {
 
@@ -261,7 +263,9 @@ open class CityWars : ExtendedAbstractGameState {
     }
 
     override fun randomInitialState(): AbstractGameState {
-        TODO("not gonna go down that rabit hole...") //To change body of created functions use File | Settings | File Templates.
+        board = Grid(10, 10, getGrid())
+        troops = Grid(10, 10, getUnits(10, 10))
+        return this
     }
 
     override fun copy(): AbstractGameState {
