@@ -2,15 +2,13 @@ package games.citywars
 
 import utilities.DrawUtil
 import utilities.JEasyFrame
-import java.awt.Color
-import java.awt.Dimension
-import java.awt.Graphics
-import java.awt.Graphics2D
+import java.awt.*
 import javax.swing.JComponent
 
 
 val showNumbers = true
 val showDots = true
+val showCityOutline = true
 
 val playerOneColor = Color.getHSBColor(0.2f, 1f, 1f)
 val playerTwoColor = Color.getHSBColor(0.8f, 1f, 1f)
@@ -18,19 +16,7 @@ val playerTwoColor = Color.getHSBColor(0.8f, 1f, 1f)
 fun main() {
 
     val game = CityWars()
-
-//    Testing some actions
-//    game.next(intArrayOf(13349, 37349))
-//    game.next(intArrayOf(24349, 26319))
-//    game.next(intArrayOf(14499, 0))
-//    game.next(intArrayOf(15449, 0))
-//
-//    for(i in 0 until 20)
-//        game.next(intArrayOf(15449, 0))
-
     val view = CityWarsView(game)
-
-    println("Score: " + game.score());
 
     JEasyFrame(view, "City Wars")
 
@@ -73,7 +59,7 @@ class CityWarsView
 
                 if (nTroops > 0) g.setColor(playerOneColor)
                 if (nTroops < 0) g.setColor(playerTwoColor)
-                
+
                 g.fillRect(x, y, cellSize, cellSize)
 
                 if (showNumbers) {
@@ -84,6 +70,8 @@ class CityWarsView
 
                 }
 
+
+
             }
             // paint faint gridlines separately
             if (gridLines) {
@@ -92,6 +80,14 @@ class CityWarsView
                     val x = cellSize * (i % grid.w)
                     val y = cellSize * (i / grid.w)
                     g.drawRect(x, y, cellSize, cellSize)
+                    if (showCityOutline && grid.getCell(i) == game.city) {
+                        val stroke = g.stroke
+                        g.color = Color.gray
+                        g.stroke = BasicStroke(cellSize.toFloat()/10)
+                        g.drawRect(x, y, cellSize, cellSize)
+                        g.stroke = stroke
+
+                    }
                 }
             }
         }

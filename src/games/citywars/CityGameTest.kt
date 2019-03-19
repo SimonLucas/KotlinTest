@@ -23,6 +23,7 @@ fun main() {
         game.next(actions)
         frame.title = "$tick : ${ game.score() }"
         view.repaint()
+        Thread.sleep(50)
 
     }
 
