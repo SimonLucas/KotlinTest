@@ -1,11 +1,16 @@
 package games.citywars
 
+import utilities.DrawUtil
 import utilities.JEasyFrame
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.Graphics2D
 import javax.swing.JComponent
 
+
+val showNumbers = true
+val showDots = true
 
 fun main() {
 
@@ -29,7 +34,7 @@ class CityWarsView
     internal var cellSize = 50
     internal var deadBlack = true
 
-    val colorMap = hashMapOf<Int,Color>(
+    val colorMap = hashMapOf<Int, Color>(
             0 to Color.white,
             1 to Color.getHSBColor(0.35f, 1f, 1f),
             2 to Color.black
@@ -37,8 +42,9 @@ class CityWarsView
 
     var gridLines = true
 
-    public override fun paintComponent(g: Graphics) {
-        with (game) {
+    public override fun paintComponent(go: Graphics) {
+        val g = go as Graphics2D
+        with(game) {
             val grid = board
             val n = grid.w * grid.h
             for (i in 0 until n) {
@@ -52,6 +58,13 @@ class CityWarsView
                 val nTroops = game.troops.grid[i]
 
 
+                if (showNumbers) {
+                    DrawUtil().centreString(g, nTroops.toString(), x.toDouble()+cellSize/2, y.toDouble()+cellSize/2, Color.black)
+                }
+
+                if (showDots) {
+
+                }
 
             }
             // paint faint gridlines separately
