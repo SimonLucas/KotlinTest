@@ -104,6 +104,11 @@ open class CityWars : ExtendedAbstractGameState {
     var troops : Grid = Grid(10, 10, getUnits(10, 10))
 
 
+    val empty = 0
+    val city = 1
+    val wall = 2
+
+
     fun getGrid() : IntArray
     {
         //0: empty, 1: city, 2: obstacle
