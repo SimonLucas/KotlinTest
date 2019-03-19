@@ -77,6 +77,7 @@ data class Grid(val w: Int = 15, val h: Int = 7, var grid: IntArray) {
 
 
 var totalTicks: Long = 0
+
 val NIL: Int = 0
 val UP: Int = 1
 val RIGHT: Int = 2
@@ -88,20 +89,21 @@ val ACTIONS: IntArray = intArrayOf(NIL, UP, RIGHT, DOWN, LEFT)
 open class CityWars : ExtendedAbstractGameState {
 
 
-    var board : Grid = Grid(15, 7, getGrid())
-    var troops : Grid = Grid(15, 7, getUnits(15))
+    var board : Grid = Grid(15, 8, getGrid())
+    var troops : Grid = Grid(15, 8, getUnits(15))
 
 
     fun getGrid() : IntArray
     {
         //0: empty, 1: city, 2: obstacle
-        var level: String =     "000000000000000" +
-                                "000000000000000" +
-                                "000100020001000" +
-                                "000000000000000" +
-                                "000100020001000" +
-                                "000000000000000" +
-                                "000000000000000"
+        var level: String =     "00000000" +
+                                "00000000" +
+                                "00102010" +
+                                "00000000" +
+                                "00102010" +
+                                "00000000" +
+                                "00020000" +
+                                "00000000"
         var listGrid : List<Int> = level.map { it.toString().toInt() }
         return listGrid.toIntArray()
     }
