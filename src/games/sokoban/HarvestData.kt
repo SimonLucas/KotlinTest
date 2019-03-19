@@ -83,11 +83,11 @@ class Gatherer {
         v.add(grid.getCell(x,y))
         // now row except centre
         for (xx in x - span .. x + span) {
-            if (xx != x) v.add(grid.getCell(x, y))
+            if (xx != x) v.add(grid.getCell(xx, y))
         }
         // now column except centre
         for (yy in y - span .. y + span) {
-            if (yy != y) v.add(grid.getCell(x, y))
+            if (yy != y) v.add(grid.getCell(x, yy))
         }
         return v
     }
