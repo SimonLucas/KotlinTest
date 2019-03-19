@@ -241,11 +241,13 @@ open class CityWars : ExtendedAbstractGameState {
     }
 
     override fun score(): Double {
-        return 0.0 //board.count('+').toDouble()
+        return troops.grid.sum().toDouble();
+        //return 0.0 //board.count('+').toDouble()
     }
 
     override fun isTerminal(): Boolean {
-        return false// board.count('*') == 0
+        return troops.grid.all( { i-> i >= 0} );
+        //return false// board.count('*') == 0
     }
 
     override fun nTicks(): Int {
