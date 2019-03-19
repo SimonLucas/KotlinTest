@@ -3,6 +3,7 @@ package games.citywars
 import utilities.DrawUtil
 import utilities.JEasyFrame
 import java.awt.*
+import java.lang.Math.abs
 import javax.swing.JComponent
 
 
@@ -17,6 +18,9 @@ fun main() {
 
     val game = CityWars()
     val view = CityWarsView(game)
+
+    println("Score: " + game.score());
+    println("isTerminal: " + game.isTerminal());
 
     JEasyFrame(view, "City Wars")
 
@@ -63,7 +67,8 @@ class CityWarsView
                 g.fillRect(x, y, cellSize, cellSize)
 
                 if (showNumbers) {
-                    DrawUtil().centreString(g, nTroops.toString(), x.toDouble()+cellSize/2, y.toDouble()+cellSize/2, Color.black)
+                    val n = abs(nTroops)
+                    DrawUtil().centreString(g, n.toString(), x.toDouble()+cellSize/2, y.toDouble()+cellSize/2, Color.black)
                 }
 
                 if (showDots) {
