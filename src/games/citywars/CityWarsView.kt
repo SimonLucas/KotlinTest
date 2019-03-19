@@ -49,6 +49,10 @@ class CityWarsView
                 val y = cellSize * (i / grid.w)
 
                 g.fillRect(x, y, cellSize, cellSize)
+                val nTroops = game.troops.grid[i]
+
+
+
             }
             // paint faint gridlines separately
             if (gridLines) {
