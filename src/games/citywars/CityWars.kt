@@ -239,7 +239,8 @@ open class CityWars : ExtendedAbstractGameState {
     }
 
     override fun score(): Double {
-        return 0.0 //board.count('+').toDouble()
+        return troops.grid.sum().toDouble();
+        //return 0.0 //board.count('+').toDouble()
     }
 
     override fun isTerminal(): Boolean {

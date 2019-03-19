@@ -30,6 +30,8 @@ fun main() {
 
     val view = CityWarsView(game)
 
+    println("Score: " + game.score());
+
     JEasyFrame(view, "City Wars")
 
 }
