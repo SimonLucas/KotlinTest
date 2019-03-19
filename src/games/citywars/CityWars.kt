@@ -165,140 +165,46 @@ open class CityWars : ExtendedAbstractGameState {
         println("ACTION: " + dir + " " + x + " " + y + " " + perc)
 
         var troop:Int = troops.getCell(x,y)
-        if (playerID == 0 && troop > 0)
+
+        var myTroops : Boolean =  (playerID == 0 && troop > 0) || (playerID == 1 && troop < 0)
+        if (myTroops)
         {
             //There's something to move here.
             when(dir) {
-                UP -> move(x, y, intArrayOf(0, -1), troop, perc)
-                RIGHT -> move(x, y, intArrayOf(1, 0), troop, perc)
-                DOWN -> move(x, y, intArrayOf(0, 1), troop, perc)
-                LEFT -> move(x, y, intArrayOf(-1,0), troop, perc)
+                UP -> move(x, y, intArrayOf(0, -1), troop, perc, playerID)
+                RIGHT -> move(x, y, intArrayOf(1, 0), troop, perc, playerID)
+                DOWN -> move(x, y, intArrayOf(0, 1), troop, perc, playerID)
+                LEFT -> move(x, y, intArrayOf(-1,0), troop, perc, playerID)
                 else -> println("INVALID ACTION: " + playerAction)
             }
-
         }
-
-
 
         totalTicks++
         nTicks++
         return this
     }
 
-    fun move(x : Int, y: Int, dir : IntArray, troop : Int, perc : Int) : IntArray
+    fun move(x : Int, y: Int, dir : IntArray, troop : Int, perc : Int, playerID: Int)
     {
+        var mod : Int = 1
+        if (playerID == 1)
+            mod = -1
+
         var nextX : Int = x + dir[0]
         var nextY : Int = y + dir[1]
         if(board.inLimits(nextX, nextY))
         {
             var dest = board.getCell(nextX, nextY)
-
-            when(dest) {
-//                board.WALL -> return        //Moves against walls
-//                board.CITY -> toCity()
-//                board.NIL ->
-//                {
-//
-//
-//                }
-//                board.WALL -> return        //Moves against walls
-//                board.BOXIN ->  {
-//                    //println("BOXIN")
-//                    return
-//                }//return       //Moves against box in place (change this for different versions of Sokoban)
-//                board.EMPTY -> {            //Move with no obstacle, ALLOWED
-//                    //Empty, we move player at the end.
-//                }
-//                board.HOLE -> {           //Move to a hole, ALLOWED
-//                    //Empty, we move player at the end.
-//                }
-//                board.BOX ->                //GOOD MOVE?
-//                {
-//                    //Against a box. Will move if empty on the other side.
-//                    var forwardX : Int = nextX + dir[0]
-//                    var forwardY : Int = nextY + dir[1]
-//                    if (! board.inLimits(forwardX, forwardY) ) //Pushing against outside of board, do nothing.
-//                        return
-//
-//                    var forwardCell : Char = board.getCell(forwardX, forwardY)
-//                    when(forwardCell)
-//                    {
-//                        board.WALL -> return        //Moves against walls
-//                        board.BOXIN -> return       //Moves against box in place (change this for different versions of Sokoban)
-//                        board.BOX -> return         //Push against a BOX, we don't forward the push
-//                        board.EMPTY -> {            //PROGRESS! (I hope)
-//                               board.exchange(nextX, nextY, forwardX, forwardY)
-//                        }
-//                        board.HOLE -> {             //EUREKA!
-//                            board.setCell(nextX, nextY, board.EMPTY)
-//                            board.setCell(forwardX, forwardY, board.BOXIN)
-//                        }
-//                    }
-//                }
-        }
-
-
             var troopsToMove : Int = (troop * perc / 100.0).toInt()
 
+            if( dest != wall) {
+                troops.setCell(x,y, troops.getCell(x,y) - (troopsToMove * mod))
+                troops.setCell(nextX,nextY, troops.getCell(nextX,nextY) + (troopsToMove * mod))
+            }
         }
-            return intArrayOf(nextX, nextY)
-        return intArrayOf(-1,-1)
+
     }
 
-
-//    fun move(dir : IntArray)
-//    {
-//        var nextX : Int = board.playerX + dir[0]
-//        var nextY : Int = board.playerY + dir[1]
-//
-//        //Check board limits
-//        if (! board.inLimits(nextX, nextY) )
-//            return
-//
-//        var destCell : Char = board.getCell(nextX, nextY)
-//
-////        println("Moving into: " + destCell)
-//
-//        when(destCell) {
-//            board.WALL -> return        //Moves against walls
-//            board.BOXIN ->  {
-//                //println("BOXIN")
-//                return
-//            }//return       //Moves against box in place (change this for different versions of Sokoban)
-//            board.EMPTY -> {            //Move with no obstacle, ALLOWED
-//                //Empty, we move player at the end.
-//            }
-//            board.HOLE -> {           //Move to a hole, ALLOWED
-//                //Empty, we move player at the end.
-//            }
-//            board.BOX ->                //GOOD MOVE?
-//            {
-//                //Against a box. Will move if empty on the other side.
-//                var forwardX : Int = nextX + dir[0]
-//                var forwardY : Int = nextY + dir[1]
-//                if (! board.inLimits(forwardX, forwardY) ) //Pushing against outside of board, do nothing.
-//                    return
-//
-//                var forwardCell : Char = board.getCell(forwardX, forwardY)
-//                when(forwardCell)
-//                {
-//                    board.WALL -> return        //Moves against walls
-//                    board.BOXIN -> return       //Moves against box in place (change this for different versions of Sokoban)
-//                    board.BOX -> return         //Push against a BOX, we don't forward the push
-//                    board.EMPTY -> {            //PROGRESS! (I hope)
-//                           board.exchange(nextX, nextY, forwardX, forwardY)
-//                    }
-//                    board.HOLE -> {             //EUREKA!
-//                        board.setCell(nextX, nextY, board.EMPTY)
-//                        board.setCell(forwardX, forwardY, board.BOXIN)
-//                    }
-//                }
-//            }
-//        }
-//
-//        board.playerX = nextX
-//        board.playerY = nextY
-//    }
 
     override fun nActions(): Int {
         return 40000
