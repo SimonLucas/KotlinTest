@@ -89,21 +89,24 @@ val ACTIONS: IntArray = intArrayOf(NIL, UP, RIGHT, DOWN, LEFT)
 open class CityWars : ExtendedAbstractGameState {
 
 
-    var board : Grid = Grid(15, 8, getGrid())
-    var troops : Grid = Grid(15, 8, getUnits(15))
+    var board : Grid = Grid(10, 10, getGrid())
+    var troops : Grid = Grid(10, 10, getUnits(10))
 
 
     fun getGrid() : IntArray
     {
         //0: empty, 1: city, 2: obstacle
-        var level: String =     "00000000" +
-                                "00000000" +
-                                "00102010" +
-                                "00000000" +
-                                "00102010" +
-                                "00000000" +
-                                "00020000" +
-                                "00000000"
+        var level: String =     "0000000000" +
+                                "0000000000" +
+                                "0000000000" +
+                                "0001020100" +
+                                "0000000000" +
+                                "0000020000" +
+                                "0000000000" +
+                                "0001020100" +
+                                "0000000000" +
+                                "0000000000"
+
         var listGrid : List<Int> = level.map { it.toString().toInt() }
         return listGrid.toIntArray()
     }
@@ -113,11 +116,11 @@ open class CityWars : ExtendedAbstractGameState {
         var listUnits : IntArray = IntArray(4)
 
         //x=3, y=2
-        listUnits[3 + w * 2] = 50
-        listUnits[3 + w * 4] = 50
+        listUnits[3 + w * 3] = 50
+        listUnits[3 + w * 7] = 50
 
-        listUnits[11 + w * 2] = -50
-        listUnits[11 + w * 4] = -50
+        listUnits[7 + w * 3] = -50
+        listUnits[7 + w * 7] = -50
 
         return listUnits
     }
@@ -201,7 +204,7 @@ open class CityWars : ExtendedAbstractGameState {
 //    }
 
     override fun nActions(): Int {
-        return ACTIONS.size
+        return 10 * 10 * 4 * 100
     }
 
     override fun score(): Double {
