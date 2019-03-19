@@ -247,7 +247,7 @@ open class CityWars : ExtendedAbstractGameState {
     }
 
     override fun isTerminal(): Boolean {
-        return troops.grid.all( { i-> i >= 0} );
+        return troops.grid.all( { i-> i >= 0} ) || troops.grid.all( { i-> i <= 0} );
         //return false// board.count('*') == 0
     }
 
@@ -280,7 +280,7 @@ open class CityWars : ExtendedAbstractGameState {
     fun print() {
         board.print()
         troops.print()
-        //println("Score: " + score() + ", terminal: " + isTerminal())
+        println("Score: " + score() + ", terminal: " + isTerminal())
     }
 
     fun report()

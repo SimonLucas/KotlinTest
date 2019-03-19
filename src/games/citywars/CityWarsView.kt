@@ -19,8 +19,8 @@ fun main() {
     val game = CityWars()
     val view = CityWarsView(game)
 
-    println("Score: " + game.score());
-    println("isTerminal: " + game.isTerminal());
+    //println("Score: " + game.score());
+    //println("isTerminal: " + game.isTerminal());
 
     JEasyFrame(view, "City Wars")
     println('[')
