@@ -3,6 +3,7 @@ package games.citywars
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import java.util.*
+import kotlin.math.absoluteValue
 
 val random = Random()
 
@@ -57,12 +58,12 @@ data class Grid(val w: Int = 15, val h: Int = 7, var grid: IntArray) {
     init {
     }
 
-    fun print() {
+    fun print(lines : Boolean = true) {
         for (i in 0 until grid.size) {
 
             print(grid[i])
 
-            if ((i + 1) % w == 0)
+            if (lines && (i + 1) % w == 0)
                 println()
 
         }
@@ -281,6 +282,74 @@ open class CityWars : ExtendedAbstractGameState {
         troops.print()
         //println("Score: " + score() + ", terminal: " + isTerminal())
     }
+
+    fun report()
+    {
+        print ("{ 'cities': [")
+        for (i in 0 until board.grid.size) {
+
+            if(board.grid[i] == city)
+                print("1" + ",")
+            else
+                print("0" + ",")
+        }
+        println("]")
+
+
+        print ("'player0': [")
+        for (i in 0 until troops.grid.size) {
+
+            if(troops.grid[i] > 0)
+                print(troops.grid[i].toString() + ",")
+            else
+                print("0,")
+        }
+        println("]")
+
+        print ("'player1': [")
+        for (i in 0 until troops.grid.size) {
+
+            if(troops.grid[i] < 0)
+                print((troops.grid[i].absoluteValue.toString() + ","))
+            else
+                print("0,")
+        }
+        println("]")
+
+
+        print ("'obstacles': [")
+        for (i in 0 until board.grid.size) {
+
+            if(board.grid[i] == wall)
+                print("1" + ",")
+            else
+                print("0" + ",")
+        }
+        println("]")
+
+        var level: String =     "0000000000" +
+                                "0000000000" +
+                                "0000000000" +
+                                "0000000000" +
+                                "0001111100" +
+                                "0000000100" +
+                                "0000000100" +
+                                "0000000100" +
+                                "0000000000" +
+                                "0000000000"
+        print ("'trajectory': [")
+        for (i in 0 until level.length) {
+            print(level[i] + ",")
+        }
+        println("]")
+
+        println ("'arrival': 0.4 }")
+
+//        board.print(false)
+//        troops.print(false)
+
+    }
+
 }
 
 fun main(args: Array<String>) {
