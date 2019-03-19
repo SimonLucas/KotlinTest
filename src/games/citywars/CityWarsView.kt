@@ -12,6 +12,9 @@ import javax.swing.JComponent
 val showNumbers = true
 val showDots = true
 
+val playerOneColor = Color.getHSBColor(0.2f, 1f, 1f)
+val playerTwoColor = Color.getHSBColor(0.8f, 1f, 1f)
+
 fun main() {
 
     val game = CityWars()
@@ -64,9 +67,12 @@ class CityWarsView
                 val x = cellSize * (i % grid.w)
                 val y = cellSize * (i / grid.w)
 
-                g.fillRect(x, y, cellSize, cellSize)
                 val nTroops = game.troops.grid[i]
 
+                if (nTroops > 0) g.setColor(playerOneColor)
+                if (nTroops < 0) g.setColor(playerTwoColor)
+                
+                g.fillRect(x, y, cellSize, cellSize)
 
                 if (showNumbers) {
                     DrawUtil().centreString(g, nTroops.toString(), x.toDouble()+cellSize/2, y.toDouble()+cellSize/2, Color.black)
