@@ -57,6 +57,17 @@ data class Grid(val w: Int = 15, val h: Int = 7, var grid: IntArray) {
     init {
     }
 
+    fun print() {
+        for (i in 0 until grid.size) {
+
+            print(grid[i])
+
+            if ((i + 1) % w == 0)
+                println()
+
+        }
+    }
+
     fun deepCopy(): Grid {
         val gc = this.copy()
         gc.grid = grid.copyOf()
@@ -90,7 +101,7 @@ open class CityWars : ExtendedAbstractGameState {
 
 
     var board : Grid = Grid(10, 10, getGrid())
-    var troops : Grid = Grid(10, 10, getUnits(10))
+    var troops : Grid = Grid(10, 10, getUnits(10, 10))
 
 
     fun getGrid() : IntArray
@@ -111,9 +122,9 @@ open class CityWars : ExtendedAbstractGameState {
         return listGrid.toIntArray()
     }
 
-    fun getUnits(w : Int) : IntArray
+    fun getUnits(w : Int, h : Int) : IntArray
     {
-        var listUnits : IntArray = IntArray(4)
+        var listUnits : IntArray = IntArray(w*h)
 
         //x=3, y=2
         listUnits[3 + w * 3] = 50
@@ -132,6 +143,20 @@ open class CityWars : ExtendedAbstractGameState {
     override fun next(actions: IntArray): AbstractGameState {
 
         var player0Action : Int = actions[0]
+
+        //correct for IDs
+        player0Action += 10000
+
+        var actionString : String = player0Action.toString()
+
+        var dir : Int = Character.getNumericValue(actionString[0])
+        var x : Int = Character.getNumericValue(actionString[1])
+        var y : Int = Character.getNumericValue(actionString[2])
+        var perc : Int = actionString.substring(3).toInt() + 1
+
+        println (board.print())
+        println("ACTION: " + dir + " " + x + " " + y + " " + perc)
+
 //
 //        if(player0Action != NIL)
 //        {
@@ -246,5 +271,6 @@ open class CityWars : ExtendedAbstractGameState {
 
 fun main(args: Array<String>) {
     var cityWars : CityWars = CityWars()
+    cityWars.next(intArrayOf(13287))
     cityWars.print()
 }
