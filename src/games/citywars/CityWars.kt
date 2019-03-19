@@ -142,37 +142,104 @@ open class CityWars : ExtendedAbstractGameState {
 
     override fun next(actions: IntArray): AbstractGameState {
 
-        var player0Action : Int = actions[0]
+        var playerID : Int = 0
+
+
+        var playerAction : Int = actions[playerID]
 
         //correct for IDs
-        player0Action += 10000
+        playerAction += 10000
 
-        var actionString : String = player0Action.toString()
+        var actionString : String = playerAction.toString()
 
         var dir : Int = Character.getNumericValue(actionString[0])
         var x : Int = Character.getNumericValue(actionString[1])
         var y : Int = Character.getNumericValue(actionString[2])
         var perc : Int = actionString.substring(3).toInt() + 1
 
-        println (board.print())
         println("ACTION: " + dir + " " + x + " " + y + " " + perc)
 
-//
-//        if(player0Action != NIL)
-//        {
-//            when(player0Action) {
-//                UP -> move(intArrayOf(0, -1))
-//                RIGHT -> move(intArrayOf(1, 0))
-//                DOWN -> move(intArrayOf(0, 1))
-//                LEFT -> move(intArrayOf(-1,0))
-//                else -> println("INVALID ACTION: " + player0Action)
-//            }
-//        }
+        var troop:Int = troops.getCell(x,y)
+        if (playerID == 0 && troop > 0)
+        {
+            //There's something to move here.
+            when(dir) {
+                UP -> move(x, y, intArrayOf(0, -1), troop, perc)
+                RIGHT -> move(x, y, intArrayOf(1, 0), troop, perc)
+                DOWN -> move(x, y, intArrayOf(0, 1), troop, perc)
+                LEFT -> move(x, y, intArrayOf(-1,0), troop, perc)
+                else -> println("INVALID ACTION: " + playerAction)
+            }
+
+        }
+
+
 
         totalTicks++
         nTicks++
         return this
     }
+
+    fun move(x : Int, y: Int, dir : IntArray, troop : Int, perc : Int) : IntArray
+    {
+        var nextX : Int = x + dir[0]
+        var nextY : Int = y + dir[1]
+        if(board.inLimits(nextX, nextY))
+        {
+            var dest = board.getCell(nextX, nextY)
+
+            when(dest) {
+//                board.WALL -> return        //Moves against walls
+//                board.CITY -> toCity()
+//                board.NIL ->
+//                {
+//
+//
+//                }
+//                board.WALL -> return        //Moves against walls
+//                board.BOXIN ->  {
+//                    //println("BOXIN")
+//                    return
+//                }//return       //Moves against box in place (change this for different versions of Sokoban)
+//                board.EMPTY -> {            //Move with no obstacle, ALLOWED
+//                    //Empty, we move player at the end.
+//                }
+//                board.HOLE -> {           //Move to a hole, ALLOWED
+//                    //Empty, we move player at the end.
+//                }
+//                board.BOX ->                //GOOD MOVE?
+//                {
+//                    //Against a box. Will move if empty on the other side.
+//                    var forwardX : Int = nextX + dir[0]
+//                    var forwardY : Int = nextY + dir[1]
+//                    if (! board.inLimits(forwardX, forwardY) ) //Pushing against outside of board, do nothing.
+//                        return
+//
+//                    var forwardCell : Char = board.getCell(forwardX, forwardY)
+//                    when(forwardCell)
+//                    {
+//                        board.WALL -> return        //Moves against walls
+//                        board.BOXIN -> return       //Moves against box in place (change this for different versions of Sokoban)
+//                        board.BOX -> return         //Push against a BOX, we don't forward the push
+//                        board.EMPTY -> {            //PROGRESS! (I hope)
+//                               board.exchange(nextX, nextY, forwardX, forwardY)
+//                        }
+//                        board.HOLE -> {             //EUREKA!
+//                            board.setCell(nextX, nextY, board.EMPTY)
+//                            board.setCell(forwardX, forwardY, board.BOXIN)
+//                        }
+//                    }
+//                }
+        }
+
+
+            var troopsToMove : Int = (troop * perc / 100.0).toInt()
+
+        }
+            return intArrayOf(nextX, nextY)
+        return intArrayOf(-1,-1)
+    }
+
 
 //    fun move(dir : IntArray)
 //    {
@@ -229,7 +296,7 @@ open class CityWars : ExtendedAbstractGameState {
 //    }
 
     override fun nActions(): Int {
-        return 10 * 10 * 4 * 100
+        return 40000
     }
 
     override fun score(): Double {
@@ -257,14 +324,16 @@ open class CityWars : ExtendedAbstractGameState {
     }
 
     override fun copy(): AbstractGameState {
-        val sokobanCopy = CityWars()
-        sokobanCopy.nTicks = nTicks
-        sokobanCopy.board = board.deepCopy()
-        return sokobanCopy
+        val cityWarsCopy = CityWars()
+        cityWarsCopy.nTicks = nTicks
+        cityWarsCopy.troops = troops.deepCopy()
+        cityWarsCopy.board = board
+        return cityWarsCopy
     }
 
     fun print() {
-        //board.print()
+        board.print()
+        troops.print()
         //println("Score: " + score() + ", terminal: " + isTerminal())
     }
 }
