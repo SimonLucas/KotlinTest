@@ -1,5 +1,6 @@
 package ggik
 
+import agents.DoNothingAgent
 import agents.RandomAgent
 import agents.SimpleEvoAgent
 import games.breakout.BreakoutGameState
@@ -36,7 +37,7 @@ fun main(args: Array<String>) {
     val nGames = 30
     for (game in games) {
         for (agent in agents) {
-            runner.runGames(game, agent, nGames)
+            runner.runGames(game, agent, DoNothingAgent(), nGames)
         }
     }
 }
@@ -46,7 +47,7 @@ class GameRunner {
     var verbose = false
     var maxTicks = 5000
 
-    fun runGames(gameState: ExtendedAbstractGameState, agent: SimplePlayerInterface, nGames: Int = 100) {
+    fun runGames(gameState: ExtendedAbstractGameState, agent: SimplePlayerInterface, opponent: SimplePlayerInterface = DoNothingAgent(), nGames: Int = 100) {
         val message = "%s playing %s".format(agent, gameState)
         val scores = StatSummary("Scores for: " + message)
         val durations = StatSummary("Durations for: " + message)
@@ -55,7 +56,7 @@ class GameRunner {
         gameState.resetTotalTicks()
         for (i in 0 until nGames) {
             gameState.randomInitialState()
-            val finalState = runOneGame(gameState.copy(), agent)
+            val finalState = runOneGame(gameState.copy(), agent, opponent)
             scores.add(finalState.score())
             durations.add(finalState.nTicks())
         }
@@ -64,19 +65,20 @@ class GameRunner {
         println(scores)
         println(timer)
         println("Total ticks: " + gameState.totalTicks())
-        println("Millions of ticks per second: %.2f".format(gameState.totalTicks() * 1e-3 / elapsed))
+        println("Millions of ticks per second: %.4f".format(gameState.totalTicks() * 1e-3 / elapsed))
         println()
 
     }
 
-    fun runOneGame(gameState: AbstractGameState, player: SimplePlayerInterface): AbstractGameState {
+    fun runOneGame(gameState: AbstractGameState, player: SimplePlayerInterface, opponent: SimplePlayerInterface): AbstractGameState {
         val playerId = 0
         player.reset()
         var n = 0;
         while (!gameState.isTerminal() && n++ < maxTicks ) {
             // val actions = intArrayOf(player.getAction(deepCopy(gameState)))
-            val actions = intArrayOf(player.getAction(gameState, playerId))
+            val actions = intArrayOf(player.getAction(gameState.copy(), playerId), opponent.getAction(gameState.copy(), 1-playerId))
             // println(Arrays.toString(actions))
+            println("$n\t ${gameState.score()}")
             gameState.next(actions)
         }
         if (verbose) {
