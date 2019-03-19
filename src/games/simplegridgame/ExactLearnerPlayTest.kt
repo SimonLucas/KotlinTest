@@ -36,6 +36,7 @@ val h = 30
 val visual = true
 val lutSizeLimit = 0
 val diceRoll = false
+val rewardFactor = 1.0
 
 // made an update with
 
@@ -46,7 +47,7 @@ fun main() {
 
     val nReps = 30
 
-    val lutSizes = 512 .. 512 step 32
+    val lutSizes = 480 .. 512 step 32
     println(lutSizes)
     val results = TreeMap<Int,StatSummary>()
     for (lut in lutSizes) {
@@ -77,14 +78,14 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
 
     // game.updateRule = CaveUpdateRule()
     // game.updateRule =
-    game.rewardFactor = 1.0;
+    game.rewardFactor = rewardFactor
     learner.lutSizeLimit = lutSizeLimit
     learner.diceRoll = diceRoll
 
     // var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 3, nEvals = 50)
     var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 25, nEvals = 5)
     var agent2: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 10)
-    agent1 = RandomAgent()
+    // agent1 = RandomAgent()
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
@@ -130,9 +131,9 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
     val ss = StatSummary()
     for (i in 0 until gamesPerEval) {
         val game = SimpleGridGame(w, h)
-        game.rewardFactor = 1.0;
+        game.rewardFactor = rewardFactor
 
-        game.updateRule = CaveUpdateRule()
+        // game.updateRule = CaveUpdateRule()
         // game.updateRule = LifeUpdateRule()
 
         // game.updateRule = learnedRule

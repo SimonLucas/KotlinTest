@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
     game.print()
 
     val gv = SokobanView(game.board)
-    val frame = JEasyFrame(gv, "Life Game")
+    val frame = JEasyFrame(gv, "Sokoban!")
     val actions = intArrayOf(0, 0)
     var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
 //    var agent = RandomAgent()
