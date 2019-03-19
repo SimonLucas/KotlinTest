@@ -244,7 +244,8 @@ open class CityWars : ExtendedAbstractGameState {
     }
 
     override fun isTerminal(): Boolean {
-        return false// board.count('*') == 0
+        return troops.grid.all( { i-> i >= 0} );
+        //return false// board.count('*') == 0
     }
 
     override fun nTicks(): Int {
