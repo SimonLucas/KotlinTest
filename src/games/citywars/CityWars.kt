@@ -106,6 +106,7 @@ open class CityWars : ExtendedAbstractGameState {
                                 "0001020100" +
                                 "0000000000" +
                                 "0000000000"
+
         var listGrid : List<Int> = level.map { it.toString().toInt() }
         return listGrid.toIntArray()
     }
@@ -116,10 +117,10 @@ open class CityWars : ExtendedAbstractGameState {
 
         //x=3, y=2
         listUnits[3 + w * 3] = 50
-        listUnits[3 + w * 4] = 50
+        listUnits[3 + w * 7] = 50
 
         listUnits[7 + w * 3] = -50
-        listUnits[7 + w * 4] = -50
+        listUnits[7 + w * 7] = -50
 
         return listUnits
     }
@@ -203,7 +204,7 @@ open class CityWars : ExtendedAbstractGameState {
 //    }
 
     override fun nActions(): Int {
-        return ACTIONS.size
+        return 10 * 10 * 4 * 100
     }
 
     override fun score(): Double {
