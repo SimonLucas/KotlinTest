@@ -186,8 +186,11 @@ open class Sokoban : ExtendedAbstractGameState {
 
         when(destCell) {
             board.WALL -> return        //Moves against walls
-            board.BOXIN -> return       //Moves against box in place (change this for different versions of Sokoban)
-            board.EMPTY -> {           //Move with no obstacle, ALLOWED
+            board.BOXIN ->  {
+                //println("BOXIN")
+                return
+            }//return       //Moves against box in place (change this for different versions of Sokoban)
+            board.EMPTY -> {            //Move with no obstacle, ALLOWED
                 //Empty, we move player at the end.
             }
             board.HOLE -> {           //Move to a hole, ALLOWED

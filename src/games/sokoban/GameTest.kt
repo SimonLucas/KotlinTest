@@ -18,8 +18,8 @@ fun main(args: Array<String>) {
     val gv = SokobanView(game.board)
     val frame = JEasyFrame(gv, "Life Game")
     val actions = intArrayOf(0, 0)
-    //var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
-    var agent = RandomAgent()
+    var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
+//    var agent = RandomAgent()
 
 //    var decisionTree : DecisionTree? = null
 //    val modelTrainer = ForwardModelTrainer(InputType.Simple)
