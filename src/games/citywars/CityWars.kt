@@ -111,6 +111,7 @@ open class CityWars : ExtendedAbstractGameState {
 
     val city_increment = 1
     val max_city = 100
+    val max_field = 50
     val empty = 0
     val city = 1
     val wall = 2
@@ -226,11 +227,32 @@ open class CityWars : ExtendedAbstractGameState {
         if(board.inLimits(nextX, nextY))
         {
             var dest = board.getCell(nextX, nextY)
-            var troopsToMove : Int = (troop * perc / 100.0).toInt()
+
+            var troopsToMove = (troop * perc / 100.0).toInt()
 
             if( dest != wall) {
+
+                var destLimit = max_field
+                if (dest == city)
+                    destLimit = max_city
+
+                //Check limits.
+                var amountAtDest = troops.getCell(nextX,nextY)
+                var nextValue = troopsToMove + amountAtDest
+
+                if (nextValue > 0 && nextValue > destLimit)
+                {
+                    var diff = Math.abs(nextValue - destLimit)
+                    troopsToMove = troopsToMove - diff
+                }else if(nextValue < 0 && nextValue < -destLimit)
+                {
+                    var diff = Math.abs(nextValue + destLimit)
+                    troopsToMove = troopsToMove + diff
+                }
+
+                //Move units
                 troops.setCell(x,y, troops.getCell(x,y) - troopsToMove)
-                troops.setCell(nextX,nextY, troops.getCell(nextX,nextY) + troopsToMove)
+                troops.setCell(nextX,nextY, amountAtDest + troopsToMove)
             }
         }
 

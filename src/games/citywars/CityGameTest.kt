@@ -1,5 +1,6 @@
 package games.citywars
 
+import agents.DoNothingAgent
 import agents.RandomAgent
 import agents.SimpleEvoAgent
 import utilities.JEasyFrame
@@ -15,6 +16,7 @@ fun main() {
 
     val p1 = SimpleEvoAgent(useMutationTransducer = false, nEvals = 100)
     val p2 = SimpleEvoAgent()
+//    val p2 = DoNothingAgent()
     // val p1 = RandomAgent()
 
     var tick = 0;
