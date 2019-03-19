@@ -13,8 +13,9 @@ fun main() {
 
     val nSteps = 2000
 
-    val p1 = SimpleEvoAgent()
-    val p2 = RandomAgent()
+    val p1 = SimpleEvoAgent(useMutationTransducer = false, nEvals = 100)
+    val p2 = SimpleEvoAgent()
+    // val p1 = RandomAgent()
 
     var tick = 0;
     while(!game.isTerminal() && tick++ < nSteps) {
