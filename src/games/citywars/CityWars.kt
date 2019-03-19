@@ -285,7 +285,7 @@ open class CityWars : ExtendedAbstractGameState {
 
     fun report()
     {
-        print ("{ 'cities': [")
+        print ("{ \"cities\": [")
         for (i in 0 until board.grid.size) {
 
             if(board.grid[i] == city)
@@ -296,7 +296,7 @@ open class CityWars : ExtendedAbstractGameState {
         println("]")
 
 
-        print ("'player0': [")
+        print ("\"player0\": [")
         for (i in 0 until troops.grid.size) {
 
             if(troops.grid[i] > 0)
@@ -306,7 +306,7 @@ open class CityWars : ExtendedAbstractGameState {
         }
         println("]")
 
-        print ("'player1': [")
+        print ("\"player1\": [")
         for (i in 0 until troops.grid.size) {
 
             if(troops.grid[i] < 0)
@@ -317,7 +317,7 @@ open class CityWars : ExtendedAbstractGameState {
         println("]")
 
 
-        print ("'obstacles': [")
+        print ("\"obstacles\": [")
         for (i in 0 until board.grid.size) {
 
             if(board.grid[i] == wall)
@@ -337,13 +337,13 @@ open class CityWars : ExtendedAbstractGameState {
                                 "0000000100" +
                                 "0000000000" +
                                 "0000000000"
-        print ("'trajectory': [")
+        print ("\"trajectory\": [")
         for (i in 0 until level.length) {
             print(level[i] + ",")
         }
         println("]")
 
-        println ("'arrival': 0.4 }")
+        println ("\"arrival\": 0.4 }")
 
 //        board.print(false)
 //        troops.print(false)

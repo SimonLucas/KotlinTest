@@ -23,7 +23,9 @@ fun main() {
     println("isTerminal: " + game.isTerminal());
 
     JEasyFrame(view, "City Wars")
+    println('[')
     game.report()
+    println(']')
 }
 
 
