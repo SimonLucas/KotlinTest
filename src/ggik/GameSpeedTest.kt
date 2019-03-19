@@ -73,12 +73,13 @@ class GameRunner {
     fun runOneGame(gameState: AbstractGameState, player: SimplePlayerInterface, opponent: SimplePlayerInterface): AbstractGameState {
         val playerId = 0
         player.reset()
-        var n = 0;
+        var n = 0
+        println("maxTicks = " + maxTicks)
         while (!gameState.isTerminal() && n++ < maxTicks ) {
             // val actions = intArrayOf(player.getAction(deepCopy(gameState)))
             val actions = intArrayOf(player.getAction(gameState.copy(), playerId), opponent.getAction(gameState.copy(), 1-playerId))
             // println(Arrays.toString(actions))
-            println("$n\t ${gameState.score()}")
+            // println("$n\t ${gameState.score()}")
             gameState.next(actions)
         }
         if (verbose) {
