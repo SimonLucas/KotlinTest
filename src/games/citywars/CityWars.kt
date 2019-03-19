@@ -86,6 +86,11 @@ data class Grid(val w: Int = 15, val h: Int = 7, var grid: IntArray) {
     }
 }
 
+object Constants {
+    val player1 = 0
+    val player2 = 1
+    val playerValues = intArrayOf(player1, player2)
+}
 
 var totalTicks: Long = 0
 
@@ -147,49 +152,44 @@ open class CityWars : ExtendedAbstractGameState {
 
     override fun next(actions: IntArray): AbstractGameState {
 
-        var playerID : Int = 0
+        for( playerID : Int in Constants.playerValues) {
 
+            var playerAction: Int = actions[playerID]
 
-        var playerAction : Int = actions[playerID]
+            //correct for IDs
+            playerAction += 10000
 
-        //correct for IDs
-        playerAction += 10000
+            var actionString: String = playerAction.toString()
 
-        var actionString : String = playerAction.toString()
+            var dir: Int = Character.getNumericValue(actionString[0])
+            var x: Int = Character.getNumericValue(actionString[1])
+            var y: Int = Character.getNumericValue(actionString[2])
+            var perc: Int = actionString.substring(3).toInt() + 1
 
-        var dir : Int = Character.getNumericValue(actionString[0])
-        var x : Int = Character.getNumericValue(actionString[1])
-        var y : Int = Character.getNumericValue(actionString[2])
-        var perc : Int = actionString.substring(3).toInt() + 1
+            println("ACTION: " + dir + " " + x + " " + y + " " + perc)
 
-        println("ACTION: " + dir + " " + x + " " + y + " " + perc)
+            var troop: Int = troops.getCell(x, y)
 
-        var troop:Int = troops.getCell(x,y)
-
-        var myTroops : Boolean =  (playerID == 0 && troop > 0) || (playerID == 1 && troop < 0)
-        if (myTroops)
-        {
-            //There's something to move here.
-            when(dir) {
-                UP -> move(x, y, intArrayOf(0, -1), troop, perc, playerID)
-                RIGHT -> move(x, y, intArrayOf(1, 0), troop, perc, playerID)
-                DOWN -> move(x, y, intArrayOf(0, 1), troop, perc, playerID)
-                LEFT -> move(x, y, intArrayOf(-1,0), troop, perc, playerID)
-                else -> println("INVALID ACTION: " + playerAction)
+            var myTroops: Boolean = (playerID == 0 && troop > 0) || (playerID == 1 && troop < 0)
+            if (myTroops) {
+                //There's something to move here.
+                when (dir) {
+                    UP -> move(x, y, intArrayOf(0, -1), troop, perc, playerID)
+                    RIGHT -> move(x, y, intArrayOf(1, 0), troop, perc, playerID)
+                    DOWN -> move(x, y, intArrayOf(0, 1), troop, perc, playerID)
+                    LEFT -> move(x, y, intArrayOf(-1, 0), troop, perc, playerID)
+                    else -> println("INVALID ACTION: " + playerAction)
+                }
             }
-        }
 
-        totalTicks++
-        nTicks++
+            totalTicks++
+            nTicks++
+        }
         return this
     }
 
     fun move(x : Int, y: Int, dir : IntArray, troop : Int, perc : Int, playerID: Int)
     {
-        var mod : Int = 1
-        if (playerID == 1)
-            mod = -1
-
         var nextX : Int = x + dir[0]
         var nextY : Int = y + dir[1]
         if(board.inLimits(nextX, nextY))
@@ -198,8 +198,8 @@ open class CityWars : ExtendedAbstractGameState {
             var troopsToMove : Int = (troop * perc / 100.0).toInt()
 
             if( dest != wall) {
-                troops.setCell(x,y, troops.getCell(x,y) - (troopsToMove * mod))
-                troops.setCell(nextX,nextY, troops.getCell(nextX,nextY) + (troopsToMove * mod))
+                troops.setCell(x,y, troops.getCell(x,y) - troopsToMove)
+                troops.setCell(nextX,nextY, troops.getCell(nextX,nextY) + troopsToMove)
             }
         }
 
@@ -251,6 +251,10 @@ open class CityWars : ExtendedAbstractGameState {
 
 fun main(args: Array<String>) {
     var cityWars : CityWars = CityWars()
-    cityWars.next(intArrayOf(13287))
+    cityWars.print()
+    cityWars.next(intArrayOf(13349, 17349)) //RIGHT, (3,3), 50%  +    LEFT, (7,3), 50%
+    //cityWars.next(intArrayOf()) //
+    cityWars.print()
+    cityWars.next(intArrayOf(14319, 16319))
     cityWars.print()
 }
