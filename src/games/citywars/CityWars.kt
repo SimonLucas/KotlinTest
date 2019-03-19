@@ -108,7 +108,8 @@ open class CityWars : ExtendedAbstractGameState {
     var board : Grid = Grid(10, 10, getGrid())
     var troops : Grid = Grid(10, 10, getUnits(10, 10))
 
-
+    val city_increment = 1
+    val max_city = 100
     val empty = 0
     val city = 1
     val wall = 2
@@ -152,6 +153,7 @@ open class CityWars : ExtendedAbstractGameState {
 
     override fun next(actions: IntArray): AbstractGameState {
 
+        //Player actions
         for( playerID : Int in Constants.playerValues) {
 
             var playerAction: Int = actions[playerID]
@@ -166,7 +168,7 @@ open class CityWars : ExtendedAbstractGameState {
             var y: Int = Character.getNumericValue(actionString[2])
             var perc: Int = actionString.substring(3).toInt() + 1
 
-            println("ACTION: " + dir + " " + x + " " + y + " " + perc)
+            //println("ACTION: " + dir + " " + x + " " + y + " " + perc)
 
             var troop: Int = troops.getCell(x, y)
 
@@ -185,6 +187,32 @@ open class CityWars : ExtendedAbstractGameState {
             totalTicks++
             nTicks++
         }
+
+        //City actions: increment of city_increment per city if populated
+        for (i in 0 until board.grid.size) {
+
+            var cell : Int = board.grid[i]
+            if (cell == city)
+            {
+                var troopsInCity : Int = troops.getCell(i)
+                if (troopsInCity > 0)
+                {
+                    var nextTroops = troopsInCity + city_increment
+                    if (nextTroops >= max_city)
+                        nextTroops = 0
+                    troops.setCell(i, nextTroops)
+
+                }else if(troopsInCity < 0) {
+                    var nextTroops = troopsInCity - city_increment
+                    if (nextTroops <= -max_city)
+                        nextTroops = 0
+                    troops.setCell(i, nextTroops)
+                }
+            }
+
+        }
+
+
         return this
     }
 

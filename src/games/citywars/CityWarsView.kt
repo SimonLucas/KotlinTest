@@ -15,6 +15,16 @@ val showDots = true
 fun main() {
 
     val game = CityWars()
+
+//    Testing some actions
+//    game.next(intArrayOf(13349, 37349))
+//    game.next(intArrayOf(24349, 26319))
+//    game.next(intArrayOf(14499, 0))
+//    game.next(intArrayOf(15449, 0))
+//
+//    for(i in 0 until 20)
+//        game.next(intArrayOf(15449, 0))
+
     val view = CityWarsView(game)
 
     JEasyFrame(view, "City Wars")
