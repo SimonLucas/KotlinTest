@@ -3,14 +3,14 @@
 BasicGame key_handler=Pulse square_size=60
     SpriteSet
         
-        ground > Immovable color=GRAY img=oryx/backGrey
+        ground > Immovable color=GRAY img=oryx/backGrey hidden=True
         paint > Immovable color=DARKBLUE img=newset/paint2
 
-        prepaint > Flicker limit=2 invisible=TRUE
-        prepainting > Resource limit=2
+        prepaint > Flicker limit=2 hidden=True invisible=True
+        prepainting > Resource limit=2 hidden=True
 
-        preground > Flicker limit=2 invisible=TRUE
-        pregrounding > Resource limit=2
+        preground > Flicker limit=2 hidden=True invisible=True
+        pregrounding > Resource limit=2 hidden=True
 
         avatar > MovingAvatar shrinkfactor=0.8 img=newset/painter21
 

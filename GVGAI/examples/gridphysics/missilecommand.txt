@@ -1,14 +1,14 @@
 BasicGame
   SpriteSet
-    floor > Immovable img=oryx/backBlack
+    floor > Immovable img=oryx/backBlack hidden=True
     city  > Immovable color=GREEN img=newset/city1 randomtiling=0.5
     explosion > Flicker limit=5 img=oryx/circleEffect1 shrinkfactor=0.5
 
     movable >
       avatar  > ShootAvatar stype=explosion img=oryx/spaceship1
       incoming >
-        incoming_slow  > Chaser stype=city color=ORANGE speed=0.1 img=oryx/firedown1
-        incoming_fast  > Chaser stype=city color=YELLOW speed=0.3 img=oryx/firedown2
+        incoming_slow  > Chaser stype=city color=ORANGE speed=1 img=oryx/firedown1
+        incoming_fast  > Chaser stype=city color=YELLOW speed=1 img=oryx/firedown2
 
     wall > Immovable img=newset/block2
 

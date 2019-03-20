@@ -3,7 +3,7 @@ import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
-import tools.LearnedFM;
+import tools.fm.LearnedFM;
 import tracks.singlePlayer.tools.Heuristics.StateHeuristic;
 import tracks.singlePlayer.tools.Heuristics.WinScoreHeuristic;
 
@@ -58,16 +58,14 @@ public class Agent extends AbstractPlayer {
         randomGenerator = new Random();
         heuristic = new WinScoreHeuristic(stateObs);
 //        this.timer = elapsedTimer;
-        if (!usingRealFM) {
-            fm = LearnedFM.getInstance(learningCapacity);
-        }
+        fm = LearnedFM.getInstance(learningCapacity);
     }
 
     @Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
-        if (!usingRealFM & learning & lastObservation != null) {
-            int[][] from = LearnedFM.observationToIntGrid(lastObservation.getObservationGrid());
-            int[][] to = LearnedFM.observationToIntGrid(stateObs.getObservationGrid());
+        if (learning & lastObservation != null) {
+            int[][] from = LearnedFM.observationToIntGrid(lastObservation);
+            int[][] to = LearnedFM.observationToIntGrid(stateObs);
             fm.addData(from, to);
 
 //			System.out.println("Patterns learned: " + fm.getProgress());
@@ -97,7 +95,7 @@ public class Agent extends AbstractPlayer {
 
         // RETURN ACTION
         Types.ACTIONS best = get_best_action(population);
-        if (!usingRealFM) {
+        if (learning) {
             lastObservation = stateObs.copy();
 //            lastFM = fm.copy();
         }
@@ -172,7 +170,7 @@ public class Agent extends AbstractPlayer {
         if (usingRealFM) {
              st = state.copy();
         } else {
-            currentState = LearnedFM.observationToIntGrid(state.getObservationGrid());
+            currentState = LearnedFM.observationToIntGrid(state);
         }
         int winner = -1;
 

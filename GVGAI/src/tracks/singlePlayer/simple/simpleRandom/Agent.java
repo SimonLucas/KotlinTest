@@ -1,7 +1,7 @@
 package tracks.singlePlayer.simple.simpleRandom;
 
-import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import core.game.Observation;
@@ -9,6 +9,7 @@ import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
+import tools.fm.LearnedFM;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,6 +28,9 @@ public class Agent extends AbstractPlayer {
      */
     protected ArrayList<Types.ACTIONS> actions;
 
+    public LearnedFM fm, lastFM;
+    private StateObservation lastObservation;
+    public static int learningCapacity;
 
     /**
      * Public constructor with state observation and time due.
@@ -35,6 +39,8 @@ public class Agent extends AbstractPlayer {
      */
     public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer)
     {
+        fm = LearnedFM.getInstance(learningCapacity);
+//        fm.reset();
         randomGenerator = new Random();
         actions = so.getAvailableActions();
     }
@@ -48,6 +54,30 @@ public class Agent extends AbstractPlayer {
      * @return An action for the current state
      */
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
+        if (lastObservation != null) {
+            int[][] from = LearnedFM.observationToIntGrid(lastObservation);
+            int[][] to = LearnedFM.observationToIntGrid(stateObs);
+            fm.addData(from, to);
+
+//			System.out.println("Patterns learned: " + fm.getProgress());
+//			System.out.println(lastFM.checkAccuracy(from, to) + " " + fm.getProgress());
+        }
+
+//        lastObservation = stateObs.copy();
+//		lastFM = fm.copy();
+//        System.out.println(fm.getProgress());
+
+
+        ArrayList<Observation>[][] grid = stateObs.getObservationGrid();
+        HashMap<Integer, Integer> count = new HashMap<>();
+        for (ArrayList<Observation>[] arrayLists : grid)
+            for (int j = 0; j < grid[0].length; j++) {
+                for (Observation o : arrayLists[j]) {
+                    count.merge(o.itype, 1, (a, b) -> a + b);
+                }
+            }
+        System.out.println(count);
+
         int index = randomGenerator.nextInt(actions.size());
         return actions.get(index);
     }

@@ -15,7 +15,8 @@ public class Test {
     public static void main(String[] args) {
 
 		// Available tracks:
-		String sampleRandomController = "tracks.singlePlayer.simple.sampleRandom.Agent";
+//		String sampleRandomController = "tracks.singlePlayer.simple.sampleRandom.Agent";
+		String sampleRandomController = "tracks.singlePlayer.simple.simpleRandom.Agent";
 		String doNothingController = "tracks.singlePlayer.simple.doNothing.Agent";
 		String sampleOneStepController = "tracks.singlePlayer.simple.sampleonesteplookahead.Agent";
 		String sampleFlatMCTSController = "tracks.singlePlayer.simple.greedyTreeSearch.Agent";
@@ -34,7 +35,7 @@ public class Test {
 		int seed = new Random().nextInt();
 
 		// Game and level to play
-		int gameIdx = 0;
+		int gameIdx = 65;
 		int levelIdx = 0; // level names from 0 to 4 (game_lvlN.txt).
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
@@ -46,10 +47,10 @@ public class Test {
 						// executed. null if not to save.
 
 		// 1. This starts a game, in a level, played by a human.
-		ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
+//		ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
 		// 2. This plays a game in a level by the controller.
-//		ArcadeMachine.runOneGame(game, level1, visuals, sampleRHEAController, recordActionsFile, seed, 0);
+//		ArcadeMachine.runOneGame(game, level1, visuals, sampleRandomController, recordActionsFile, seed, 0);
 
 
 		// 3. This replays a game from an action file previously recorded
@@ -57,14 +58,8 @@ public class Test {
 	//	 ArcadeMachine.replayGame(game, level1, visuals, readActionsFile);
 
 		// 4. This plays a single game, in N levels, M times :
-//		String level2 = new String(game).replace(gameName, gameName + "_lvl" + 1);
-//		int M = 10;
-//		for(int i=0; i<games.length; i++){
-//			game = games[i][0];
-//			gameName = games[i][1];
-//			level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
-//			ArcadeMachine.runGames(game, new String[]{level1}, M, sampleMCTSController, null);
-//		}
+		int M = 100;
+		ArcadeMachine.runGames(game, new String[]{level1}, M, sampleRandomController, null);
 
 		//5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
 //		int N = games.length, L = 2, M = 1;

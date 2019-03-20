@@ -1,6 +1,6 @@
 package tracks.singlePlayer;
 
-import tools.LearnedFM;
+import tools.fm.LearnedFM;
 import tools.StatSummary;
 import tools.Utils;
 import tracks.ArcadeMachine;
@@ -16,11 +16,12 @@ public class TestLFM {
     public static void main(String[] args) {
 
 		boolean visuals = true;
-		int gameIdx = 0;  // game idx in file examples/all_games_sp.csv
+		int gameIdx = 65;  // game idx in file examples/all_games_sp.csv
 		int levelIdx = 0; // level names from 0 to 4 (game_lvlN.txt).
 
 		// Available controllers:
-		String sampleRandomController = "tracks.singlePlayer.simple.sampleRandom.Agent";
+//		String sampleRandomController = "tracks.singlePlayer.simple.sampleRandom.Agent";
+		String sampleRandomController = "tracks.singlePlayer.simple.simpleRandom.Agent";
 		String doNothingController = "tracks.singlePlayer.simple.doNothing.Agent";
 		String sampleOneStepController = "tracks.singlePlayer.simple.sampleonesteplookahead.Agent";
 		String sampleFlatMCTSController = "tracks.singlePlayer.simple.greedyTreeSearch.Agent";
@@ -45,10 +46,11 @@ public class TestLFM {
 //		ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
 		// 2. This plays a game in a level by the controller.
-		double maxPatterns = Math.pow(5, 9);
-		int patternPerTrial = 10000;
+		double maxPatterns = Math.pow(10, 9);
+//		double maxPatterns = 2000;
+		int patternPerTrial = 25000;
 		int trials = (int)(maxPatterns/patternPerTrial);
-		int noReps = 10;
+		int noReps = 20;
 		visuals = false;
 
 		System.out.println("Running " + trials + " trials, with " + noReps + " repetitions each.");
@@ -56,7 +58,7 @@ public class TestLFM {
 		StatSummary[] score = new StatSummary[trials];
 		StatSummary[] ticks = new StatSummary[trials];
 
-		tracks.singlePlayer.advanced.sampleRHEA.Agent.learning = true;
+		tracks.singlePlayer.advanced.sampleRHEA.Agent.learning = false;
 		tracks.singlePlayer.advanced.sampleRHEA.Agent.usingRealFM = false;
 		for (int i = trials-1; i < trials; i++) {
 			win[i] = new StatSummary();
@@ -69,13 +71,26 @@ public class TestLFM {
 			System.out.println((i+1) + "/" + trials + ": " + capacity);
 
 			tracks.singlePlayer.advanced.sampleRHEA.Agent.learningCapacity = capacity;
+			tracks.singlePlayer.simple.simpleRandom.Agent.learningCapacity = capacity;
 			LearnedFM fm = LearnedFM.getInstance(capacity);
 
 			// Train model up to capacity
 			System.out.println("Training");
-			fm.train(capacity);
+
+			int oldCapacity = i > 0 ? (i-1) * patternPerTrial : 0;
+			double patterns = fm.train(oldCapacity, capacity);
+			if (i == 0) trials = (int)(patterns/patternPerTrial);
+
+//			int cap = fm.getProgress();
+//			int k = 0;
+//			int maxTries = 50;
+//			while (cap < capacity && k < maxTries) {
+//				ArcadeMachine.runOneGame(game, level1, visuals, sampleRandomController, null, seed, 0);
+//				cap = fm.getProgress();
+//				k++;
+//			}
+
 			System.out.println("Done training " + fm.getProgress());
-//			System.out.println(fm.getTransitions());
 
 			// Play game with trained model
 			System.out.println("Testing");
@@ -85,7 +100,9 @@ public class TestLFM {
 				win[i].add(result[0]);
 				score[i].add(result[1]);
 				ticks[i].add(result[2]);
-				System.out.println(result[0] + " " + result[1] + " " + result[2]);
+//				System.out.println(result[0] + " " + result[1] + " " + result[2]);
+//				System.out.println(fm.getProgress());
+//				System.out.println("new");
 			}
 			System.out.println("ave = " + win[i].mean());
 			System.out.println("se = " + win[i].stdErr());
@@ -93,6 +110,11 @@ public class TestLFM {
 			System.out.println("se = " + score[i].stdErr());
 			System.out.println("ave = " + ticks[i].mean());
 			System.out.println("se = " + ticks[i].stdErr());
+
+			if (i != trials - 1)
+				i = fm.getProgress() / patternPerTrial;
+
+//			System.out.println("\n" + fm.getTransitions());
 		}
 
 		System.out.println("Finished.");

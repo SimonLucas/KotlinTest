@@ -4,7 +4,7 @@ import core.game.StateObservation;
 import core.player.AbstractPlayer;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
-import tools.LearnedFM;
+import tools.fm.LearnedFM;
 import tracks.singlePlayer.tools.Heuristics.StateHeuristic;
 import tracks.singlePlayer.tools.Heuristics.WinScoreHeuristic;
 
@@ -59,8 +59,8 @@ public class Agent extends AbstractPlayer {
     @Override
     public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) {
         if (learning & lastObservation != null) {
-            int[][] from = LearnedFM.observationToIntGrid(lastObservation.getObservationGrid());
-            int[][] to = LearnedFM.observationToIntGrid(stateObs.getObservationGrid());
+            int[][] from = LearnedFM.observationToIntGrid(lastObservation);
+            int[][] to = LearnedFM.observationToIntGrid(stateObs);
             fm.addData(from, to);
 
 //			System.out.println("Patterns learned: " + fm.getProgress());
@@ -98,7 +98,7 @@ public class Agent extends AbstractPlayer {
 //        ElapsedCpuTimer elapsedTimerIterationEval = new ElapsedCpuTimer();
 
 //        StateObservation st = state.copy();
-        int[][] currentState = LearnedFM.observationToIntGrid(state.getObservationGrid());
+        int[][] currentState = LearnedFM.observationToIntGrid(state);
         int winner = -1;
         int i;
         for (i = 0; i < SIMULATION_DEPTH; i++) {
