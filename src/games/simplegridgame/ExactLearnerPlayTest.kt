@@ -59,7 +59,7 @@ data class Experiment(
             } else if (agent == 2) {
                 runGames(RandomAgent(), visual, predResults, scoreResults)
             } else {
-                var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
+                var agent1: SimplePlayerInterface = SimpleEvoAgent(flipAtLeastOneValue = true, probMutation = 0.3, sequenceLength = 20, nEvals = 25, useShiftBuffer = true, useMutationTransducer = false, repeatProb = 0.2, discountFactor = 0.8)
                 if(!trueModel){
                     var learner = train(lutSize, game, agent1)
                     obss.add(learner.lut.size)
