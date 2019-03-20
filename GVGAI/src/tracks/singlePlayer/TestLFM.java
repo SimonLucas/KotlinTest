@@ -46,11 +46,11 @@ public class TestLFM {
 //		ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
 		// 2. This plays a game in a level by the controller.
-		double maxPatterns = Math.pow(10, 9);
+		double maxPatterns = Math.pow(7, 9);
 //		double maxPatterns = 2000;
 		int patternPerTrial = 25000;
 		int trials = (int)(maxPatterns/patternPerTrial);
-		int noReps = 20;
+		int noReps = 100;
 		visuals = false;
 
 		System.out.println("Running " + trials + " trials, with " + noReps + " repetitions each.");
@@ -58,7 +58,7 @@ public class TestLFM {
 		StatSummary[] score = new StatSummary[trials];
 		StatSummary[] ticks = new StatSummary[trials];
 
-		tracks.singlePlayer.advanced.sampleRHEA.Agent.learning = false;
+		tracks.singlePlayer.advanced.sampleRHEA.Agent.learning = true;
 		tracks.singlePlayer.advanced.sampleRHEA.Agent.usingRealFM = false;
 		for (int i = trials-1; i < trials; i++) {
 			win[i] = new StatSummary();
@@ -75,33 +75,33 @@ public class TestLFM {
 			LearnedFM fm = LearnedFM.getInstance(capacity);
 
 			// Train model up to capacity
-			System.out.println("Training");
+//			System.out.println("Training");
 
-			int oldCapacity = i > 0 ? (i-1) * patternPerTrial : 0;
-			double patterns = fm.train(oldCapacity, capacity);
-			if (i == 0) trials = (int)(patterns/patternPerTrial);
+//			int oldCapacity = i > 0 ? (i-1) * patternPerTrial : 0;
+//			double patterns = fm.train(oldCapacity, capacity);
+//			if (i == 0) trials = (int)(patterns/patternPerTrial);
 
 //			int cap = fm.getProgress();
 //			int k = 0;
-//			int maxTries = 50;
+//			int maxTries = 100;
 //			while (cap < capacity && k < maxTries) {
 //				ArcadeMachine.runOneGame(game, level1, visuals, sampleRandomController, null, seed, 0);
 //				cap = fm.getProgress();
 //				k++;
 //			}
 
-			System.out.println("Done training " + fm.getProgress());
+//			System.out.println("Done training " + fm.getProgress());
 
 			// Play game with trained model
 			System.out.println("Testing");
 //			tracks.singlePlayer.advanced.sampleRHEA.Agent.learning = false;
 			for (int j = 0; j < noReps; j++) {
-				double[] result = ArcadeMachine.runOneGame(game, level1, visuals, sampleRHEAController, null, seed, 0);
+				double[] result = ArcadeMachine.runOneGame(game, level1, visuals, sampleRandomController, null, seed, 0);
 				win[i].add(result[0]);
 				score[i].add(result[1]);
 				ticks[i].add(result[2]);
+				System.out.println(fm.getProgress());
 //				System.out.println(result[0] + " " + result[1] + " " + result[2]);
-//				System.out.println(fm.getProgress());
 //				System.out.println("new");
 			}
 			System.out.println("ave = " + win[i].mean());

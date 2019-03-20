@@ -3,6 +3,7 @@ package tools.fm;
 import core.game.Observation;
 import core.game.StateObservation;
 import ontology.Types;
+import sun.security.x509.AVA;
 import tools.Vector2d;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class LFMmc implements LFMRules {
     private static int AVATAR_LEFT_ID = 12;
 
     public int[] getSpriteIDs() {
-        return new int[]{-1, WALL_ID, AVATAR_UP_ID, AVATAR_DOWN_ID, AVATAR_RIGHT_ID, AVATAR_LEFT_ID, CITY_ID,
+        return new int[]{-1, WALL_ID, AVATAR_ID, CITY_ID,
                 MISSILE_ID, EXPLOSION_ID, EOS_ID};
     }
 
@@ -226,5 +227,31 @@ public class LFMmc implements LFMRules {
             }
             else cell = from[i][j].get(0).itype;
         return cell;
+    }
+
+    @Override
+    public int[][] getAvatarVariations(int[] vector) {
+        int[][] vars = new int[4][];
+        for (int i = 0; i < vector.length; i++) {
+            if (vector[i] == AVATAR_ID) vector[i] = AVATAR_LEFT_ID;
+        }
+        vars[0] = vector.clone();
+
+        for (int i = 0; i < vector.length; i++) {
+            if (vector[i] == AVATAR_LEFT_ID) vector[i] = AVATAR_RIGHT_ID;
+        }
+        vars[1] = vector.clone();
+
+        for (int i = 0; i < vector.length; i++) {
+            if (vector[i] == AVATAR_RIGHT_ID) vector[i] = AVATAR_UP_ID;
+        }
+        vars[2] = vector.clone();
+
+        for (int i = 0; i < vector.length; i++) {
+            if (vector[i] == AVATAR_UP_ID) vector[i] = AVATAR_DOWN_ID;
+        }
+        vars[3] = vector.clone();
+
+        return vars;
     }
 }

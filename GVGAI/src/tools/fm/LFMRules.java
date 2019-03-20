@@ -12,4 +12,5 @@ public interface LFMRules {
     int getTransition(int[] vector);
     int[] validatePattern(int[] vector, int patternSize);
     int getCellTypeID(StateObservation so, int i, int j);
+    int[][] getAvatarVariations(int[] vector);
 }

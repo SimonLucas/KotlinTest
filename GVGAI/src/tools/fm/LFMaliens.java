@@ -192,4 +192,9 @@ public class LFMaliens implements LFMRules {
 
         return cell;
     }
+
+    @Override
+    public int[][] getAvatarVariations(int[] vector) {
+        return null;
+    }
 }

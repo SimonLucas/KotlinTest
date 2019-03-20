@@ -63,20 +63,20 @@ public class Agent extends AbstractPlayer {
 //			System.out.println(lastFM.checkAccuracy(from, to) + " " + fm.getProgress());
         }
 
-//        lastObservation = stateObs.copy();
+        lastObservation = stateObs.copy();
 //		lastFM = fm.copy();
 //        System.out.println(fm.getProgress());
 
 
-        ArrayList<Observation>[][] grid = stateObs.getObservationGrid();
-        HashMap<Integer, Integer> count = new HashMap<>();
-        for (ArrayList<Observation>[] arrayLists : grid)
-            for (int j = 0; j < grid[0].length; j++) {
-                for (Observation o : arrayLists[j]) {
-                    count.merge(o.itype, 1, (a, b) -> a + b);
-                }
-            }
-        System.out.println(count);
+//        ArrayList<Observation>[][] grid = stateObs.getObservationGrid();
+//        HashMap<Integer, Integer> count = new HashMap<>();
+//        for (ArrayList<Observation>[] arrayLists : grid)
+//            for (int j = 0; j < grid[0].length; j++) {
+//                for (Observation o : arrayLists[j]) {
+//                    count.merge(o.itype, 1, (a, b) -> a + b);
+//                }
+//            }
+//        System.out.println(count);
 
         int index = randomGenerator.nextInt(actions.size());
         return actions.get(index);
