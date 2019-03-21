@@ -1,9 +1,6 @@
 package views;
 
-import games.caveswing.Anchor;
-import games.caveswing.CaveGameInternalState;
-import games.caveswing.CaveGameState;
-import games.caveswing.CaveSwingParams;
+import games.caveswing.*;
 import math.Vector2d;
 import utilities.DrawUtil;
 
@@ -20,10 +17,13 @@ public class CaveView extends JComponent {
     Color deadZone = Color.getHSBColor(0.9f, 1, 1);
     Color goalZone = Color.getHSBColor(0.3f, 1, 1);
     Color finishZone = Color.getHSBColor(0.7f, 1, 1);
+
     int nStars = 200;
     int rad = 10;
     Color anchorColor = Color.getHSBColor(0.17f, 1, 1);
     Color avatarColor = Color.getHSBColor(0.50f, 1, 1);
+    Color fruitColor = Color.gray;
+
     int scoreFontSize = 16;
     int planetFontSize = 14;
     DrawUtil scoreDraw = new DrawUtil().setColor(Color.white).setFontSize(scoreFontSize);
@@ -108,6 +108,14 @@ public class CaveView extends JComponent {
             }
             g.fillOval((int) a.getS().getX() - rad, (int) a.getS().getY() - rad, 2 * rad, 2 * rad);
             index++;
+        }
+    }
+
+    private void paintItems(Graphics2D g) {
+        g.setColor(Color.white);
+        // int scale = internalState.getParams();
+        for (Item item : internalState.getMap().getItems().values()) {
+
         }
     }
 
