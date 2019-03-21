@@ -204,8 +204,6 @@ class CaveGameState : ExtendedAbstractGameState, Serializable {
             println(item.alive)
             item.applyEffect(state)
             println(state.bonusScore)
-        } else {
-            println("No item")
         }
     }
 
