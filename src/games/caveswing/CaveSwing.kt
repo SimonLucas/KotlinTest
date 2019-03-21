@@ -197,15 +197,13 @@ class CaveGameState : ExtendedAbstractGameState, Serializable {
     }
 
     fun collision(state: CaveGameInternalState){
-        val x = (state.avatar.s.x/20).toInt()
-        val y = (state.avatar.s.y/20).toInt()
+        val x = (state.avatar.s.x/state.params.gridScale).toInt()
+        val y = (state.avatar.s.y/state.params.gridScale).toInt()
         val item = state.map.items.get(ItemPosition(x, y))
         if (item!= null) {
             println(item.alive)
             item.applyEffect(state)
             println(state.bonusScore)
-        } else {
-            println("No item")
         }
     }
 
