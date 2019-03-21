@@ -105,6 +105,16 @@ class Fruit : Item() {
     }
 }
 
+class Bomb : Item() {
+    override fun applyEffect(state: CaveGameInternalState) {
+
+        if (alive) {
+            state.bonusScore -= 5000
+            alive = false
+        }
+
+    }
+}
 
 class CaveGameState : ExtendedAbstractGameState, Serializable {
     override fun randomInitialState(): AbstractGameState {
