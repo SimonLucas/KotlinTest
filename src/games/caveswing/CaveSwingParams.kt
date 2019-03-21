@@ -26,6 +26,8 @@ data class CaveSwingParams (
         var pointPerY: Int = -10,
         var costPerTick: Int = 10,
 
+        var longJump:Boolean = true,
+
         var random: Random = Random()
 ) : Serializable {
     fun deepCopy() : CaveSwingParams {
