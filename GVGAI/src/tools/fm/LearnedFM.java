@@ -170,7 +170,7 @@ public class LearnedFM {
         int k = 0;
         for (int x = i - patternSize/2; x < i + patternSize/2 + 1; x++) {
             for (int y = j - patternSize/2; y < j + patternSize/2 + 1; y++) {
-                vector[k] = EOS_ID;
+                vector[k] = fmRules.eos();
                 if (x >= 0 && x < grid.length && y >= 0 && y < grid[0].length)
                     vector[k] = grid[x][y];
                 k++;

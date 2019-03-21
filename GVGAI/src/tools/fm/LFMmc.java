@@ -24,8 +24,7 @@ public class LFMmc implements LFMRules {
     private static int AVATAR_LEFT_ID = 12;
 
     public int[] getSpriteIDs() {
-        return new int[]{-1, WALL_ID, AVATAR_ID, CITY_ID,
-                MISSILE_ID, EXPLOSION_ID, EOS_ID};
+        return new int[]{-1, WALL_ID, AVATAR_ID, CITY_ID, MISSILE_ID, EXPLOSION_ID};
     }
 
     /**
@@ -51,7 +50,7 @@ public class LFMmc implements LFMRules {
                     } else if (action == Types.ACTIONS.ACTION_DOWN) {
                         from[i][j] = AVATAR_DOWN_ID;
                     } else if (action == Types.ACTIONS.ACTION_USE && i > 0 &&
-                            (from[i - 1][j] == -1 || from[i - 1][j] == EOS_ID || from[i - 1][j] == MISSILE_ID)) {
+                            (from[i - 1][j] == -1 || from[i - 1][j] == MISSILE_ID)) {
                         from[i - 1][j] = EXPLOSION_ID;  // Spawn missile
                     }
                 } else if (from[i][j] == AVATAR_RIGHT_ID) {
@@ -67,7 +66,7 @@ public class LFMmc implements LFMRules {
                     } else if (action == Types.ACTIONS.ACTION_DOWN) {
                         from[i][j] = AVATAR_DOWN_ID;
                     } else if (action == Types.ACTIONS.ACTION_USE && i < from.length - 1 &&
-                            (from[i + 1][j] == -1 || from[i + 1][j] == EOS_ID || from[i + 1][j] == MISSILE_ID)) {
+                            (from[i + 1][j] == -1 || from[i + 1][j] == MISSILE_ID)) {
                         from[i + 1][j] = EXPLOSION_ID;  // Spawn missile
                     }
                 } else if (from[i][j] == AVATAR_UP_ID) {
@@ -83,7 +82,7 @@ public class LFMmc implements LFMRules {
                     } else if (action == Types.ACTIONS.ACTION_DOWN) {
                         from[i][j] = AVATAR_DOWN_ID;
                     } else if (action == Types.ACTIONS.ACTION_USE && j > 0 &&
-                            (from[i][j - 1] == -1 || from[i][j - 1] == EOS_ID || from[i][j - 1] == MISSILE_ID)) {
+                            (from[i][j - 1] == -1 || from[i][j - 1] == MISSILE_ID)) {
                         from[i][j - 1] = EXPLOSION_ID;  // Spawn missile
                     }
                 } else if (from[i][j] == AVATAR_DOWN_ID) {
@@ -99,7 +98,7 @@ public class LFMmc implements LFMRules {
                     } else if (action == Types.ACTIONS.ACTION_UP) {
                         from[i][j] = AVATAR_UP_ID;
                     } else if (action == Types.ACTIONS.ACTION_USE && j < from[0].length - 1 &&
-                            (from[i][j + 1] == -1 || from[i][j + 1] == EOS_ID || from[i][j + 1] == MISSILE_ID)) {
+                            (from[i][j + 1] == -1 || from[i][j + 1] == MISSILE_ID)) {
                         from[i][j + 1] = EXPLOSION_ID;  // Spawn missile
                     }
                 }
@@ -202,15 +201,13 @@ public class LFMmc implements LFMRules {
         int avCount = 0;
         int cityCount = 0;
         int missileCount = 0;
-        int eosCount = 0;
 
         for (int i1 : vector) {
             if (i1 == AVATAR_LEFT_ID || i1 == AVATAR_RIGHT_ID || i1 == AVATAR_DOWN_ID || i1 == AVATAR_UP_ID) avCount++;
             else if (i1 == CITY_ID) cityCount++;
             else if (i1 == MISSILE_ID) missileCount++;
-            else if (i1 == EOS_ID) eosCount++;
         }
-        if (avCount > 1 || cityCount > 2 || missileCount > 8 || eosCount > 5) return null;
+        if (avCount > 1 || cityCount > 2 || missileCount > 8) return null;
         return vector;
     }
 
@@ -253,5 +250,10 @@ public class LFMmc implements LFMRules {
         vars[3] = vector.clone();
 
         return vars;
+    }
+
+    @Override
+    public int eos() {
+        return -1;
     }
 }

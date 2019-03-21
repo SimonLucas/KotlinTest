@@ -197,4 +197,9 @@ public class LFMaliens implements LFMRules {
     public int[][] getAvatarVariations(int[] vector) {
         return null;
     }
+
+    @Override
+    public int eos() {
+        return EOS_ID;
+    }
 }
