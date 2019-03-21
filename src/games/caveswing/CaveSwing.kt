@@ -86,7 +86,17 @@ class Map : Serializable {
 
 data class ItemPosition(val x:Int, val y : Int)
 
+interface Item {
+    fun applyEffect(state: CaveGameInternalState)
+}
 
+class Fruit : Item {
+    override fun applyEffect(state: CaveGameInternalState) {
+
+        
+
+    }
+}
 
 
 class CaveGameState : ExtendedAbstractGameState, Serializable {
