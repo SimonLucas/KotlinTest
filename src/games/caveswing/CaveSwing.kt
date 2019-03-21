@@ -86,14 +86,21 @@ class Map : Serializable {
 
 data class ItemPosition(val x:Int, val y : Int)
 
-interface Item {
-    fun applyEffect(state: CaveGameInternalState)
+abstract class Item {
+    var alive: Boolean = true
+    abstract fun applyEffect(state: CaveGameInternalState)
 }
 
-class Fruit : Item {
+class Fruit : Item() {
+
     override fun applyEffect(state: CaveGameInternalState) {
 
-        
+        // do it dirty for now
+        if (alive) {
+            state.bonusScore += 5000
+            alive = false
+        }
+
 
     }
 }
@@ -141,6 +148,7 @@ class CaveGameState : ExtendedAbstractGameState, Serializable {
             if (avatar.s.y < 0 || avatar.s.y >= params.height) {
                 score -= params.failurePenalty
             }
+            score += bonusScore
             return Math.floor(score)
         }
     }
