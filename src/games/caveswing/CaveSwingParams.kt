@@ -17,6 +17,7 @@ data class CaveSwingParams (
         var width: Int = 1500,
         var height: Int = 350,
         var nAnchors: Int = 10,
+        var gridScale : Int = 20,
         var meanAnchorHeight: Double = height * 0.4,
 
         // score related params
