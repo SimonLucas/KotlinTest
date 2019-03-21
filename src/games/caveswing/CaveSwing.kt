@@ -39,6 +39,10 @@ data class Anchor(val s: Vector2d) : Serializable {
 
 class Map : Serializable {
     var anchors = ArrayList<Anchor>()
+    val items = hashMapOf<ItemPosition,Item>(
+        ItemPosition(10, 5) to Fruit(),
+        ItemPosition(20, 7) to Bomb()
+    )
 
     // the map specifies the dimensions and the set of anchors
     internal var bounds = Rectangle2D.Double()
@@ -192,12 +196,29 @@ class CaveGameState : ExtendedAbstractGameState, Serializable {
         return cp
     }
 
+    fun collision(state: CaveGameInternalState){
+        val x = (state.avatar.s.x/20).toInt()
+        val y = (state.avatar.s.y/20).toInt()
+        val item = state.map.items.get(ItemPosition(x, y))
+        if (item!= null) {
+            println(item.alive)
+            item.applyEffect(state)
+            println(state.bonusScore)
+        } else {
+            println("No item")
+        }
+    }
+
     override fun next(actions: IntArray): AbstractGameState {
         // the array of actions is to allow for a multi-player game
         // quick return if game over
         if (isTerminal()) return this
 
+
         with(state) {
+
+            collision(state)
+
             // otherwise let's calculate the updates
             val action = actions[0]
             val resultantForce = params.gravity.copy()
