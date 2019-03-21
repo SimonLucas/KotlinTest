@@ -84,6 +84,10 @@ class Map : Serializable {
 }
 
 
+data class ItemPosition(val x:Int, val y : Int)
+
+
+
 
 class CaveGameState : ExtendedAbstractGameState, Serializable {
     override fun randomInitialState(): AbstractGameState {

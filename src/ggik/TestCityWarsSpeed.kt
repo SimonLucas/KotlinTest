@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
             DoNothingAgent(game.doNothingAction()),
             // SimpleEvoAgent(),
             // SimpleEvoAgent(useShiftBuffer = false),
-            SimpleEvoAgent(useMutationTransducer = false, useShiftBuffer = false, sequenceLength = 20, nEvals = 5)
+            SimpleEvoAgent(useMutationTransducer = false, useShiftBuffer = true, sequenceLength = 20, nEvals = 5)
 //            SimpleEvoAgent(useMutationTransducer = false, useShiftBuffer = true, sequenceLength = 20, nEvals = 5),
 //            SimpleEvoAgent(useMutationTransducer = false, useShiftBuffer = true, sequenceLength = 5, nEvals = 20),
 //            SimpleEvoAgent(useMutationTransducer = true, useShiftBuffer = true, sequenceLength = 5, nEvals = 20)
@@ -34,12 +34,13 @@ fun main(args: Array<String>) {
 
     )
     val runner = GameRunner()
-    runner.maxTicks = 500
+    val opponent = SimpleEvoAgent(useMutationTransducer = false, useShiftBuffer = false, sequenceLength = 20, nEvals = 5)
+    runner.maxTicks = 2000
     runner.verbose = true
     val nGames = 10
     for (game in games) {
         for (agent in agents) {
-            runner.runGames(game, agent, nGames)
+            runner.runGames(game, agent, opponent = opponent, nGames=nGames)
         }
     }
 }

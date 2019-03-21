@@ -33,12 +33,12 @@ fun main(args: Array<String>) {
 
     )
     val runner = GameRunner()
-    runner.maxTicks = 500
+    runner.maxTicks = 2000
     runner.verbose = true
     val nGames = 10
     for (game in games) {
         for (agent in agents) {
-            runner.runGames(game, agent, nGames)
+            runner.runGames(game, agent, nGames = nGames)
         }
     }
 }

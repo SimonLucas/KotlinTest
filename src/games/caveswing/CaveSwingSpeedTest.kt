@@ -38,7 +38,7 @@ fun runOneGame (params: CaveSwingParams) : CaveGameState {
     while (!gameState.isTerminal()) {
         // val actions = intArrayOf(player.getAction(deepCopy(gameState)))
         val actions = intArrayOf(player.getAction(gameState, playerId))
-        println(Arrays.toString(actions))
+        // println(Arrays.toString(actions))
         gameState.next(actions)
     }
 //    println("Game score: ${gameState.score()}")
