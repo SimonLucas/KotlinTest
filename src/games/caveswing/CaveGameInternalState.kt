@@ -10,7 +10,8 @@ data class CaveGameInternalState (
         var nTicks: Int = 0,
         var avatar: MovableObject = MovableObject(),
         var gameOver: Boolean = false,
-        var currentAnchor: Anchor? = null
+        var currentAnchor: Anchor? = null,
+        var bonusScore: Int = 0
 ) {
     fun deepCopy() : CaveGameInternalState {
         val cgs = CaveGameInternalState()
@@ -23,6 +24,7 @@ data class CaveGameInternalState (
         cgs.currentAnchor = currentAnchor
         cgs.nTicks = nTicks
         cgs.gameOver = gameOver
+        cgs.bonusScore = bonusScore
         return cgs
     }
 

@@ -30,6 +30,8 @@ fun main(args: Array<String>) {
     println("Millions of ticks per second: %.1f".format(totalTicks * 1e-3/elapsed))
 }
 
+
+
 fun runOneGame (params: CaveSwingParams) : CaveGameState {
     val gameState = CaveGameState().setup(params)
     var player: SimplePlayerInterface = RandomAgent()
@@ -38,7 +40,7 @@ fun runOneGame (params: CaveSwingParams) : CaveGameState {
     while (!gameState.isTerminal()) {
         // val actions = intArrayOf(player.getAction(deepCopy(gameState)))
         val actions = intArrayOf(player.getAction(gameState, playerId))
-        // println(Arrays.toString(actions))
+        //println(Arrays.toString(actions))
         gameState.next(actions)
     }
 //    println("Game score: ${gameState.score()}")
