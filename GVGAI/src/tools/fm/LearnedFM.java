@@ -193,21 +193,21 @@ public class LearnedFM {
                                                    int r, int start, int end) {
         if (index == r) {
             int[] vector = new int[r];
-            int avCount = 0;
+//            int avCount = 0;
             for (int i = 0; i < r; i++) {
                 vector[i] = arr[chosen[i]];
-                if (vector[i] == AVATAR_ID) avCount++;
+//                if (vector[i] == AVATAR_ID) avCount++;
             }
-            if (avCount > 0) {
-                int[][] vectors = fmRules.getAvatarVariations(vector);
-                if (vectors != null) {
-                    for (int[] v : vectors) {
-                        if (validatePattern(v, (int) Math.sqrt(arr.length)) != null)
-                            vectorList.add(v);
-                    }
-                    return;
-                }
-            }
+//            if (avCount > 0) {
+//                int[][] vectors = fmRules.getAvatarVariations(vector);
+//                if (vectors != null) {
+//                    for (int[] v : vectors) {
+//                        if (validatePattern(v, (int) Math.sqrt(arr.length)) != null)
+//                            vectorList.add(v);
+//                    }
+//                    return;
+//                }
+//            }
 
             if (validatePattern(vector, (int)Math.sqrt(arr.length)) != null)
                 vectorList.add(vector);

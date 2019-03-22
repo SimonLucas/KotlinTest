@@ -7,6 +7,7 @@ import sun.security.x509.AVA;
 import tools.Vector2d;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static ontology.Types.TYPE_AVATAR;
 import static tools.fm.LearnedFM.*;
@@ -18,10 +19,12 @@ public class LFMmc implements LFMRules {
     private static int MISSILE_ID = 7;
     private static int EXPLOSION_ID = 4;
 
-    private static int AVATAR_UP_ID = 9;
-    private static int AVATAR_DOWN_ID = 10;
-    private static int AVATAR_RIGHT_ID = 11;
-    private static int AVATAR_LEFT_ID = 12;
+    private static int AVATAR_UP_ID = 0;
+    private static int AVATAR_DOWN_ID = 1;
+    private static int AVATAR_RIGHT_ID = 2;
+    private static int AVATAR_LEFT_ID = 3;
+
+    private int avatar_orientation = AVATAR_UP_ID;
 
     public int[] getSpriteIDs() {
         return new int[]{-1, WALL_ID, AVATAR_ID, CITY_ID, MISSILE_ID, EXPLOSION_ID};
@@ -37,70 +40,77 @@ public class LFMmc implements LFMRules {
     public int[][] applyAction(int[][] from, Types.ACTIONS action) {
         for (int i = 0; i < from.length; i++) {
             for (int j = 0; j < from[0].length; j++) {
-                if (from[i][j] == AVATAR_LEFT_ID) {
-                    if (action == Types.ACTIONS.ACTION_LEFT) {
-                        if (from[i][j] == AVATAR_LEFT_ID && i > 0 && from[i - 1][j] != WALL_ID) {
-                            from[i][j] = -1;
-                            from[i - 1][j] = AVATAR_LEFT_ID;
-                        } else from[i][j] = AVATAR_LEFT_ID;
-                    } else if (action == Types.ACTIONS.ACTION_RIGHT) {
-                        from[i][j] = AVATAR_RIGHT_ID;
-                    } else if (action == Types.ACTIONS.ACTION_UP) {
-                        from[i][j] = AVATAR_UP_ID;
-                    } else if (action == Types.ACTIONS.ACTION_DOWN) {
-                        from[i][j] = AVATAR_DOWN_ID;
-                    } else if (action == Types.ACTIONS.ACTION_USE && i > 0 &&
-                            (from[i - 1][j] == -1 || from[i - 1][j] == MISSILE_ID)) {
-                        from[i - 1][j] = EXPLOSION_ID;  // Spawn missile
+                if (from[i][j] == AVATAR_ID) {
+                    if (avatar_orientation == AVATAR_LEFT_ID) {
+                        if (action == Types.ACTIONS.ACTION_LEFT) {
+                            if (i > 0 && from[i - 1][j] != WALL_ID) {
+                                from[i][j] = -1;
+                                from[i - 1][j] = AVATAR_ID;
+                                avatar_orientation = AVATAR_LEFT_ID;
+                            } else from[i][j] = AVATAR_LEFT_ID;
+                        } else if (action == Types.ACTIONS.ACTION_RIGHT) {
+                            avatar_orientation = AVATAR_RIGHT_ID;
+                        } else if (action == Types.ACTIONS.ACTION_UP) {
+                            avatar_orientation = AVATAR_UP_ID;
+                        } else if (action == Types.ACTIONS.ACTION_DOWN) {
+                            avatar_orientation = AVATAR_DOWN_ID;
+                        } else if (action == Types.ACTIONS.ACTION_USE && i > 0 &&
+                                (from[i - 1][j] == -1 || from[i - 1][j] == MISSILE_ID)) {
+                            from[i - 1][j] = EXPLOSION_ID;  // Spawn missile
+                        }
+                    } else if (avatar_orientation == AVATAR_RIGHT_ID) {
+                        if (action == Types.ACTIONS.ACTION_RIGHT) {
+                            if (i < from.length - 1 && from[i + 1][j] != WALL_ID) {
+                                from[i][j] = -1;
+                                from[i + 1][j] = AVATAR_ID;
+                                avatar_orientation = AVATAR_RIGHT_ID;
+                            } else from[i][j] = AVATAR_RIGHT_ID;
+                        } else if (action == Types.ACTIONS.ACTION_LEFT) {
+                            avatar_orientation = AVATAR_LEFT_ID;
+                        } else if (action == Types.ACTIONS.ACTION_UP) {
+                            avatar_orientation = AVATAR_UP_ID;
+                        } else if (action == Types.ACTIONS.ACTION_DOWN) {
+                            avatar_orientation = AVATAR_DOWN_ID;
+                        } else if (action == Types.ACTIONS.ACTION_USE && i < from.length - 1 &&
+                                (from[i + 1][j] == -1 || from[i + 1][j] == MISSILE_ID)) {
+                            from[i + 1][j] = EXPLOSION_ID;  // Spawn missile
+                        }
+                    } else if (avatar_orientation == AVATAR_UP_ID) {
+                        if (action == Types.ACTIONS.ACTION_UP) {
+                            if (j > 0 && from[i][j - 1] != WALL_ID) {
+                                from[i][j] = -1;
+                                from[i][j - 1] = AVATAR_ID;
+                                avatar_orientation = AVATAR_UP_ID;
+                            } else from[i][j] = AVATAR_UP_ID;
+                        } else if (action == Types.ACTIONS.ACTION_LEFT) {
+                            avatar_orientation = AVATAR_LEFT_ID;
+                        } else if (action == Types.ACTIONS.ACTION_RIGHT) {
+                            avatar_orientation = AVATAR_RIGHT_ID;
+                        } else if (action == Types.ACTIONS.ACTION_DOWN) {
+                            avatar_orientation = AVATAR_DOWN_ID;
+                        } else if (action == Types.ACTIONS.ACTION_USE && j > 0 &&
+                                (from[i][j - 1] == -1 || from[i][j - 1] == MISSILE_ID)) {
+                            from[i][j - 1] = EXPLOSION_ID;  // Spawn missile
+                        }
+                    } else if (avatar_orientation == AVATAR_DOWN_ID) {
+                        if (action == Types.ACTIONS.ACTION_DOWN) {
+                            if (j < from[0].length - 1 && from[i][j + 1] != WALL_ID) {
+                                from[i][j] = -1;
+                                from[i][j + 1] = AVATAR_ID;
+                                avatar_orientation = AVATAR_DOWN_ID;
+                            } else from[i][j] = AVATAR_DOWN_ID;
+                        } else if (action == Types.ACTIONS.ACTION_LEFT) {
+                            avatar_orientation = AVATAR_LEFT_ID;
+                        } else if (action == Types.ACTIONS.ACTION_RIGHT) {
+                            avatar_orientation = AVATAR_RIGHT_ID;
+                        } else if (action == Types.ACTIONS.ACTION_UP) {
+                            avatar_orientation = AVATAR_UP_ID;
+                        } else if (action == Types.ACTIONS.ACTION_USE && j < from[0].length - 1 &&
+                                (from[i][j + 1] == -1 || from[i][j + 1] == MISSILE_ID)) {
+                            from[i][j + 1] = EXPLOSION_ID;  // Spawn missile
+                        }
                     }
-                } else if (from[i][j] == AVATAR_RIGHT_ID) {
-                    if (action == Types.ACTIONS.ACTION_RIGHT) {
-                        if (from[i][j] == AVATAR_RIGHT_ID && i < from.length - 1 && from[i + 1][j] != WALL_ID) {
-                            from[i][j] = -1;
-                            from[i + 1][j] = AVATAR_RIGHT_ID;
-                        } else from[i][j] = AVATAR_RIGHT_ID;
-                    } else if (action == Types.ACTIONS.ACTION_LEFT) {
-                        from[i][j] = AVATAR_LEFT_ID;
-                    } else if (action == Types.ACTIONS.ACTION_UP) {
-                        from[i][j] = AVATAR_UP_ID;
-                    } else if (action == Types.ACTIONS.ACTION_DOWN) {
-                        from[i][j] = AVATAR_DOWN_ID;
-                    } else if (action == Types.ACTIONS.ACTION_USE && i < from.length - 1 &&
-                            (from[i + 1][j] == -1 || from[i + 1][j] == MISSILE_ID)) {
-                        from[i + 1][j] = EXPLOSION_ID;  // Spawn missile
-                    }
-                } else if (from[i][j] == AVATAR_UP_ID) {
-                    if (action == Types.ACTIONS.ACTION_UP) {
-                        if (from[i][j] == AVATAR_UP_ID && j > 0 && from[i][j - 1] != WALL_ID) {
-                            from[i][j] = -1;
-                            from[i][j - 1] = AVATAR_UP_ID;
-                        } else from[i][j] = AVATAR_UP_ID;
-                    } else if (action == Types.ACTIONS.ACTION_LEFT) {
-                        from[i][j] = AVATAR_LEFT_ID;
-                    } else if (action == Types.ACTIONS.ACTION_RIGHT) {
-                        from[i][j] = AVATAR_RIGHT_ID;
-                    } else if (action == Types.ACTIONS.ACTION_DOWN) {
-                        from[i][j] = AVATAR_DOWN_ID;
-                    } else if (action == Types.ACTIONS.ACTION_USE && j > 0 &&
-                            (from[i][j - 1] == -1 || from[i][j - 1] == MISSILE_ID)) {
-                        from[i][j - 1] = EXPLOSION_ID;  // Spawn missile
-                    }
-                } else if (from[i][j] == AVATAR_DOWN_ID) {
-                    if (action == Types.ACTIONS.ACTION_DOWN) {
-                        if (from[i][j] == AVATAR_DOWN_ID && j < from[0].length - 1 && from[i][j + 1] != WALL_ID) {
-                            from[i][j] = -1;
-                            from[i][j + 1] = AVATAR_DOWN_ID;
-                        } else from[i][j] = AVATAR_DOWN_ID;
-                    } else if (action == Types.ACTIONS.ACTION_LEFT) {
-                        from[i][j] = AVATAR_LEFT_ID;
-                    } else if (action == Types.ACTIONS.ACTION_RIGHT) {
-                        from[i][j] = AVATAR_RIGHT_ID;
-                    } else if (action == Types.ACTIONS.ACTION_UP) {
-                        from[i][j] = AVATAR_UP_ID;
-                    } else if (action == Types.ACTIONS.ACTION_USE && j < from[0].length - 1 &&
-                            (from[i][j + 1] == -1 || from[i][j + 1] == MISSILE_ID)) {
-                        from[i][j + 1] = EXPLOSION_ID;  // Spawn missile
-                    }
+                    break;
                 }
             }
         }
@@ -201,13 +211,16 @@ public class LFMmc implements LFMRules {
         int avCount = 0;
         int cityCount = 0;
         int missileCount = 0;
+        int explosionCount = 0;
 
         for (int i1 : vector) {
-            if (i1 == AVATAR_LEFT_ID || i1 == AVATAR_RIGHT_ID || i1 == AVATAR_DOWN_ID || i1 == AVATAR_UP_ID) avCount++;
+            if (i1 == AVATAR_ID) avCount++;
             else if (i1 == CITY_ID) cityCount++;
             else if (i1 == MISSILE_ID) missileCount++;
+            else if (i1 == EXPLOSION_ID) explosionCount++;
         }
-        if (avCount > 1 || cityCount > 2 || missileCount > 8) return null;
+        if (avCount > 1 || cityCount > 2 || missileCount > 8 || explosionCount > 5) return null;
+
         return vector;
     }
 
@@ -228,28 +241,29 @@ public class LFMmc implements LFMRules {
 
     @Override
     public int[][] getAvatarVariations(int[] vector) {
-        int[][] vars = new int[4][];
-        for (int i = 0; i < vector.length; i++) {
-            if (vector[i] == AVATAR_ID) vector[i] = AVATAR_LEFT_ID;
-        }
-        vars[0] = vector.clone();
-
-        for (int i = 0; i < vector.length; i++) {
-            if (vector[i] == AVATAR_LEFT_ID) vector[i] = AVATAR_RIGHT_ID;
-        }
-        vars[1] = vector.clone();
-
-        for (int i = 0; i < vector.length; i++) {
-            if (vector[i] == AVATAR_RIGHT_ID) vector[i] = AVATAR_UP_ID;
-        }
-        vars[2] = vector.clone();
-
-        for (int i = 0; i < vector.length; i++) {
-            if (vector[i] == AVATAR_UP_ID) vector[i] = AVATAR_DOWN_ID;
-        }
-        vars[3] = vector.clone();
-
-        return vars;
+//        int[][] vars = new int[4][];
+//        for (int i = 0; i < vector.length; i++) {
+//            if (vector[i] == AVATAR_ID) vector[i] = AVATAR_LEFT_ID;
+//        }
+//        vars[0] = vector.clone();
+//
+//        for (int i = 0; i < vector.length; i++) {
+//            if (vector[i] == AVATAR_LEFT_ID) vector[i] = AVATAR_RIGHT_ID;
+//        }
+//        vars[1] = vector.clone();
+//
+//        for (int i = 0; i < vector.length; i++) {
+//            if (vector[i] == AVATAR_RIGHT_ID) vector[i] = AVATAR_UP_ID;
+//        }
+//        vars[2] = vector.clone();
+//
+//        for (int i = 0; i < vector.length; i++) {
+//            if (vector[i] == AVATAR_UP_ID) vector[i] = AVATAR_DOWN_ID;
+//        }
+//        vars[3] = vector.clone();
+//
+//        return vars;
+        return null;
     }
 
     @Override
