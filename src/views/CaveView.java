@@ -86,6 +86,7 @@ public class CaveView extends JComponent {
 
         paintAnchors(g);
         paintAvatar(g);
+        paintItems(g);
         drawPlayouts(g);
 
         if (scrollView) {

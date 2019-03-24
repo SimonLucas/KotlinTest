@@ -5,6 +5,8 @@ import agents.RandomAgent
 import agents.SimpleEvoAgent
 import games.gridgame.MyRule
 import games.gridgame.UpdateRule
+import games.simplegridgame.fdc.LifeFun
+import games.simplegridgame.fdc.TruthTableRule
 import ggi.SimplePlayerInterface
 import utilities.ElapsedTimer
 import utilities.JEasyFrame
@@ -27,13 +29,13 @@ import javax.swing.JComponent
 // many simulations and the data harvester by default will
 // collect data from all of them!
 
-val learnSteps = 3
+val learnSteps = 5
 val testSteps = 100
 val gamesPerEval = 1
 val nPredictionTests = 30
 val w = 30
 val h = 30
-val visual = true
+val visual = false
 val lutSizeLimit = 0
 val diceRoll = false
 val rewardFactor = 1.0
@@ -45,9 +47,9 @@ fun main() {
 
     val t = ElapsedTimer()
 
-    val nReps = 30
+    val nReps = 3
 
-    val lutSizes = 480 .. 512 step 32
+    val lutSizes = 500 .. 512 step 32
     println(lutSizes)
     val results = TreeMap<Int,StatSummary>()
     for (lut in lutSizes) {
@@ -64,8 +66,11 @@ fun main() {
 
     results.forEach{key, value -> println("$key\t %.1f\t %.1f".format(value.mean(), value.stdErr()))}
 
+
+
     println("Total time: " + t)
 }
+
 
 
 fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
@@ -78,6 +83,7 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
 
     // game.updateRule = CaveUpdateRule()
     // game.updateRule =
+    learner = StatLearner()
     game.rewardFactor = rewardFactor
     learner.lutSizeLimit = lutSizeLimit
     learner.diceRoll = diceRoll
@@ -103,6 +109,11 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
         println("$i\t N distinct patterns learned = ${learner.lut.size}")
     }
 
+    val learnedTTR = TruthTableRule().setRule(learner)
+    val model = TruthTableRule().setRule(LifeFun())
+
+    println("TTR Distance from true model = ${model.distance(learnedTTR )}")
+
     // learner.reportComparison()
     println(t)
 
@@ -117,8 +128,12 @@ fun trainAndPlay(lutSizeLimit: Int) : StatSummary {
     println("Testing")
     val ss = runGames(agent1, learner, visual)
     println(ss)
+
     // learner.reportComparison()
+
     println(t)
+
+
 
     return ss
 

@@ -3,6 +3,7 @@ package games.simplegridgame
 import games.gridgame.Grid
 import games.gridgame.UpdateRule
 import games.gridgame.vectorExtractor
+import games.simplegridgame.fdc.TruthTableRule
 
 class LifeUpdateRule : UpdateRule {
     override fun cellUpdate(grid: Grid, x: Int, y: Int): Int {
@@ -18,4 +19,16 @@ class CaveUpdateRule : UpdateRule {
         return if (cells.sum() > t) 1 else 0
     }
 }
+
+class LutRule (val ttr: TruthTableRule): UpdateRule {
+    override fun cellUpdate(grid: Grid, x: Int, y: Int): Int {
+        val ip =  vectorExtractor(grid, x, y)
+        return ttr.f(ip)
+
+
+
+    }
+
+}
+
 

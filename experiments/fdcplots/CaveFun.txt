@@ -1,0 +1,26 @@
+5 trials per data point:
+Reference rule: Cave Generating Function
+Dist: = hamming distance between true truth table and corrupted one
+
+Scores (dist, mean, s.e.)
+0	 741.6	 55.1
+10	 634.8	 66.4
+20	 559.8	 43.4
+30	 469.0	 61.7
+40	 553.8	 43.7
+50	 482.4	 43.6
+Prediction Errors (dist, mean, s.e.)
+0	 0.0	 0.0
+10	 38.0	 7.3
+20	 93.6	 1.9
+30	 137.0	 6.3
+40	 169.0	 24.3
+50	 209.6	 32.0
+342220 ms elapsed
+
+// random false rules (30 trials)
+Scores (mean, s.e.)
+0	 421.3	 18.8
+Prediction Errors (mean, s.e.)
+0	 447.0	 3.0
+350331 ms elapsed

@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
     // now print the patterns
 
     println("Ran for $nSteps steps")
-    println("Generated ${data.size} unique observations")
+    println("Generated ${gatherer.data.size} unique observations")
     println("Total local patterns = " + gatherer.total)
     gatherer.report()
     game.print()

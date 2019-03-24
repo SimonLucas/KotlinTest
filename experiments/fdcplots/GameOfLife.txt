@@ -1,0 +1,27 @@
+5 trials per data point:
+Reference rule: Game of Life
+Dist: = hamming distance between true truth table and corrupted one
+
+Scores (dist, mean, s.e.)
+0	 214.8	 8.4
+10	 171.6	 10.0
+20	 121.4	 17.1
+30	 93.6	 30.8
+40	 120.6	 31.8
+50	 107.8	 11.5
+
+Prediction Errors (dist, mean, s.e.)
+0	 0.0	 0.0
+10	 244.2	 35.9
+20	 286.4	 15.9
+30	 365.6	 16.9
+40	 359.6	 15.4
+50	 371.2	 8.7
+343735 ms elapsed
+
+// random rules for comparison (30 trials)
+
+Scores (mean, s.e.)
+93.8	 6.4
+Prediction Errors (mean, s.e.)
+455.1	 2.7
