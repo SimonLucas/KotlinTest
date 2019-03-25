@@ -35,7 +35,7 @@ val gamesPerEval = 1
 val nPredictionTests = 30
 val w = 30
 val h = 30
-val visual = false
+val visual = true
 val lutSizeLimit = 0
 val diceRoll = false
 val rewardFactor = 1.0
@@ -49,7 +49,7 @@ fun main() {
 
     val nReps = 3
 
-    val lutSizes = 500 .. 512 step 32
+    val lutSizes = 480 .. 512 step 32
     println(lutSizes)
     val results = TreeMap<Int,StatSummary>()
     for (lut in lutSizes) {
@@ -148,7 +148,7 @@ fun runGames(agent: SimplePlayerInterface, learnedRule: UpdateRule, visual: Bool
         val game = SimpleGridGame(w, h)
         game.rewardFactor = rewardFactor
 
-        // game.updateRule = CaveUpdateRule()
+        game.updateRule = CaveUpdateRule()
         // game.updateRule = LifeUpdateRule()
 
         // game.updateRule = learnedRule
