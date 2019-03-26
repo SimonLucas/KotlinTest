@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
     val gatherer = Gatherer()
 
     val timer = ElapsedTimer()
-    val nSteps = 10000
+    val nSteps = 100000
     for (i in 0 until nSteps) {
         actions[0] = agent.getAction(game.copy(), Constants.player1)
         val grid1 = game.board.deepCopy()
