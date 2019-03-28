@@ -18,7 +18,8 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
     val BOXIN: Char = '+'
 
     var grid: CharArray = readGrid()
-
+    var nBoxes = 0
+    var nBoxesIn = 0
 
     fun readGrid() : CharArray
     {
@@ -40,16 +41,18 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
             println("ERROR: No player in level")
         }else{
             playerX = playerLoc % w
-            playerY = (playerLoc / h) - 1
+            playerY = playerLoc / w
             arraygrid.set(playerLoc, EMPTY)
         }
-
-        //Find boxes (count only for now?)
-
 
         return arraygrid
     }
 
+    fun boxScore()
+    {
+        nBoxes--
+        nBoxesIn++
+    }
 
     fun getCell(i: Int): Char = grid[i]
 
@@ -88,7 +91,7 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
     fun print() {
         for (i in 0 until grid.size) {
 
-            if (playerX == i % w && playerY == (i / h) - 1)
+            if (playerX == i % w && playerY == (i / w)) // - 1)
                 print(AVATAR)
             else
                 print(grid[i])
@@ -109,9 +112,9 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
     }
 
     init {
-
-        //print()
-
+        //Count boxes
+        nBoxes = count(BOX)
+        nBoxesIn = count(BOXIN)  //Could be 0, but this is for levels with some already in (why not)
     }
 
     fun deepCopy(): Grid {
@@ -137,13 +140,16 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
 }
 
 var totalTicks: Long = 0
-val NIL: Int = 0
-val UP: Int = 1
-val RIGHT: Int = 2
-val DOWN: Int = 3
-val LEFT: Int = 4
-val ACTIONS: IntArray = intArrayOf(NIL, UP, RIGHT, DOWN, LEFT)
 
+object SokobanConstants
+{
+    val NIL: Int = 0
+    val UP: Int = 1
+    val RIGHT: Int = 2
+    val DOWN: Int = 3
+    val LEFT: Int = 4
+    val ACTIONS: IntArray = intArrayOf(NIL, UP, RIGHT, DOWN, LEFT)
+}
 
 open class Sokoban : ExtendedAbstractGameState {
 
@@ -155,13 +161,13 @@ open class Sokoban : ExtendedAbstractGameState {
 
         var playerAction : Int = actions[0]
 
-        if(playerAction != NIL)
+        if(playerAction != SokobanConstants.NIL)
         {
             when(playerAction) {
-                UP -> move(intArrayOf(0, -1))
-                RIGHT -> move(intArrayOf(1, 0))
-                DOWN -> move(intArrayOf(0, 1))
-                LEFT -> move(intArrayOf(-1,0))
+                SokobanConstants.UP -> move(intArrayOf(0, -1))
+                SokobanConstants.RIGHT -> move(intArrayOf(1, 0))
+                SokobanConstants.DOWN -> move(intArrayOf(0, 1))
+                SokobanConstants.LEFT -> move(intArrayOf(-1,0))
                 else -> println("INVALID ACTION: " + playerAction)
             }
         }
@@ -216,6 +222,7 @@ open class Sokoban : ExtendedAbstractGameState {
                     board.HOLE -> {             //EUREKA!
                         board.setCell(nextX, nextY, board.EMPTY)
                         board.setCell(forwardX, forwardY, board.BOXIN)
+                        board.boxScore()
                     }
                 }
             }
@@ -226,15 +233,15 @@ open class Sokoban : ExtendedAbstractGameState {
     }
 
     override fun nActions(): Int {
-        return ACTIONS.size
+        return SokobanConstants.ACTIONS.size
     }
 
     override fun score(): Double {
-        return board.count('+').toDouble()
+        return board.nBoxesIn.toDouble()
     }
 
     override fun isTerminal(): Boolean {
-        return board.count('*') == 0
+        return board.nBoxes == 0
     }
 
     override fun nTicks(): Int {
@@ -262,14 +269,15 @@ open class Sokoban : ExtendedAbstractGameState {
 
     fun print() {
         board.print()
-        println("Score: " + score() + ", terminal: " + isTerminal())
+        println("Score: " + score() + ", terminal: " + isTerminal() +
+                "; Player at x " + board.playerX + ", y: " + board.playerY)
     }
 }
 
 fun main(args: Array<String>) {
     var sokoban : Sokoban = Sokoban()
     sokoban.print()
-    sokoban.next(intArrayOf(UP))
+    sokoban.next(intArrayOf(SokobanConstants.UP))
 
 //    THIS FAILS TO SOLVE THE LEVEL
 //    sokoban.print()
@@ -286,18 +294,31 @@ fun main(args: Array<String>) {
 //    sokoban.next(intArrayOf(DOWN))
 
 //    THIS SOLVES THE LEVEL
-    sokoban.next(intArrayOf(UP))
-    sokoban.next(intArrayOf(UP))
-    sokoban.print()
-    sokoban.next(intArrayOf(DOWN))
-    sokoban.next(intArrayOf(DOWN))
-    sokoban.next(intArrayOf(RIGHT))
-    sokoban.next(intArrayOf(RIGHT))
-    sokoban.next(intArrayOf(UP))
-    sokoban.next(intArrayOf(UP))
-    sokoban.print()
-    sokoban.next(intArrayOf(DOWN))
-    sokoban.next(intArrayOf(LEFT))
+//    sokoban.next(intArrayOf(SokobanConstants.UP))
+//    sokoban.next(intArrayOf(SokobanConstants.UP))
+//    sokoban.print()
+//    sokoban.next(intArrayOf(SokobanConstants.DOWN))
+//    sokoban.next(intArrayOf(SokobanConstants.DOWN))
+//    sokoban.next(intArrayOf(SokobanConstants.RIGHT))
+//    sokoban.next(intArrayOf(SokobanConstants.RIGHT))
+//    sokoban.next(intArrayOf(SokobanConstants.UP))
+//    sokoban.next(intArrayOf(SokobanConstants.UP))
+//    sokoban.print()
+//    sokoban.next(intArrayOf(SokobanConstants.DOWN))
+//    sokoban.next(intArrayOf(SokobanConstants.LEFT))
+
+//    var w:Int = 8
+//    for (i in 0 until sokoban.board.grid.size){
+//        println("> " + i + ": " + (i%w) + " " + (i/w))
+//    }
+
+    println("------")
+
+    var W:Int = 8
+    var H:Int = 7
+    for (j in 0 until H)
+        for (i in 0 until W)
+            println("> " + i + "," + j + ": " + (i + W * j))
 
 
     sokoban.print()

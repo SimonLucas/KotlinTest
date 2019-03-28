@@ -20,13 +20,6 @@ public class SokobanView extends JComponent {
 
     public boolean gridLines = true;
 
-//    public GridView(GridGame gridGame) {
-//        this.gridGame = gridGame;
-//    }
-
-
-
-
 
     public SokobanView(Grid grid) {
         this.grid = grid;
@@ -41,7 +34,7 @@ public class SokobanView extends JComponent {
 
             int pX = grid.getPlayerX();
             int pY = grid.getPlayerY();
-            if (pX == i % grid.getWidth() && pY == (i / grid.getHeight()) - 1) {
+            if (pX == i % grid.getWidth() && pY == (i / grid.getWidth())) {
                 g.setColor(Color.CYAN);
             } else {
                 switch (tile) {
@@ -64,10 +57,6 @@ public class SokobanView extends JComponent {
                 g.setColor(col);
             }
 
-
-//            float h = grid.getCell(i) == 0 ? 0.35f : 0.89f;
-//            g.setColor(Color.getHSBColor(h, 1, 1));
-//            if (deadBlack && grid.getCell(i) == 0) g.setColor(Color.black);
 
             int x = cellSize * (i % grid.getW()), y = cellSize * (i / grid.getW());
             g.fillRect(x, y, cellSize, cellSize);
