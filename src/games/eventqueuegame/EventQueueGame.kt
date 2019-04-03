@@ -4,11 +4,12 @@ import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import math.Vec2d
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 // todo : Create and test and Event Queue
 
-data class Event (val tick: Int, val effect: Effect) : Comparable<Event> {
+data class Event(val tick: Int, val effect: Effect) : Comparable<Event> {
     override fun compareTo(other: Event): Int {
         return tick.compareTo(other.tick)
     }
@@ -18,9 +19,9 @@ enum class PlayerId {
     Blue, Red, Neutral, Fog
 }
 
-data class City (val location: Vec2d, var radius: Int = 40, var pop: Int = 100, var owner: PlayerId = PlayerId.Neutral)
+data class City(val location: Vec2d, var radius: Int = 40, var pop: Int = 100, var owner: PlayerId = PlayerId.Neutral)
 
-data class EventGameParams (
+data class EventGameParams(
         var nAttempts: Int = 10,
         var width: Int = 1000,
         var height: Int = 600,
@@ -33,12 +34,12 @@ data class EventGameParams (
 )
 
 
-data class World (val cities: ArrayList<City> = ArrayList()) {
+data class World(var cities: ArrayList<City> = ArrayList()) {
     var width = 1000
     var height = 600
     var random = Random(1)
 
-    fun randomize(params: EventGameParams = EventGameParams()) : World {
+    fun randomize(params: EventGameParams = EventGameParams()): World {
         // just keep it like so
         cities.clear()
         with(params) {
@@ -46,8 +47,8 @@ data class World (val cities: ArrayList<City> = ArrayList()) {
             for (i in 0 until nAttempts) {
                 val rad = minRad + random.nextInt(maxRad - minRad)
                 val pop = minPop + random.nextInt(maxPop - minPop)
-                val location = Vec2d(rad + random.nextDouble(width - 2*rad.toDouble()),
-                        rad + random.nextDouble(height - 2*rad.toDouble()))
+                val location = Vec2d(rad + random.nextDouble(width - 2 * rad.toDouble()),
+                        rad + random.nextDouble(height - 2 * rad.toDouble()))
                 val city = City(location, rad, pop)
                 if (canPlace(city, cities, minSep)) cities.add(city)
             }
@@ -55,19 +56,36 @@ data class World (val cities: ArrayList<City> = ArrayList()) {
         return this
     }
 
-    fun canPlace(c: City, cities: ArrayList<City>, minSep: Int) : Boolean {
+    fun canPlace(c: City, cities: ArrayList<City>, minSep: Int): Boolean {
         for (el in cities)
             if (c.location.distanceTo(el.location) < c.radius + el.radius + minSep) return false
         return true
     }
 
-    fun randomiseIds() : World {
+    fun randomiseIds(): World {
         for (c in cities) c.owner = PlayerId.values()[random.nextInt(PlayerId.values().size)]
         return this
     }
+
+    fun fogTest(id: PlayerId): World {
+        cities.forEach { c ->
+            if (c.owner != id) {
+                // fog it out
+                c.owner = PlayerId.Fog
+                c.pop = -1
+            }
+        }
+        return this
+    }
+
+    fun deepCopy(): World {
+        val state = copy()
+        state.cities = ArrayList()
+        for (c in cities) state.cities.add(c.copy())
+        return state
+    }
+
 }
-
-
 
 
 interface Effect {
@@ -100,7 +118,11 @@ class EventQueueGame : ExtendedAbstractGameState {
     var nTicks = 0
 
     override fun copy(): AbstractGameState {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val state = EventQueueGame()
+        state.world = world.deepCopy()
+        state.eventQueue.addAll(eventQueue)
+        state.nTicks = nTicks
+        return state
     }
 
     override fun next(actions: IntArray): AbstractGameState {
@@ -112,7 +134,7 @@ class EventQueueGame : ExtendedAbstractGameState {
             // the time has come to trigger it
             eventQueue.poll()
             event.effect.apply(world)
-            println("Triggered event: ${event}" )
+            println("Triggered event: ${event}")
         }
         return this
     }
@@ -126,7 +148,8 @@ class EventQueueGame : ExtendedAbstractGameState {
     }
 
     override fun isTerminal(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // for now assume game is never over
+        return false
     }
 
     override fun nTicks(): Int {
@@ -142,7 +165,10 @@ class EventQueueGame : ExtendedAbstractGameState {
     }
 
     override fun randomInitialState(): AbstractGameState {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        eventQueue.clear()
+        nTicks = 0
+        world = World().randomize()
+        return this
     }
 
 }
