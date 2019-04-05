@@ -11,7 +11,7 @@ class WorldView (var game: EventQueueGame) : JComponent() {
 
 
 
-    val dim = Dimension(800, 500)
+    val dim = Dimension(400, 250)
     val bg = Color.getHSBColor(0.1f, 1.0f, 0.2f)
     val bgHue = 0.05f
     val outline = Color.lightGray

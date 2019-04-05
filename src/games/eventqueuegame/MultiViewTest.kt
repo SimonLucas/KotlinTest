@@ -11,7 +11,9 @@ fun main() {
     val world = World().randomize(params).randomiseIds()
     val game = EventQueueGame()
     game.world = world
-    game.eventQueue.add(Event(100, CityInflux(100, 0, PlayerId.Blue)))
+
+    game.eventQueue.add(Event(200,
+            CityInflux(nPeople = 100, cityId = 0, playerId = PlayerId.Blue)))
 
     println(world)
 
