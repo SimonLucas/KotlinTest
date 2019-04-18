@@ -27,7 +27,7 @@ data class CaveSwingParams (
         var pointPerY: Int = -10,
         var costPerTick: Int = 10,
 
-        var longJump:Boolean = true,
+        var sandpit:Double? = 0.9,
 
         var random: Random = Random()
 ) : Serializable {

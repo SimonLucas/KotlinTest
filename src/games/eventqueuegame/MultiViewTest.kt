@@ -17,24 +17,17 @@ fun main() {
 
     println(world)
 
-
-
     val omniView = WorldView(game)
     val redView = WorldView(game)
     val blueView = WorldView(game)
 
     val multiView =ListComponent()
 
-
-
     multiView.add(omniView)
     multiView.add(redView)
     multiView.add(blueView)
 
-
     val frame = JEasyFrame(multiView, "Event Based Game")
-
-
 
     while (true) {
         multiView.repaint()
@@ -53,7 +46,6 @@ fun main() {
         Thread.sleep(50)
         frame.title = "${game.nTicks()}"
     }
-
 }
 
 
