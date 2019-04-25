@@ -21,8 +21,12 @@ fun main(args: Array<String>) {
     for (i in 0 until nSteps) {
         actions[0] = agent.getAction(game.copy(), Constants.player1)
         val grid1 = game.board.deepCopy()
+        // setting cells is a quick hack to get around the fact that
+        // it's not properly updated
+        grid1.setCell(grid1.playerX, grid1.playerY, 'A')
         game.next(actions)
         val grid2 = game.board.deepCopy()
+        grid2.setCell(grid1.playerX, grid1.playerY, 'A')
         gatherer.addGrid(grid1, grid2, actions[0])
     }
 
@@ -75,7 +79,7 @@ class Gatherer {
         }
     }
 
-    val span = 2
+    val span = 1
     // should really generalise this to offer different extraction patterns
     fun extractVector(grid: Grid, x: Int, y: Int): ArrayList<Char> {
         val v = ArrayList<Char>()

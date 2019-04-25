@@ -4,11 +4,53 @@ import utilities.ElapsedTimer
 import kotlin.random.Random
 
 fun main() {
+
+
+    val tester = Tester(1000)
+
     var pke = TestPKE()
-    val randNet = RandNetPKE()
-    randNet.addNodes(10)
-    testFunction(1e6.toInt(), pke)
-    testFunction(1e6.toInt(), randNet)
+    println("True function: %.1f".format(tester.test(pke)))
+
+    val t = ElapsedTimer()
+    val nTrials = 100
+    for (i in 1 .. nTrials) {
+        val net = RandNetPKE()
+        net.addNodes(10)
+        println("%d:  \trand net(%d):\t %.1f".format(i, net.nodes.size, tester.test(net)))
+    }
+    println(t)
+
+//    val randNet = RandNetPKE()
+//    randNet.addNodes(10)
+//    testFunction(1e6.toInt(), pke)
+//    testFunction(1e6.toInt(), randNet)
+}
+
+data class Pattern(val ip: ArrayList<Double>, val op : Double)
+
+class Tester(val n: Int) {
+    val patterns = ArrayList<Pattern>()
+    val min = -10
+    val max = 10
+    init {
+        for (i in 0 until n) {
+            val ip = ArrayList<Double>()
+            for (j in 0 until 3)
+                ip.add((Random.nextInt(1 + (max - min)) + min).toDouble())
+            val op = pke(ip[0], ip[1], ip[2])
+            patterns.add(Pattern(ip, op))
+        }
+        println("Made patterns: ")
+        println(patterns.size)
+    }
+    fun test(pke: PKE) : Double {
+        var tot = 0.0
+        for (p in patterns) {
+            val err = Math.abs(p.op - pke.f(p.ip[0], p.ip[1], p.ip[2]))
+            tot += err
+        }
+        return tot / n
+    }
 }
 
 // write a basic kinetic energy test to begin with
@@ -103,7 +145,7 @@ class RandNetPKE : PKE {
 
 
     // need to add the inout nodes in since now we're growing them...
-    val nodes = ArrayList<SimpleNode>()
+    var nodes = ArrayList<SimpleNode>()
 
     init {
         // set g
@@ -120,10 +162,10 @@ class RandNetPKE : PKE {
         for (i in 0 until n) {
             val node = randomBinaryNode(nodes, makers)
             if (node != null) {
-                println("Node: " + node)
+                // println("Node: " + node)
                 nodes.add(node)
             } else {
-                println("Failed to make a node")
+                // println("Failed to make a node")
             }
         }
     }
