@@ -26,12 +26,8 @@ fun makeMinus (x: SimpleNode, y: SimpleNode ) :SimpleNode? {
     } else return null
 }
 
-
-
 fun main() {
-
     println(::makeTimes is BinaryMaker)
-
     val m = SimpleInputNode(massType)
     val g = SimpleInputNode(accelType)
     val h = SimpleInputNode(distanceType)
