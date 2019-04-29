@@ -4,7 +4,7 @@ import utilities.JEasyFrame
 
 fun main() {
 
-    val params = EventGameParams(nAttempts = 20, minRad = 20, maxRad = 50)
+    val params = EventGameParams(nAttempts = 30, minRad = 20, maxRad = 50, width = 1000, height = 800)
     val world = World().randomize(params).randomiseIds()
     val game = EventQueueGame()
     game.world = world

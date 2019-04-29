@@ -7,7 +7,17 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 
-// todo : Create and test and Event Queue
+// todo : Decide which effects to add next
+
+// todo: An invasion model?
+
+// todo: A recce model - send units to observe
+
+// todo: a win ratio
+
+// todo: Rapid planner example: and when to retreat
+
+
 
 data class Event(val tick: Int, val effect: Effect) : Comparable<Event> {
     override fun compareTo(other: Event): Int {
