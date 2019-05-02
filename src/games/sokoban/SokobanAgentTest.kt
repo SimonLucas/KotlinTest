@@ -15,6 +15,7 @@ fun main() {
     runTests(100)
     val elapsed = t.elapsed()
     println(t)
+    println("total game ticks  = %e".format( Sokoban().totalTicks().toDouble()))
     println("mTicks per second = %.2f".format( Sokoban().totalTicks().toDouble() * 1e-3 / elapsed))
 
 }
@@ -34,7 +35,7 @@ fun runGame() : Double {
     var game = Sokoban()
     val actions = intArrayOf(0, 0)
     var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 100, nEvals = 100)
-    // var agent = RandomAgent()
+    agent = RandomAgent()
     // var agent = SokobanKeyController()
 
     // val nSteps = 20000

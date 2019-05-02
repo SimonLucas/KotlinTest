@@ -6,7 +6,11 @@ import utilities.ElapsedTimer
 import utilities.JEasyFrame
 import utilities.StatSummary
 
+val span = 2
+
 fun main(args: Array<String>) {
+
+
 
     var game = Sokoban()
     game.print()
@@ -17,32 +21,36 @@ fun main(args: Array<String>) {
     val gatherer = Gatherer()
 
     val timer = ElapsedTimer()
-    val nSteps = 100000
+    val nSteps = 1000
     for (i in 0 until nSteps) {
         actions[0] = agent.getAction(game.copy(), Constants.player1)
         val grid1 = game.board.deepCopy()
         // setting cells is a quick hack to get around the fact that
         // it's not properly updated
         grid1.setCell(grid1.playerX, grid1.playerY, 'A')
+        val score1 = game.score()
         game.next(actions)
         val grid2 = game.board.deepCopy()
         grid2.setCell(grid2.playerX, grid2.playerY, 'A')
-        gatherer.addGrid(grid1, grid2, actions[0])
+        gatherer.addGrid(grid1, grid2, actions[0], game.score() - score1)
     }
 
     // now print the patterns
 
-    println("Ran for $nSteps steps")
-    println("Generated ${gatherer.data.size} unique observations")
-    println("Total local patterns = " + gatherer.total)
     gatherer.report()
     game.print()
+    println("Ran for $nSteps steps")
+    println("Generated ${gatherer.tileData.size} unique tile observations")
+    println("Generated ${gatherer.rewardData.size} unique reward observations")
+    println("Total local patterns = " + gatherer.total)
     println(timer)
 }
 
+// the input to the local model is the input array and the action taken
 data class Example(val ip: ArrayList<Char>, val action: Int)
 
-class Distribution() {
+
+class TileDistribution() {
     val dis = HashMap<Char,Int>()
     fun add(op: Char) {
         var count = dis.get(op)
@@ -55,12 +63,26 @@ class Distribution() {
     }
 }
 
+class RewardDistribution() {
+    val dis = HashMap<Double,Int>()
+    fun add(op: Double) {
+        var count = dis.get(op)
+        if (count == null) count =0
+        count++
+        dis[op] = count
+    }
+    override fun toString() : String {
+        return dis.toString()
+    }
+}
+
 class Gatherer {
 
-    val data = HashMap<Example, Distribution>()
+    val tileData = HashMap<Example, TileDistribution>()
+    val rewardData = HashMap<Example, RewardDistribution>()
     var total = 0
 
-    fun addGrid(grid1: Grid, grid2: Grid, action: Int) {
+    fun addGrid(grid1: Grid, grid2: Grid, action: Int, rewardDelta: Double) {
         assert(grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight())
         for (x in 0 until grid1.getWidth()) {
             for (y in 0 until grid1.getHeight()) {
@@ -68,18 +90,33 @@ class Gatherer {
                 val ip = extractVector(grid1, x, y)
                 // data[Example(ip, action, op)]++
                 val example = Example(ip, action)
-                var distribution = data[example]
-                if (distribution == null) {
-                    distribution = Distribution()
-                    data.put(example, distribution)
+
+                // now update the tile data
+                var tileDis = tileData[example]
+                if (tileDis == null) {
+                    tileDis = TileDistribution()
+                    tileData.put(example, tileDis)
                 }
-                distribution.add(op)
+                tileDis.add(op)
+
+                // now update the reward data
+                var rewardDis = rewardData[example]
+                if (rewardDis == null) {
+                    rewardDis = RewardDistribution()
+                    rewardData.put(example, rewardDis)
+                }
+                rewardDis.add(rewardDelta)
+
+                // and the reward data
+
                 total++
+
+
+
             }
         }
     }
 
-    val span = 0
     // should really generalise this to offer different extraction patterns
     fun extractVector(grid: Grid, x: Int, y: Int): ArrayList<Char> {
         val v = ArrayList<Char>()
@@ -97,7 +134,11 @@ class Gatherer {
     }
 
     fun report() {
-        data.forEach{key, value -> println("$key -> $value")}
+        println("Tile distributions:")
+        tileData.forEach{key, value -> println("$key -> $value")}
+        println()
+        println("Reward distributions:")
+        rewardData.forEach{key, value -> println("$key -> $value")}
     }
 }
 
