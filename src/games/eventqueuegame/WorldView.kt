@@ -52,6 +52,19 @@ class WorldView (var game: EventQueueGame) : JComponent() {
                 val label = if (c.owner == PlayerId.Fog) "?" else  "${c.pop}"
                 DrawUtil().centreString(g, label, xScale * c.location.x, yScale*c.location.y)
             }
+
+            for (t in currentTransits) {
+                val fractionOfJourney: Double = (currentTicks - t.startTime).toDouble() / (t.endTime - t.startTime).toDouble()
+                val currentLocation = cities[t.fromCity].location.plus(cities[t.toCity].location.minus(cities[t.fromCity].location).times(fractionOfJourney))
+                val ellipse = Ellipse2D.Double(xScale * (currentLocation.x-3.0), yScale * (currentLocation.y-3.0),
+                        2 * 3.0 * xScale, 2 * 3.0 * yScale)
+                g.setColor(playerCols[t.playerId])
+                g.draw(ellipse)
+                g.fill(ellipse)
+                val label = "${t.nPeople}"
+                g.setColor(Color.white)
+                DrawUtil().centreString(g, label, xScale * currentLocation.x, yScale*currentLocation.y)
+            }
         }
     }
 

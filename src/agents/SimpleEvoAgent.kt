@@ -48,7 +48,6 @@ data class SimpleEvoAgent(
 
     var x: Int? = 1
 
-
     fun getActions(gameState: AbstractGameState, playerId: Int): IntArray {
         var solution = buffer ?: randomPoint(gameState.nActions())
         if (useShiftBuffer) {
