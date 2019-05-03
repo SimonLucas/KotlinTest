@@ -2,9 +2,20 @@ package agents
 
 import ggi.AbstractGameState
 import ggi.SimplePlayerInterface
+import ggi.game.ActionAbstractGameState
 
 
 import java.util.Random
+
+fun shiftLeftAndRandomAppend(startingArray: IntArray, nShift: Int, nActions: Int): IntArray {
+    val p = IntArray(startingArray.size)
+    for (i in 0 until p.size)
+        p[i] = when {
+            i >= p.size - nShift -> random.nextInt(nActions)
+            else -> startingArray[i + nShift]
+        }
+    return p
+}
 
 data class SimpleEvoAgent(
         var flipAtLeastOneValue: Boolean = true,
@@ -43,8 +54,10 @@ data class SimpleEvoAgent(
         if (useShiftBuffer) {
             if (solution == null)
                 solution = randomPoint(gameState.nActions())
-            else
-                solution = shiftLeftAndRandomAppend(solution, gameState.nActions())
+            else {
+                val numberToShiftLeft = if (gameState is ActionAbstractGameState) gameState.codonsPerAction() else 1
+                solution = shiftLeftAndRandomAppend(solution, numberToShiftLeft, gameState.nActions())
+            }
         } else {
             // System.out.println("New random solution with nActions = " + gameState.nActions())
             solution = randomPoint(gameState.nActions())
@@ -109,15 +122,6 @@ data class SimpleEvoAgent(
         for (i in p.indices) {
             p[i] = random.nextInt(nValues)
         }
-        return p
-    }
-
-    private fun shiftLeftAndRandomAppend(v: IntArray, nActions: Int): IntArray {
-        val p = IntArray(v.size)
-        for (i in 0 until p.size - 1) {
-            p[i] = v[i + 1]
-        }
-        p[p.size - 1] = random.nextInt(nActions)
         return p
     }
 
