@@ -6,6 +6,7 @@ import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import utilities.ElapsedTimer
 import utilities.JEasyFrame
+import utilities.Picker
 import utilities.StatSummary
 
 val span = 2
@@ -83,7 +84,63 @@ class RewardDistribution() {
 }
 
 
+//interface Sampler {
+//
+//}
+
 // copy the grid etc
+
+val defaultTile = 'w'
+fun guessTile(dis: TileDistribution?) : Char {
+    if (dis == null) return defaultTile
+    // pick the most likely one for now
+    val picker = Picker<Char>()
+    dis.dis.forEach{k,v -> picker.add(v.toDouble(), k)}
+    val ret = picker.best
+    // put in a quick and dirty default of a wall for now
+    return if (ret != null) ret else defaultTile
+}
+
+
+class RewardEstimator {
+    val epsilon = 1e-3
+
+    // we'll add to this each time a reward comes in
+    // actually track the log probs to avoid underflow
+    val logProbs = HashMap<Double,Double>()
+
+    fun addDis(dis: RewardDistribution?) {
+        // do nothing with nothing!
+        if (dis == null) return
+
+        // convert each one to a log probability and then update ...
+
+        // set to espilon to avoid divide by zero
+        var tot = epsilon
+        // the count total occurrences
+        dis.dis.forEach { k, v -> tot += v }
+
+        // now update the log probability estimates of each reward value
+        dis.dis.forEach { k, v ->
+            val lp = Math.log(v / tot)
+            var x = logProbs[k]
+            if (x == null) x = 0.0
+            logProbs[k] = x + lp
+        }
+    }
+
+    fun mostLikely() : Double {
+        val picker = Picker<Double>()
+        logProbs.forEach { k, v -> picker.add(v, k) }
+        val estimate = picker.best
+        if (estimate != null)
+            return estimate else return defaultReward
+    }
+
+    val defaultReward = 0.0
+
+
+}
 
 class LocalForwardModel (    val tileData : HashMap<Example, TileDistribution>,
                              val rewardData : HashMap<Example, RewardDistribution>
@@ -118,9 +175,34 @@ class LocalForwardModel (    val tileData : HashMap<Example, TileDistribution>,
 
         // need to iterate over all the grid positions updating the data
 
+        val nextGrid = grid.deepCopy()
+        val action = actions[0]
+
+        val rewarder = RewardEstimator()
+
+        for (x in 0 until grid.getWidth()) {
+            for (y in 0 until grid.getHeight()) {
+
+                val ip = extractVector(grid, x, y)
+                // data[Example(ip, action, op)]++
+                val example = Example(ip, action)
+
+                // now update the tile data
+                var tileDis = tileData[example]
+                val bestGuess = guessTile(tileDis)
+                nextGrid.setCell(x, y, bestGuess)
 
 
+                // now update the reward data
+                var rewardDis = rewardData[example]
+                rewarder.addDis(rewardDis)
+            }
+        }
 
+        score += rewarder.mostLikely()
+
+        nTicks++
+        Ticker.total++
         return this
     }
 
@@ -198,21 +280,6 @@ class Gatherer {
         }
     }
 
-    // should really generalise this to offer different extraction patterns
-    fun extractVector(grid: Grid, x: Int, y: Int): ArrayList<Char> {
-        val v = ArrayList<Char>()
-        // add the centre cell
-        v.add(grid.getCell(x,y))
-        // now row except centre
-        for (xx in x - span .. x + span) {
-            if (xx != x) v.add(grid.getCell(xx, y))
-        }
-        // now column except centre
-        for (yy in y - span .. y + span) {
-            if (yy != y) v.add(grid.getCell(x, yy))
-        }
-        return v
-    }
 
     fun report() {
         println("Tile distributions:")
@@ -224,38 +291,3 @@ class Gatherer {
 }
 
 
-data class SimpleGrid(val w: Int = 8, val h: Int = 7) {
-
-    var grid: CharArray = CharArray(w * h)
-
-    fun getCell(i: Int): Char = grid[i]
-
-    fun setCell(i: Int, v: Char) {
-        grid[i] = v
-    }
-
-    fun getCell(x: Int, y: Int): Char {
-        val xx = (x + w) % w
-        val yy = (y + h) % h
-        return grid[xx + w * yy]
-    }
-
-    fun setCell(x: Int, y: Int, value: Char) {
-        if (x < 0 || y < 0 || x >= w || y >= h) return
-        grid[x + w * y] = value
-    }
-
-    fun getWidth() : Int {
-        return this.w
-    }
-
-    fun getHeight() : Int {
-        return this.h
-    }
-
-    fun deepCopy(): SimpleGrid {
-        val gc = this.copy()
-        gc.grid = grid.copyOf()
-        return gc
-    }
-}

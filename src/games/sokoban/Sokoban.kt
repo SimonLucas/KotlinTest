@@ -6,7 +6,7 @@ import java.util.*
 
 val random = Random()
 
-data class Grid(val w: Int = 8, val h: Int = 7) {
+data class Grid(val w: Int = 8, val h: Int = 7) : GridInterface {
 
     var playerX: Int = -1
     var playerY: Int = -1
@@ -60,13 +60,13 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         grid[i] = v
     }
 
-    fun getCell(x: Int, y: Int): Char {
+    override fun getCell(x: Int, y: Int): Char {
         val xx = (x + w) % w
         val yy = (y + h) % h
         return grid[xx + w * yy]
     }
 
-    fun setCell(x: Int, y: Int, value: Char) {
+    override fun setCell(x: Int, y: Int, value: Char) {
         if (x < 0 || y < 0 || x >= w || y >= h) return
         grid[x + w * y] = value
     }
@@ -103,11 +103,11 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         println("Player at: " + playerX + " " + playerY + "; " + count(BOX) + " boxes")
     }
 
-    fun getWidth() : Int {
+    override fun getWidth() : Int {
         return this.w
     }
 
-    fun getHeight() : Int {
+    override fun getHeight() : Int {
         return this.h
     }
 
