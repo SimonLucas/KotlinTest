@@ -40,6 +40,7 @@ fun main() {
         gv.grid = game.board
         gv.repaint()
 
+        lfm.grid.setCell(0,0,'o')
         gvShadow.grid = Grid().forceArray(lfm.grid.grid)
         gvShadow.repaint()
 
