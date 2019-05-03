@@ -44,7 +44,7 @@ fun main() {
         gvShadow.repaint()
 
 
-        Thread.sleep(50)
+        Thread.sleep(5000)
         frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
 
         //next step
