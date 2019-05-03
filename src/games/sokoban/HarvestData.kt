@@ -13,6 +13,9 @@ val span = 2
 
 fun main(args: Array<String>) {
 
+}
+
+fun GatherData() : Gatherer {
     var game = Sokoban()
     game.print()
     val actions = intArrayOf(0, 0)
@@ -45,7 +48,11 @@ fun main(args: Array<String>) {
     println("Generated ${gatherer.rewardData.size} unique reward observations")
     println("Total local patterns = " + gatherer.total)
     println(timer)
+
+    return gatherer
 }
+
+
 
 // the input to the local model is the input array and the action taken
 data class Example(val ip: ArrayList<Char>, val action: Int)
@@ -142,104 +149,6 @@ class RewardEstimator {
 
 }
 
-class LocalForwardModel (    val tileData : HashMap<Example, TileDistribution>,
-                             val rewardData : HashMap<Example, RewardDistribution>
-): ExtendedAbstractGameState {
-
-    // learn this from the data
-    var nActions = 0
-
-    init {
-        // todo:  count the distinct number of actions
-
-    }
-
-    companion object Ticker {
-        var total :Long = 0
-    }
-
-    var grid = SimpleGrid()
-    var score = 0.0
-
-    override fun copy(): AbstractGameState {
-        val lfm = LocalForwardModel(tileData, rewardData)
-        lfm.grid = grid.deepCopy()
-        lfm.score = score
-        return lfm
-    }
-
-    override fun next(actions: IntArray): AbstractGameState {
-
-        // can have different policies for picking an answer
-        // can be either deterministic or stochastic
-
-        // need to iterate over all the grid positions updating the data
-
-        val nextGrid = grid.deepCopy()
-        val action = actions[0]
-
-        val rewarder = RewardEstimator()
-
-        for (x in 0 until grid.getWidth()) {
-            for (y in 0 until grid.getHeight()) {
-
-                val ip = extractVector(grid, x, y)
-                // data[Example(ip, action, op)]++
-                val example = Example(ip, action)
-
-                // now update the tile data
-                var tileDis = tileData[example]
-                val bestGuess = guessTile(tileDis)
-                nextGrid.setCell(x, y, bestGuess)
-
-
-                // now update the reward data
-                var rewardDis = rewardData[example]
-                rewarder.addDis(rewardDis)
-            }
-        }
-
-        score += rewarder.mostLikely()
-
-        nTicks++
-        Ticker.total++
-        return this
-    }
-
-    override fun nActions(): Int {
-        // for now just return the correct answer for Sokoban
-        return 5
-    }
-
-    override fun score(): Double {
-        return score
-    }
-
-    override fun isTerminal(): Boolean {
-        // return false for now as we don't have a way of learning this yet
-        return false
-    }
-
-    var nTicks = 0
-    override fun nTicks(): Int {
-        return nTicks
-    }
-
-    override fun totalTicks(): Long {
-        return Ticker.total
-    }
-
-    override fun resetTotalTicks() {
-        Ticker.total = 0
-    }
-
-    override fun randomInitialState(): AbstractGameState {
-        // deliberately do nothing for now
-        println("Not able to set a random initial state")
-        return this
-    }
-
-}
 
 class Gatherer {
 

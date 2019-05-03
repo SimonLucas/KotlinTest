@@ -34,18 +34,34 @@ data class Grid(val w: Int = 8, val h: Int = 7) : GridInterface {
         var arraygrid = CharArray(level.length)
         level.toCharArray(arraygrid)
 
+        setArray(arraygrid)
+
+
+        return arraygrid
+    }
+
+
+
+
+    fun setArray(array: CharArray) : Grid {
         //Find player
-        var playerLoc = arraygrid.indexOf(AVATAR)
+        var playerLoc = array.indexOf(AVATAR)
         if (playerLoc == -1)
         {
             println("ERROR: No player in level")
-        }else{
+        } else {
             playerX = playerLoc % w
             playerY = playerLoc / w
-            arraygrid.set(playerLoc, EMPTY)
+            array.set(playerLoc, EMPTY)
         }
 
-        return arraygrid
+        grid = array
+        return this
+    }
+
+    fun forceArray(array: CharArray) : Grid {
+        grid = array
+        return this
     }
 
     fun boxScore()
