@@ -127,44 +127,42 @@ data class SimpleEvoAgent(
 
 
     private fun evalSeq(gameState: AbstractGameState, seq: IntArray, playerId: Int): Double {
-        return if (discountFactor == null) {
-            evalSeqNoDiscount(gameState, seq, playerId)
-        } else {
-            evalSeqDiscounted(gameState, seq, playerId, discountFactor!!)
-        }
+        return evaluateSequenceDelta(gameState, seq, playerId, discountFactor?: 1.0)
     }
 
-    private fun evalSeqNoDiscount(gameState: AbstractGameState, seq: IntArray, playerId: Int): Double {
-        var gameState = gameState
-        val current = gameState.score()
-        val actions = IntArray(2)
-        for (action in seq) {
-            actions[playerId] = action
-            actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
-            gameState = gameState.next(actions)
-        }
-        val delta = gameState.score() - current
-        return if (playerId == 0)
-            delta
-        else
-            -delta
-    }
-
-    private fun evalSeqDiscounted(gameState: AbstractGameState, seq: IntArray, playerId: Int, discountFactor: Double): Double {
-        var gameState = gameState
-        var currentScore = gameState.score()
-        var delta = 0.0
+    private fun evaluateSequenceDelta(gameState: AbstractGameState, seq: IntArray, playerId: Int, discountFactor: Double): Double {
+        val intPerAction = if (gameState is ActionAbstractGameState) gameState.codonsPerAction() else 1
+        val actions = IntArray(2 * intPerAction)
+        var currentActionPointer = 0
+        var runningScore = gameState.score()
         var discount = 1.0
-        val actions = IntArray(2)
-        for (action in seq) {
-            actions[playerId] = action
-            actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
-            gameState = gameState.next(actions)
-            val nextScore = gameState.score()
-            val tickDelta = nextScore - currentScore
-            currentScore = nextScore
+        var delta = 0.0
+
+        fun discount(nextScore: Double) {
+            val tickDelta = nextScore - runningScore
+            runningScore = nextScore
             delta += tickDelta * discount
             discount *= discountFactor
+        }
+
+        for (action in seq) {
+            actions[playerId * intPerAction + currentActionPointer] = action
+            //TODO: This is fine with an opponent model that does nothing...but will not work otherwise
+            // The problem being that SimpleAgentInterface only permits getAction: Int
+            actions[(1 - playerId) * intPerAction + currentActionPointer] = opponentModel.getAction(gameState, 1 - playerId)
+            if (gameState is ActionAbstractGameState) {
+                currentActionPointer++
+                if (currentActionPointer == intPerAction) {
+                    val action1 = gameState.translateGene(0, actions.sliceArray(0..intPerAction))
+                    val action2 = gameState.translateGene(1, actions.sliceArray(intPerAction..(2 * intPerAction - 1)))
+                    gameState.next(listOf(action1, action2))
+                    currentActionPointer = 0
+                    discount(gameState.score())
+                }
+            } else {
+                gameState.next(actions)
+                discount(gameState.score())
+            }
         }
         return if (playerId == 0)
             delta

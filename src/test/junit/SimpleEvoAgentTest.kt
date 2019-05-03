@@ -19,7 +19,7 @@ class SimpleEvoAgentTest {
     @Test
     fun shiftLeftOperatorWithFourActions() {
         val startArray = intArrayOf(0, 3, 7, 23, 56, 2, -89)
-        val endArray = agents.shiftLeftAndRandomAppend(startArray, 4, 1)
+        val endArray = shiftLeftAndRandomAppend(startArray, 4, 1)
         for ((i, n) in startArray.withIndex()) {
             if (i >= 4) assertEquals(n, endArray[i - 4])
         }
