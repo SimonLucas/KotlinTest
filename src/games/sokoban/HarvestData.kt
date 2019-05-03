@@ -47,6 +47,7 @@ fun main(args: Array<String>) {
 }
 
 // the input to the local model is the input array and the action taken
+
 data class Example(val ip: ArrayList<Char>, val action: Int)
 
 
