@@ -6,8 +6,8 @@ import ggi.ExtendedAbstractGameState
 interface GridInterface {
     fun getCell(x: Int, y: Int): Char
     fun setCell(x: Int, y: Int, value: Char)
-    fun getWidth() : Int
-    fun getHeight() : Int
+    fun getWidth(): Int
+    fun getHeight(): Int
 }
 
 
@@ -32,11 +32,11 @@ data class SimpleGrid(val w: Int = 8, val h: Int = 7) : GridInterface {
         grid[x + w * y] = value
     }
 
-    override fun getWidth() : Int {
+    override fun getWidth(): Int {
         return this.w
     }
 
-    override fun getHeight() : Int {
+    override fun getHeight(): Int {
         return this.h
     }
 
@@ -46,31 +46,43 @@ data class SimpleGrid(val w: Int = 8, val h: Int = 7) : GridInterface {
         return gc
     }
 
-    fun setGrid(grid: CharArray) : SimpleGrid {
+    //    fun setGrid(grid: CharArray) : SimpleGrid {
+//        this.grid = grid.copyOf()
+//        return this
+//    }
+    fun setGrid(grid: CharArray, playerX: Int, playerY: Int): SimpleGrid {
         this.grid = grid.copyOf()
+        // this is a quick hack for now
+        setCell(playerX, playerY, 'A')
         return this
     }
 }
 
-// should really generalise this to offer different extraction patterns
-fun extractVector(grid: GridInterface, x: Int, y: Int): ArrayList<Char> {
-    val v = ArrayList<Char>()
-    // add the centre cell
-    v.add(grid.getCell(x,y))
-    // now row except centre
-    for (xx in x - span .. x + span) {
-        if (xx != x) v.add(grid.getCell(xx, y))
+class PatternSampler(val span: Int = 2) {
+
+    // should really generalise this to offer different extraction patterns
+    fun extractVector(grid: GridInterface, x: Int, y: Int): ArrayList<Char> {
+        val v = ArrayList<Char>()
+        // add the centre cell
+        v.add(grid.getCell(x, y))
+        // now row except centre
+        for (xx in x - span..x + span) {
+            if (xx != x) v.add(grid.getCell(xx, y))
+        }
+        // now column except centre
+        for (yy in y - span..y + span) {
+            if (yy != y) v.add(grid.getCell(x, yy))
+        }
+        return v
     }
-    // now column except centre
-    for (yy in y - span .. y + span) {
-        if (yy != y) v.add(grid.getCell(x, yy))
-    }
-    return v
+
 }
 
-class LocalForwardModel (    val tileData : HashMap<Example, TileDistribution>,
-                             val rewardData : HashMap<Example, RewardDistribution>
-): ExtendedAbstractGameState {
+class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
+                        val rewardData: HashMap<Example, RewardDistribution>,
+                        val span: Int = 2
+) : ExtendedAbstractGameState {
+
 
     // learn this from the data
     var nActions = 0
@@ -81,14 +93,14 @@ class LocalForwardModel (    val tileData : HashMap<Example, TileDistribution>,
     }
 
     companion object Ticker {
-        var total :Long = 0
+        var total: Long = 0
     }
 
     var grid = SimpleGrid()
     var score = 0.0
 
-    fun setGrid(array: CharArray) : LocalForwardModel {
-        grid.setGrid(array)
+    fun setGrid(array: CharArray, playerX: Int, playerY: Int): LocalForwardModel {
+        grid.setGrid(array, playerX, playerY)
         return this
     }
 
@@ -108,19 +120,26 @@ class LocalForwardModel (    val tileData : HashMap<Example, TileDistribution>,
 
         val nextGrid = grid.deepCopy()
         val action = actions[0]
+        println("Action = " + action)
 
         val rewarder = RewardEstimator()
+
+        val sampler = PatternSampler(span)
 
         for (x in 0 until grid.getWidth()) {
             for (y in 0 until grid.getHeight()) {
 
-                val ip = extractVector(grid, x, y)
+                val ip = sampler.extractVector(grid, x, y)
                 // data[Example(ip, action, op)]++
                 val example = Example(ip, action)
 
                 // now update the tile data
                 var tileDis = tileData[example]
-                val bestGuess = guessTile(tileDis)
+
+                val bestGuess = guessTile(tileDis, grid.getCell(x, y))
+                if (ip[0] == 'A' || true) {
+                    println("($x, $y), Centre: ${ip[0]},\t tileDis: $tileDis,\t best guess: $bestGuess")
+                }
                 nextGrid.setCell(x, y, bestGuess)
 
 
@@ -132,6 +151,7 @@ class LocalForwardModel (    val tileData : HashMap<Example, TileDistribution>,
 
         score += rewarder.mostLikely()
 
+        grid = nextGrid
         nTicks++
         Ticker.total++
         return this

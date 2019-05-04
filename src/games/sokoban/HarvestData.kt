@@ -9,20 +9,20 @@ import utilities.JEasyFrame
 import utilities.Picker
 import utilities.StatSummary
 
-val span = 2
+// val span = 2
 
 fun main(args: Array<String>) {
 
 }
 
-fun GatherData() : Gatherer {
+fun GatherData(span: Int) : Gatherer {
     var game = Sokoban()
     game.print()
     val actions = intArrayOf(0, 0)
     //var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
     var agent = RandomAgent()
 
-    val gatherer = Gatherer()
+    val gatherer = Gatherer(span)
 
     val timer = ElapsedTimer()
     val nSteps = 1000
@@ -41,8 +41,8 @@ fun GatherData() : Gatherer {
 
     // now print the patterns
 
-    gatherer.report()
-    game.print()
+    // gatherer.report()
+    // game.print()
     println("Ran for $nSteps steps")
     println("Generated ${gatherer.tileData.size} unique tile observations")
     println("Generated ${gatherer.rewardData.size} unique reward observations")
@@ -97,9 +97,12 @@ class RewardDistribution() {
 
 // copy the grid etc
 
-val defaultTile = 'w'
-fun guessTile(dis: TileDistribution?) : Char {
-    if (dis == null) return defaultTile
+// val defaultTile = 'w'
+
+fun guessTile(dis: TileDistribution?, defaultTile: Char) : Char {
+    if (dis == null) {
+        return defaultTile
+    }
     // pick the most likely one for now
     val picker = Picker<Char>()
     dis.dis.forEach{k,v -> picker.add(v.toDouble(), k)}
@@ -150,18 +153,19 @@ class RewardEstimator {
 }
 
 
-class Gatherer {
+class Gatherer(val span: Int = 2) {
 
     val tileData = HashMap<Example, TileDistribution>()
     val rewardData = HashMap<Example, RewardDistribution>()
     var total = 0
 
+    val sampler = PatternSampler(span)
     fun addGrid(grid1: Grid, grid2: Grid, action: Int, rewardDelta: Double) {
         assert(grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight())
         for (x in 0 until grid1.getWidth()) {
             for (y in 0 until grid1.getHeight()) {
                 val op = grid2.getCell(x, y)
-                val ip = extractVector(grid1, x, y)
+                val ip = sampler.extractVector(grid1, x, y)
                 // data[Example(ip, action, op)]++
                 val example = Example(ip, action)
 

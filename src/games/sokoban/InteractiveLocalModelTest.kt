@@ -7,11 +7,13 @@ import javax.swing.JComponent
 
 fun main() {
 
+    val span = 1
+
     var game = Sokoban()
+    val gatherer = GatherData(span)
 
-    val gatherer = GatherData()
-
-    var lfm = LocalForwardModel(gatherer.tileData, gatherer.rewardData).setGrid(game.board.grid)
+    var lfm = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span)
+    lfm.setGrid(game.board.grid, game.board.playerX, game.board.playerY)
 
     val gv = SokobanView(game.board)
     // set up with the same board for now, but change late
@@ -30,29 +32,29 @@ fun main() {
 
     var i = 0
 
-    while (i < nSteps && !game.isTerminal())
-    {
+    while (i < nSteps && !game.isTerminal()) {
         //Take and execute actions
         actions[0] = agent.getAction(game.copy(), Constants.player1)
         game.next(actions)
+        lfm.next(actions)
+
 
         //visuals
         gv.grid = game.board
         gv.repaint()
 
-        lfm.grid.setCell(0,0,'o')
+        // lfm.grid.setCell(0, 0, 'o')
         gvShadow.grid = Grid().forceArray(lfm.grid.grid)
         gvShadow.repaint()
 
 
+        frame.title = "tick = ${game.nTicks}, true score = ${game.score()}, estimate = ${lfm.score()}"
         Thread.sleep(5000)
-        frame.title = "tick = ${game.nTicks}, score = ${game.score()}"
 
         //next step
         i++
     }
     println("Game finished: Win: " + game.isTerminal() + ", Score: " + game.score() + ", Time: " + i)
-
 }
 
 
