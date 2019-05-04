@@ -13,6 +13,9 @@ import utilities.StatSummary
 
 fun main(args: Array<String>) {
 
+    val gatherer = GatherData(1)
+    gatherer.report()
+
 }
 
 fun GatherData(span: Int) : Gatherer {
@@ -25,7 +28,8 @@ fun GatherData(span: Int) : Gatherer {
     val gatherer = Gatherer(span)
 
     val timer = ElapsedTimer()
-    val nSteps = 1000
+    val nSteps = 10000
+    val resetPeriod = 100
     for (i in 0 until nSteps) {
         actions[0] = agent.getAction(game.copy(), Constants.player1)
         val grid1 = game.board.deepCopy()
@@ -33,10 +37,13 @@ fun GatherData(span: Int) : Gatherer {
         // it's not properly updated
         grid1.setCell(grid1.playerX, grid1.playerY, 'A')
         val score1 = game.score()
+
         game.next(actions)
         val grid2 = game.board.deepCopy()
         grid2.setCell(grid2.playerX, grid2.playerY, 'A')
         gatherer.addGrid(grid1, grid2, actions[0], game.score() - score1)
+        // reset at selected intervals
+        if (i % resetPeriod == 0) game = Sokoban()
     }
 
     // now print the patterns
@@ -113,7 +120,7 @@ fun guessTile(dis: TileDistribution?, defaultTile: Char) : Char {
 
 
 class RewardEstimator {
-    val epsilon = 1e-3
+    val epsilon = 1e-30
 
     // we'll add to this each time a reward comes in
     // actually track the log probs to avoid underflow
@@ -132,7 +139,7 @@ class RewardEstimator {
 
         // now update the log probability estimates of each reward value
         dis.dis.forEach { k, v ->
-            val lp = Math.log(v / tot)
+            val lp = Math.log((v+epsilon) / tot)
             var x = logProbs[k]
             if (x == null) x = 0.0
             logProbs[k] = x + lp

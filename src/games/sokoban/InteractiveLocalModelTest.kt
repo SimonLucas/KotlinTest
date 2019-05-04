@@ -7,7 +7,7 @@ import javax.swing.JComponent
 
 fun main() {
 
-    val span = 1
+    val span = 2
 
     var game = Sokoban()
     val gatherer = GatherData(span)
@@ -39,6 +39,8 @@ fun main() {
         lfm.next(actions)
 
 
+        if (actions[0] != 0) lfm.grid.print()
+
         //visuals
         gv.grid = game.board
         gv.repaint()
@@ -49,10 +51,11 @@ fun main() {
 
 
         frame.title = "tick = ${game.nTicks}, true score = ${game.score()}, estimate = ${lfm.score()}"
-        Thread.sleep(5000)
+        Thread.sleep(2000)
 
         //next step
         i++
+        println()
     }
     println("Game finished: Win: " + game.isTerminal() + ", Score: " + game.score() + ", Time: " + i)
 }

@@ -56,6 +56,14 @@ data class SimpleGrid(val w: Int = 8, val h: Int = 7) : GridInterface {
         setCell(playerX, playerY, 'A')
         return this
     }
+
+    fun print() {
+        for (i in 0 until grid.size) {
+            print(grid[i])
+            if ((i + 1) % w == 0)
+                println()
+        }
+    }
 }
 
 class PatternSampler(val span: Int = 2) {
@@ -137,7 +145,7 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
                 var tileDis = tileData[example]
 
                 val bestGuess = guessTile(tileDis, grid.getCell(x, y))
-                if (ip[0] == 'A' || true) {
+                if (ip[0] == 'A' && action != 0) {
                     println("($x, $y), Centre: ${ip[0]},\t tileDis: $tileDis,\t best guess: $bestGuess")
                 }
                 nextGrid.setCell(x, y, bestGuess)
@@ -148,6 +156,10 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
                 rewarder.addDis(rewardDis)
             }
         }
+
+
+        if (action != 0) println(rewarder.logProbs)
+
 
         score += rewarder.mostLikely()
 
