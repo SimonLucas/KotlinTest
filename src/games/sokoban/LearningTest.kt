@@ -9,6 +9,9 @@ import utilities.ElapsedTimer
 import weka.classifiers.trees.J48
 import java.lang.StringBuilder
 
+val span = 2
+
+
 fun main(args: Array<String>) {
     val game = Sokoban()
     game.print()
