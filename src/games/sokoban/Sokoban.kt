@@ -6,7 +6,7 @@ import java.util.*
 
 val random = Random()
 
-data class Grid(val w: Int = 8, val h: Int = 7) {
+data class Grid(val w: Int = 8, val h: Int = 7) : GridInterface {
 
     var playerX: Int = -1
     var playerY: Int = -1
@@ -34,18 +34,34 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         var arraygrid = CharArray(level.length)
         level.toCharArray(arraygrid)
 
+        setArray(arraygrid)
+
+
+        return arraygrid
+    }
+
+
+
+
+    fun setArray(array: CharArray) : Grid {
         //Find player
-        var playerLoc = arraygrid.indexOf(AVATAR)
+        var playerLoc = array.indexOf(AVATAR)
         if (playerLoc == -1)
         {
             println("ERROR: No player in level")
-        }else{
+        } else {
             playerX = playerLoc % w
             playerY = playerLoc / w
-            arraygrid.set(playerLoc, EMPTY)
+            array.set(playerLoc, EMPTY)
         }
 
-        return arraygrid
+        grid = array
+        return this
+    }
+
+    fun forceArray(array: CharArray) : Grid {
+        grid = array
+        return this
     }
 
     fun boxScore()
@@ -60,14 +76,14 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         grid[i] = v
     }
 
-    fun getCell(x: Int, y: Int): Char {
+    override fun getCell(x: Int, y: Int): Char {
         val xx = (x + w) % w
         val yy = (y + h) % h
         //println("x: $x; y: $y; xx: $xx; yy: $yy")
         return grid[xx + w * yy]
     }
 
-    fun setCell(x: Int, y: Int, value: Char) {
+    override fun setCell(x: Int, y: Int, value: Char) {
         if (x < 0 || y < 0 || x >= w || y >= h) return
         grid[x + w * y] = value
     }
@@ -104,11 +120,11 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         println("Player at: " + playerX + " " + playerY + "; " + count(BOX) + " boxes")
     }
 
-    fun getWidth() : Int {
+    override fun getWidth() : Int {
         return this.w
     }
 
-    fun getHeight() : Int {
+    override fun getHeight() : Int {
         return this.h
     }
 
