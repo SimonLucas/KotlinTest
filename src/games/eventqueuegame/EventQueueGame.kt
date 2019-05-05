@@ -72,7 +72,8 @@ data class World(var cities: List<City> = ArrayList(), val width: Int = 1000, va
                  val params: EventGameParams = EventGameParams()) {
 
     init {
-        if (cities.isEmpty()) initialise()
+        if (cities.isEmpty())
+            cities = initialise()
     }
 
     var currentTransits: ArrayList<Transit> = ArrayList()
