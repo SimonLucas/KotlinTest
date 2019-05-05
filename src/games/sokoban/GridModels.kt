@@ -151,9 +151,11 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
                 nextGrid.setCell(x, y, bestGuess)
 
 
-                // now update the reward data
-                var rewardDis = rewardData[example]
-                rewarder.addDis(rewardDis)
+                if (!bypassScore) {
+                    // now update the reward data
+                    var rewardDis = rewardData[example]
+                    rewarder.addDis(rewardDis)
+                }
             }
         }
 
@@ -168,7 +170,7 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 //
 
 
-        score += rewarder.mostLikely()
+        if (!bypassScore) score += rewarder.mostLikely()
 
         grid = nextGrid
         nTicks++
@@ -183,6 +185,7 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 
 
     val bypassScore = true
+
     override fun score(): Double {
         if (bypassScore)
             return countScore()
