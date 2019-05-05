@@ -15,7 +15,7 @@ class SimpleEvoAgentTest {
             City(Vec2d(0.0, 20.0), 0, 10, PlayerId.Red),
             City(Vec2d(0.0, 10.0), 0, 0, PlayerId.Neutral)
     )
-    val world = World(cities, 20, 20, 5.0, Random(10))
+    val world = World(cities, ArrayList(), 20, 20, 5.0, Random(10))
     val game = EventQueueGame(world)
 
     @Test

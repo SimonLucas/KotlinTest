@@ -4,8 +4,10 @@ import ggi.AbstractGameState
 import ggi.game.Action
 import ggi.game.ActionAbstractGameState
 import math.Vec2d
+import math.v
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.math.nextUp
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -33,6 +35,7 @@ enum class PlayerId {
 
 data class City(val location: Vec2d, val radius: Int = 40, var pop: Int = 100, var owner: PlayerId = PlayerId.Neutral)
 
+data class Route(val fromCity: Int, val toCity: Int, val length: Int, val terrainDifficulty: Double)
 
 /*
  A returned positive value is the number of surviving attackers; a negative value is interpreted as the number of
@@ -62,46 +65,72 @@ data class EventGameParams(
         val maxPop: Int = 100,
         val minSep: Int = 30,
         val seed: Long = 10,
+        val autoConnect: Int = 300,
+        val minConnections: Int = 0,
+        val maxDistance: Int = 500,
         val speed: Double = 10.0
 )
 
 
-data class World(var cities: List<City> = ArrayList(), val width: Int = 1000, val height: Int = 600,
+data class World(var cities: List<City> = ArrayList(), var routes: List<Route> = ArrayList(),
+                 val width: Int = 1000, val height: Int = 600,
                  val speed: Double = 1.0,
                  val random: Random = Random(3),
                  val params: EventGameParams = EventGameParams()) {
 
     init {
-        if (cities.isEmpty())
-            cities = initialise()
+        if (cities.isEmpty()) initialise()
     }
 
     var currentTransits: ArrayList<Transit> = ArrayList()
     var currentTicks: Int = 0
+    var allRoutesFromCity: Map<Int, List<Route>> = HashMap()
 
-    private fun initialise(): List<City> {
+    private fun initialise() {
         // just keep it like so
-        val retValue = ArrayList<City>()
+        cities = ArrayList()
         with(params) {
             for (i in 0 until nAttempts) {
                 val location = Vec2d(minSep + random.nextDouble((width - 2.0 * minSep)),
                         minSep + random.nextDouble((height - 2.0 * minSep)))
                 val city = City(location, minSep / 2, 0)
-                if (canPlace(city, retValue, minSep)) retValue.add(city)
+                if (canPlace(city, cities, minSep)) cities += city
             }
         }
+
+        for (i in 0 until cities.size) {
+            // for each city we connect to all cities within a specified range
+            var connections = 0
+            for (j in 0 until cities.size) {
+                if (i != j && cities[i].location.distanceTo(cities[j].location) <= params.autoConnect) {
+                    routes += Route(i, j, cities[i].location.distanceTo(cities[j].location).toInt(), 1.0)
+                    connections++
+                }
+                while (connections < params.minConnections) {
+                    // then connect to random cities up to minimum
+                    val proposal = random.nextInt(cities.size)
+                    val distance =  cities[i].location.distanceTo(cities[proposal].location).toInt()
+                    if (proposal != i && distance <= params.maxDistance
+                            && !routes.any{r -> r.fromCity == i && r.toCity == proposal}) {
+                        connections++
+                        routes += Route(i, proposal, distance, 1.0)
+                        routes += Route(proposal, i, distance, 1.0)
+                    }
+                }
+                // TODO: Add in a check for routes to not cross each other, or cross the radius of another city
+            }
+        }
+
         var blueBase = 0
         var redBase = 0
         while (blueBase == redBase) {
-            blueBase = random.nextInt(retValue.size)
-            redBase = random.nextInt(retValue.size)
+            blueBase = random.nextInt(cities.size)
+            redBase = random.nextInt(cities.size)
         }
-        retValue[blueBase].owner = PlayerId.Blue
-        retValue[blueBase].pop = params.maxPop
-        retValue[redBase].owner = PlayerId.Red
-        retValue[redBase].pop = params.maxPop
-
-        return retValue
+        cities[blueBase].owner = PlayerId.Blue
+        cities[blueBase].pop = params.maxPop
+        cities[redBase].owner = PlayerId.Red
+        cities[redBase].pop = params.maxPop
     }
 
     fun canPlace(c: City, cities: List<City>, minSep: Int): Boolean {
@@ -204,7 +233,7 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val to: Int, va
                 val maxActions = world.cities.size.toDouble()
                 val distance = world.cities[from].location.distanceTo(world.cities[to].location)
                 val arrivalTime = world.currentTicks + (distance / world.speed).toInt()
-                var forcesSent = ((proportion+1.0) / maxActions * sourceCityPop).roundToInt()
+                var forcesSent = ((proportion + 1.0) / maxActions * sourceCityPop).roundToInt()
                 if (forcesSent == 0) forcesSent = 1
                 val transit = Transit(forcesSent, from, to, player, world.currentTicks, arrivalTime)
                 // we execute the troop departure immediately

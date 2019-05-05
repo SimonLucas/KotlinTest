@@ -30,9 +30,9 @@ class WorldView (var game: EventQueueGame) : JComponent() {
         g.stroke = BasicStroke(5f)
         with (world) {
 
-            val b = (1 + Math.sin(game.nTicks().toDouble() * 0.01 * Math.PI).toFloat()) / 2f
+     //       val b = (1 + Math.sin(game.nTicks().toDouble() * 0.01 * Math.PI).toFloat()) / 2f
             // println(b)
-            g.color = Color.getHSBColor(bgHue, 0.5f, b)
+            g.color = Color.getHSBColor(bgHue, 0.5f, 0.0f)
             g.fillRect(0, 0, getWidth(), getHeight())
 
             // now need to work out a scale
@@ -41,8 +41,13 @@ class WorldView (var game: EventQueueGame) : JComponent() {
 
             // now scale things accordingly
 
-            for (c in cities) {
+            for (r in routes) {
+                g.setColor(outline)
+                g.drawLine((cities[r.fromCity].location.x * xScale).toInt(), (cities[r.fromCity].location.y * yScale).toInt(),
+                        (cities[r.toCity].location.x * xScale).toInt(), (cities[r.toCity].location.y * yScale).toInt())
+            }
 
+            for (c in cities) {
                 val ellipse = Ellipse2D.Double(xScale * (c.location.x-c.radius), yScale * (c.location.y - c.radius),
                         2 * c.radius * xScale, 2 * c.radius * yScale)
                 g.setColor(outline)
