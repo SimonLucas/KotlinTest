@@ -1,7 +1,6 @@
 package games.simplegridgame
 
 import agents.DoNothingAgent
-import agents.RandomAgent
 import agents.SimpleEvoAgent
 import forwardmodels.decisiontree.DecisionTree
 import ggi.AbstractGameState
@@ -12,7 +11,7 @@ import views.GridView
 import java.util.*
 import kotlin.collections.ArrayList
 
-import forwardmodels.modelinterface.ForwardModelTrainer
+import forwardmodels.modelinterface.ForwardModelTrainerSimpleGridGame
 import games.gridgame.*
 import games.gridgame.InputType
 
@@ -46,7 +45,7 @@ fun main(args: Array<String>) {
     agent2 = DoNothingAgent(game.doNothingAction())
 
     var decisionTree : DecisionTree? = null
-    val modelTrainer = ForwardModelTrainer(InputType.Simple)
+    val modelTrainer = ForwardModelTrainerSimpleGridGame(InputType.Simple)
 
     val nSteps = 2000
     for (i in 0 until nSteps) {

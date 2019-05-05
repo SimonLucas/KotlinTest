@@ -63,6 +63,7 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
     fun getCell(x: Int, y: Int): Char {
         val xx = (x + w) % w
         val yy = (y + h) % h
+        //println("x: $x; y: $y; xx: $xx; yy: $yy")
         return grid[xx + w * yy]
     }
 
