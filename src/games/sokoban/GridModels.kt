@@ -158,7 +158,14 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
         }
 
 
-        if (action != 0) println(rewarder.logProbs)
+        if (action != 0) {
+            println(rewarder.logProbs)
+            val zeroP = rewarder.logProbs[0.0]
+            val oneP = rewarder.logProbs[1.0]
+            if (oneP!=null && zeroP!=null)
+                println("PDiff = %.4f".format( zeroP - oneP))
+        }
+
 
 
         score += rewarder.mostLikely()

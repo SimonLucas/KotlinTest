@@ -45,6 +45,9 @@ fun main() {
         gv.grid = game.board
         gv.repaint()
 
+        // setting this will inject tile patterns
+        // that never occur during training, and
+        // can have a domino effect on the level falling apart
         // lfm.grid.setCell(0, 0, 'o')
         gvShadow.grid = Grid().forceArray(lfm.grid.grid)
         gvShadow.repaint()

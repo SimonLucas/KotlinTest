@@ -48,7 +48,7 @@ data class Grid(val w: Int = 8, val h: Int = 7) : GridInterface {
         var playerLoc = array.indexOf(AVATAR)
         if (playerLoc == -1)
         {
-            println("ERROR: No player in level")
+            // println("ERROR: No player in level")
         } else {
             playerX = playerLoc % w
             playerY = playerLoc / w
@@ -60,6 +60,14 @@ data class Grid(val w: Int = 8, val h: Int = 7) : GridInterface {
     }
 
     fun forceArray(array: CharArray) : Grid {
+        var playerLoc = array.indexOf(AVATAR)
+        if (playerLoc == -1)
+        {
+            // println("ERROR: No player in level")
+        } else {
+            playerX = playerLoc % w
+            playerY = playerLoc / w
+        }
         grid = array
         return this
     }

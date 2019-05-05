@@ -120,7 +120,7 @@ fun guessTile(dis: TileDistribution?, defaultTile: Char) : Char {
 
 
 class RewardEstimator {
-    val epsilon = 1e-30
+    val epsilon = 1e-1
 
     // we'll add to this each time a reward comes in
     // actually track the log probs to avoid underflow
