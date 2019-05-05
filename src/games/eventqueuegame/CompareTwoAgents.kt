@@ -17,8 +17,7 @@ import kotlin.random.Random
         val startTime = calendar.timeInMillis
         for (g in 1..maxGames) {
             val world = World(speed = 10.0, random = Random(1), params = params)
-            val game = EventQueueGame()
-            game.world = world
+            val game = EventQueueGame(world)
             while (!game.isTerminal()) {
                 val redGene = agents[PlayerId.Red]?.getActions(game, 1)?.slice(0..3) ?: listOf(0, 0, 0, 0)
                 val redAction = LaunchExpedition(PlayerId.Red, redGene.get(0), redGene.get(1), redGene.get(2), redGene.get(3))

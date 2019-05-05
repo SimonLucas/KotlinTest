@@ -6,6 +6,8 @@ import ggi.game.ActionAbstractGameState
 import math.Vec2d
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.nextUp
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 // todo : Decide which effects to add next
@@ -64,39 +66,41 @@ data class EventGameParams(
 )
 
 
-data class World(var cities: ArrayList<City> = ArrayList(), val width: Int = 1000, val height: Int = 600,
+data class World(var cities: List<City> = ArrayList(), val width: Int = 1000, val height: Int = 600,
                  val speed: Double = 1.0,
                  val random: Random = Random(3),
                  val params: EventGameParams = EventGameParams()) {
 
     init {
-        initialise()
+        if (cities.isEmpty()) initialise()
     }
 
     var currentTransits: ArrayList<Transit> = ArrayList()
     var currentTicks: Int = 0
 
-    private fun initialise() {
+    private fun initialise(): List<City> {
         // just keep it like so
-        cities = ArrayList()
+        val retValue = ArrayList<City>()
         with(params) {
             for (i in 0 until nAttempts) {
                 val location = Vec2d(minSep + random.nextDouble((width - 2.0 * minSep)),
                         minSep + random.nextDouble((height - 2.0 * minSep)))
                 val city = City(location, minSep / 2, 0)
-                if (canPlace(city, cities, minSep)) cities.add(city)
+                if (canPlace(city, retValue, minSep)) retValue.add(city)
             }
         }
         var blueBase = 0
         var redBase = 0
         while (blueBase == redBase) {
-            blueBase = random.nextInt(cities.size)
-            redBase = random.nextInt(cities.size)
+            blueBase = random.nextInt(retValue.size)
+            redBase = random.nextInt(retValue.size)
         }
-        cities[blueBase].owner = PlayerId.Blue
-        cities[blueBase].pop = params.maxPop
-        cities[redBase].owner = PlayerId.Red
-        cities[redBase].pop = params.maxPop
+        retValue[blueBase].owner = PlayerId.Blue
+        retValue[blueBase].pop = params.maxPop
+        retValue[redBase].owner = PlayerId.Red
+        retValue[redBase].pop = params.maxPop
+
+        return retValue
     }
 
     fun canPlace(c: City, cities: List<City>, minSep: Int): Boolean {
@@ -124,11 +128,6 @@ data class World(var cities: ArrayList<City> = ArrayList(), val width: Int = 100
         return state
     }
 
-    fun setTime(time: Int) {
-        currentTicks = time
-    }
-
-
     fun addTransit(transit: Transit) {
         currentTransits.add(transit)
     }
@@ -141,7 +140,6 @@ data class World(var cities: ArrayList<City> = ArrayList(), val width: Int = 100
     }
 
 }
-
 
 data class Transit(val nPeople: Int, val fromCity: Int, val toCity: Int, val playerId: PlayerId, val startTime: Int, val endTime: Int)
 
@@ -205,8 +203,9 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val to: Int, va
                 val maxActions = world.cities.size.toDouble()
                 val distance = world.cities[from].location.distanceTo(world.cities[to].location)
                 val arrivalTime = world.currentTicks + (distance / world.speed).toInt()
-                val transit = Transit((proportion / maxActions * sourceCityPop).toInt() + 1, from, to, player,
-                        world.currentTicks, arrivalTime)
+                var forcesSent = ((proportion+1.0) / maxActions * sourceCityPop).roundToInt()
+                if (forcesSent == 0) forcesSent = 1
+                val transit = Transit(forcesSent, from, to, player, world.currentTicks, arrivalTime)
                 // we execute the troop departure immediately
                 TransitStart(transit).apply(state)
                 // and put their arrival in the queue for the game state
@@ -223,18 +222,20 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val to: Int, va
     }
 }
 
-
 var totalTicks: Long = 0
 
-class EventQueueGame : ActionAbstractGameState {
-
-    var world = World()
+class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
 
     val eventQueue = PriorityQueue<Event>()
+    var scoreFunction: (EventQueueGame) -> Double = {
+        // as a default we count the number of Blue cities, and subtract the number of red cities
+        val blueCities = it.world.cities.count { c -> c.owner == PlayerId.Blue }
+        val redCities = it.world.cities.count { c -> c.owner == PlayerId.Red }
+        (blueCities - redCities).toDouble()
+    }
 
-    override fun copy(): AbstractGameState {
-        val state = EventQueueGame()
-        state.world = world.deepCopy()
+    override fun copy(): EventQueueGame {
+        val state = EventQueueGame(world.deepCopy())
         state.eventQueue.addAll(eventQueue)
         return state
     }
@@ -255,14 +256,13 @@ class EventQueueGame : ActionAbstractGameState {
     }
 
     override fun next(actions: List<Action>): EventQueueGame {
-        val currentTime = world.currentTicks
-        world.setTime(currentTime + 1)
+        world.currentTicks++
 
         var finished = false
         do {
             // we may have multiple events triggering in the same tick
             val event = eventQueue.peek()
-            if (event != null && event.tick < currentTime) {
+            if (event != null && event.tick < world.currentTicks) {
                 // the time has come to trigger it
                 eventQueue.poll()
                 event.action.apply(this)
@@ -278,10 +278,7 @@ class EventQueueGame : ActionAbstractGameState {
     }
 
     override fun score(): Double {
-        // we count the number of Blue cities, and subtract the number of red cities
-        val blueCities = world.cities.count { c -> c.owner == PlayerId.Blue }
-        val redCities = world.cities.count { c -> c.owner == PlayerId.Red }
-        return (blueCities - redCities).toDouble()
+        return scoreFunction(this)
     }
 
     override fun isTerminal(): Boolean {

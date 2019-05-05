@@ -9,8 +9,7 @@ fun main() {
 
     val params = EventGameParams(nAttempts = 20)
     val world = World(params = params)
-    val game = EventQueueGame()
-    game.world = world
+    val game = EventQueueGame(world)
 
     game.eventQueue.add(Event(200,
             CityInflux(pop = 100, destination = 5, player = PlayerId.Blue)))

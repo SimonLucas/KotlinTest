@@ -17,6 +17,51 @@ fun shiftLeftAndRandomAppend(startingArray: IntArray, nShift: Int, nActions: Int
     return p
 }
 
+
+fun evaluateSequenceDelta(gameState: AbstractGameState,
+                          seq: IntArray,
+                          playerId: Int,
+                          discountFactor: Double,
+                          opponentModel: SimplePlayerInterface = DoNothingAgent()): Double {
+    val intPerAction = if (gameState is ActionAbstractGameState) gameState.codonsPerAction() else 1
+    val actions = IntArray(2 * intPerAction)
+    var currentActionPointer = 0
+    var runningScore = gameState.score()
+    var discount = 1.0
+    var delta = 0.0
+
+    fun discount(nextScore: Double) {
+        val tickDelta = nextScore - runningScore
+        runningScore = nextScore
+        delta += tickDelta * discount
+        discount *= discountFactor
+    }
+
+    for (action in seq) {
+        actions[playerId * intPerAction + currentActionPointer] = action
+        //TODO: This is fine with an opponent model that does nothing...but will not work otherwise
+        // The problem being that SimpleAgentInterface only permits getAction: Int
+        actions[(1 - playerId) * intPerAction + currentActionPointer] = opponentModel.getAction(gameState, 1 - playerId)
+        if (gameState is ActionAbstractGameState) {
+            currentActionPointer++
+            if (currentActionPointer == intPerAction) {
+                val action1 = gameState.translateGene(0, actions.sliceArray(0..intPerAction))
+                val action2 = gameState.translateGene(1, actions.sliceArray(intPerAction..(2 * intPerAction - 1)))
+                gameState.next(listOf(action1, action2))
+                currentActionPointer = 0
+                discount(gameState.score())
+            }
+        } else {
+            gameState.next(actions)
+            discount(gameState.score())
+        }
+    }
+    return if (playerId == 0)
+        delta
+    else
+        -delta
+}
+
 data class SimpleEvoAgent(
         var flipAtLeastOneValue: Boolean = true,
         // var expectedMutations: Double = 10.0,
@@ -126,48 +171,9 @@ data class SimpleEvoAgent(
 
 
     private fun evalSeq(gameState: AbstractGameState, seq: IntArray, playerId: Int): Double {
-        return evaluateSequenceDelta(gameState, seq, playerId, discountFactor?: 1.0)
+        return evaluateSequenceDelta(gameState, seq, playerId, discountFactor?: 1.0, opponentModel)
     }
 
-    private fun evaluateSequenceDelta(gameState: AbstractGameState, seq: IntArray, playerId: Int, discountFactor: Double): Double {
-        val intPerAction = if (gameState is ActionAbstractGameState) gameState.codonsPerAction() else 1
-        val actions = IntArray(2 * intPerAction)
-        var currentActionPointer = 0
-        var runningScore = gameState.score()
-        var discount = 1.0
-        var delta = 0.0
-
-        fun discount(nextScore: Double) {
-            val tickDelta = nextScore - runningScore
-            runningScore = nextScore
-            delta += tickDelta * discount
-            discount *= discountFactor
-        }
-
-        for (action in seq) {
-            actions[playerId * intPerAction + currentActionPointer] = action
-            //TODO: This is fine with an opponent model that does nothing...but will not work otherwise
-            // The problem being that SimpleAgentInterface only permits getAction: Int
-            actions[(1 - playerId) * intPerAction + currentActionPointer] = opponentModel.getAction(gameState, 1 - playerId)
-            if (gameState is ActionAbstractGameState) {
-                currentActionPointer++
-                if (currentActionPointer == intPerAction) {
-                    val action1 = gameState.translateGene(0, actions.sliceArray(0..intPerAction))
-                    val action2 = gameState.translateGene(1, actions.sliceArray(intPerAction..(2 * intPerAction - 1)))
-                    gameState.next(listOf(action1, action2))
-                    currentActionPointer = 0
-                    discount(gameState.score())
-                }
-            } else {
-                gameState.next(actions)
-                discount(gameState.score())
-            }
-        }
-        return if (playerId == 0)
-            delta
-        else
-            -delta
-    }
 
     override fun toString(): String {
         return "SEA: $nEvals : $sequenceLength : $opponentModel"

@@ -7,8 +7,7 @@ import kotlin.random.Random
     fun main() {
         val params = EventGameParams(minSep = 50)
         val world = World(speed = 10.0, random = Random(1), params = params)
-        val game = EventQueueGame()
-        game.world = world
+        val game = EventQueueGame(world)
         val agents = HashMap<PlayerId, SimpleEvoAgent>()
         agents[PlayerId.Blue] = SimpleEvoAgent(nEvals = 100, sequenceLength = 300)
         agents[PlayerId.Red] = SimpleEvoAgent(nEvals = 20, sequenceLength = 100)
