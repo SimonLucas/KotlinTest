@@ -128,7 +128,7 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 
         val nextGrid = grid.deepCopy()
         val action = actions[0]
-        println("Action = " + action)
+        // println("Action = " + action)
 
         val rewarder = RewardEstimator()
 
@@ -146,7 +146,7 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 
                 val bestGuess = guessTile(tileDis, grid.getCell(x, y))
                 if (ip[0] == 'A' && action != 0) {
-                    println("($x, $y), Centre: ${ip[0]},\t tileDis: $tileDis,\t best guess: $bestGuess")
+                    // println("($x, $y), Centre: ${ip[0]},\t tileDis: $tileDis,\t best guess: $bestGuess")
                 }
                 nextGrid.setCell(x, y, bestGuess)
 
@@ -158,14 +158,14 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
         }
 
 
-        if (action != 0) {
-            println(rewarder.logProbs)
-            val zeroP = rewarder.logProbs[0.0]
-            val oneP = rewarder.logProbs[1.0]
-            if (oneP!=null && zeroP!=null)
-                println("PDiff = %.4f".format( zeroP - oneP))
-        }
-
+//        if (action != 0) {
+//            println(rewarder.logProbs)
+//            val zeroP = rewarder.logProbs[0.0]
+//            val oneP = rewarder.logProbs[1.0]
+//            if (oneP!=null && zeroP!=null)
+//                println("PDiff = %.4f".format( zeroP - oneP))
+//        }
+//
 
 
         score += rewarder.mostLikely()
@@ -181,8 +181,16 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
         return 5
     }
 
+
+    val bypassScore = true
     override fun score(): Double {
-        return score
+        if (bypassScore)
+            return countScore()
+        else return score
+    }
+
+    fun countScore() : Double {
+        return grid.grid.count{t -> t == '+'}.toDouble()
     }
 
     override fun isTerminal(): Boolean {

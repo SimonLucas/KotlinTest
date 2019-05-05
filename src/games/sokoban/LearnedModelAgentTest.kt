@@ -7,14 +7,25 @@ import utilities.ElapsedTimer
 import utilities.JEasyFrame
 import utilities.StatSummary
 
-val nSteps = 1000
 
 fun main() {
 
+    val nSteps = 10
+
+    val span = 2
+
+    var game = Sokoban()
+    val gatherer = GatherData(span)
+
+    var lfm = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span)
+
     val t = ElapsedTimer()
     var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 100, nEvals = 100)
-    agent = RandomAgent()
-    runTests(100, agent)
+    // agent = RandomAgent()
+
+    // learn a forward model
+
+    runModelTests(nSteps, agent, lfm)
     val elapsed = t.elapsed()
 
     println(t)
@@ -23,18 +34,18 @@ fun main() {
 
 }
 
-fun runTests(n: Int, agent: SimplePlayerInterface) : StatSummary {
+fun runModelTests(n: Int, agent: SimplePlayerInterface, lfm: LocalForwardModel) : StatSummary {
     val ss = StatSummary("Sokoban scores")
     for (i in 0 until n) {
         // println("Running game $i")
-        val score = runGame(agent)
+        val score = runModelGame(agent, lfm)
         ss.add(score)
     }
     println(ss)
     return ss
 }
 
-fun runGame(agent: SimplePlayerInterface) : Double {
+fun runModelGame(agent: SimplePlayerInterface, lfm: LocalForwardModel) : Double {
     var game = Sokoban()
     val actions = intArrayOf(0, 0)
     var i = 0
@@ -42,8 +53,13 @@ fun runGame(agent: SimplePlayerInterface) : Double {
 
     while (i < nSteps && !gameOver)
     {
+
+        // set the current state up in the Learned Forward Model
+        lfm.setGrid(game.board.grid, game.board.playerX, game.board.playerY)
+
+
         //Take and execute actions
-        actions[0] = agent.getAction(game.copy(), Constants.player1)
+        actions[0] = agent.getAction(lfm, Constants.player1)
         game.next(actions)
         gameOver = game.isTerminal()
         i++
