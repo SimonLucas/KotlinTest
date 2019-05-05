@@ -1,6 +1,6 @@
 package forwardmodels.modelinterface;
 
-import java.lang.reflect.Array;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -12,7 +12,7 @@ import games.gridgame.InputType;
  * @author Alexander Dockhorn
  */
 
-public class ForwardModelTrainer {
+public class ForwardModelTrainerSimpleGridGame {
 
 	private InputType inputType;
 	private DecisionTree tree;
@@ -20,7 +20,7 @@ public class ForwardModelTrainer {
 	private int knownPatterns = 0;
 	private ArrayList<String> trainingData;
 
-	public ForwardModelTrainer(InputType inputType){
+	public ForwardModelTrainerSimpleGridGame(InputType inputType){
 		this.inputType = inputType;
 
 		this.trainingData = new ArrayList<String>();
@@ -29,7 +29,8 @@ public class ForwardModelTrainer {
 			case Simple: trainingData.add("tl,l,bl,t,c,b,tr,r,br,class"); break;
 			case PlayerInt: trainingData.add("tl,l,bl,t,c,b,tr,r,br,pint,class"); break;
 			case PlayerOneHot: trainingData.add("tl,l,bl,t,c,b,tr,r,ptl,pl,pbl,pt,pc,pb,ptr,pr,pbl,class"); break;
-			default: break;
+            case Sokoban: throw new InvalidParameterException("use ForwardModelTrainerSokoban instead");
+            default: break;
 		}
 	}
 
@@ -222,7 +223,7 @@ public class ForwardModelTrainer {
 		InputType inputType = InputType.Simple;
 		ArrayList<String> dataset = getValidationData(inputType);
 
-		ForwardModelTrainer fm = new ForwardModelTrainer(inputType);
+		ForwardModelTrainerSimpleGridGame fm = new ForwardModelTrainerSimpleGridGame(inputType);
 
 		// Train your Decision Tree
 		//tree.train(new File("uniquepatterns.csv"));
