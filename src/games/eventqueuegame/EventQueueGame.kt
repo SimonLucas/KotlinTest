@@ -1,15 +1,10 @@
 package games.eventqueuegame
 
-import ggi.AbstractGameState
-import ggi.game.Action
-import ggi.game.ActionAbstractGameState
+import ggi.game.*
 import math.Vec2d
-import math.v
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.math.nextUp
-import kotlin.math.roundToInt
+import kotlin.collections.*
+import kotlin.math.*
 import kotlin.random.Random
 
 // todo : Decide which effects to add next
@@ -66,8 +61,8 @@ data class EventGameParams(
         val minSep: Int = 30,
         val seed: Long = 10,
         val autoConnect: Int = 300,
-        val minConnections: Int = 0,
-        val maxDistance: Int = 500,
+        val minConnections: Int = 2,
+        val maxDistance: Int = 1000,
         val speed: Double = 10.0
 )
 
@@ -78,13 +73,14 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                  val random: Random = Random(3),
                  val params: EventGameParams = EventGameParams()) {
 
-    init {
-        if (cities.isEmpty()) initialise()
-    }
 
     var currentTransits: ArrayList<Transit> = ArrayList()
     var currentTicks: Int = 0
     var allRoutesFromCity: Map<Int, List<Route>> = HashMap()
+
+    init {
+        if (cities.isEmpty()) initialise()
+    }
 
     private fun initialise() {
         // just keep it like so
@@ -106,20 +102,30 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                     routes += Route(i, j, cities[i].location.distanceTo(cities[j].location).toInt(), 1.0)
                     connections++
                 }
-                while (connections < params.minConnections) {
-                    // then connect to random cities up to minimum
-                    val proposal = random.nextInt(cities.size)
-                    val distance =  cities[i].location.distanceTo(cities[proposal].location).toInt()
-                    if (proposal != i && distance <= params.maxDistance
-                            && !routes.any{r -> r.fromCity == i && r.toCity == proposal}) {
-                        connections++
-                        routes += Route(i, proposal, distance, 1.0)
-                        routes += Route(proposal, i, distance, 1.0)
-                    }
-                }
-                // TODO: Add in a check for routes to not cross each other, or cross the radius of another city
             }
+            while (connections < params.minConnections) {
+                // then connect to random cities up to minimum
+                val eligibleCities = cities.filter {
+                    val distance = cities[i].location.distanceTo(it.location)
+                    distance > params.autoConnect && distance <= params.maxDistance
+                }.filter {
+                    !routes.any { r -> r.fromCity == i && r.toCity == cities.indexOf(it) }
+                }
+                if (eligibleCities.isEmpty())
+                    break
+
+                val proposal = random.nextInt(eligibleCities.size)
+                connections++
+                val distance = cities[i].location.distanceTo(eligibleCities[proposal].location).toInt()
+                routes += Route(i, proposal, distance, 1.0)
+                routes += Route(proposal, i, distance, 1.0)
+            }
+
+            // TODO: Add in a check for routes to not cross each other, or cross the radius of another city
         }
+
+
+        allRoutesFromCity = routes.groupBy(Route::fromCity)
 
         var blueBase = 0
         var redBase = 0
