@@ -15,9 +15,8 @@ public class MultiClassDecisionTree {
     private ArrayList<Attribute> attributes;
     public Instances trainingData;
     public J48 tree;
-    private String defaultvalue = "";
+    private String defaultvalue = "x";
     private int nrOfLearnedInstances = 0;
-    private ArrayList<String> cell_values;
 
     public int getTimesTrained() {
         return timesTrained;
@@ -27,8 +26,12 @@ public class MultiClassDecisionTree {
 
 
     public MultiClassDecisionTree(String positions){
-        String[] options = new String[1];
-        options[0] = "-U";            // unpruned tree
+        String[] options = new String[4];
+        options[0] = "-M";
+        options[1] = "1";
+        options[2] = "O";
+        options[3] = "-U";            // unpruned tree
+
         tree = new J48();         // new instance of tree
         try {
             tree.setOptions(options);
@@ -36,22 +39,27 @@ public class MultiClassDecisionTree {
             e.printStackTrace();
         }
 
-        List cell_values = new ArrayList<String>(8);
+        List cell_values = new ArrayList<String>(9);
         cell_values.add(".");
         cell_values.add("*");
         cell_values.add("o");
         cell_values.add("A");
         cell_values.add("w");
         cell_values.add("+");
-        cell_values.add("x");   //add symbol end of the grid
+        cell_values.add("u");   // represents A and o on the same position
+        cell_values.add("x");   // add symbol end of the grid
 
         List action_values = new ArrayList();
+        action_values.add("1");
+        action_values.add("2");
+        action_values.add("3");
+        action_values.add("4");
 
         attributes = new ArrayList<Attribute>();
         for (String s : positions.split(";")){
             attributes.add(new Attribute(s, cell_values));
         }
-        attributes.add(new Attribute("action"));
+        attributes.add(new Attribute("action", action_values));
         attributes.add(new Attribute("outcome", cell_values));
 
         trainingData = new Instances("TrainingData", attributes , 0);
@@ -91,8 +99,13 @@ public class MultiClassDecisionTree {
                 return denseInstance.stringValue(0);
             }
         } else {
-            System.out.println("This should never happen");
-            return defaultvalue;
+            if  (defaultvalue.equals("x")){
+                //return what was on the same field
+                return denseInstance.stringValue(0);
+            } else{
+                System.out.println("This should never happen");
+                return defaultvalue;
+            }
         }
     }
 
@@ -116,7 +129,6 @@ public class MultiClassDecisionTree {
     }
 
     public String predictCell(ArrayList<Character> gridentries, int action){
-        StringBuilder sb = new StringBuilder();
         DenseInstance denseInstance = getInstance(gridentries, action);
         return this.predictInstance(denseInstance);
 
@@ -137,7 +149,7 @@ public class MultiClassDecisionTree {
         for (int i = 0; i < gridentries.size(); i++){
             instance.setValue(i, gridentries.get(i).toString());
         }
-        instance.setValue(instance.numAttributes()-2, action);
+        instance.setValue(instance.numAttributes()-2, String.valueOf(action));
 
         return instance;
     }

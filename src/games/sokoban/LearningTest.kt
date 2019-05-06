@@ -1,16 +1,13 @@
 package games.sokoban
 
 import agents.RandomAgent
-import forwardmodels.decisiontree.DecisionTree
 import forwardmodels.decisiontree.MultiClassDecisionTree
-import forwardmodels.modelinterface.ForwardModelTrainerSimpleGridGame
-import games.gridgame.InputType
 import utilities.ElapsedTimer
-import weka.classifiers.trees.J48
 import java.lang.StringBuilder
 
 val span = 2
-
+val printErrors = true
+val printDetails = false
 
 fun main(args: Array<String>) {
     val game = Sokoban()
@@ -22,25 +19,37 @@ fun main(args: Array<String>) {
     val gathererAndTrainer = GathererAndTrainer()
 
     val timer = ElapsedTimer()
-    val nSteps = 1000
+    val nSteps = 10000
 
     var predictedGrid : Grid
 
     for (i in 0 until nSteps) {
+        //println("##### timestep $i #####")
         actions[0] = agent.getAction(game.copy(), Constants.player1)
+        while (actions[0] == 0)
+            actions[0] = agent.getAction(game.copy(), Constants.player1)
+
         val grid1 = game.board.deepCopy()
         // setting cells is a quick hack to get around the fact that
         // it's not properly updated
-        grid1.setCell(grid1.playerX, grid1.playerY, 'A')
+        if (grid1.getCell(grid1.playerX, grid1.playerY).equals('o'))
+            grid1.setCell(grid1.playerX, grid1.playerY, 'u')
+        else
+            grid1.setCell(grid1.playerX, grid1.playerY, 'A')
+
         val score1 = game.score()
 
         game.next(actions)
         val grid2 = game.board.deepCopy()
-        grid2.setCell(grid2.playerX, grid2.playerY, 'A')
 
-        if (game.nTicks > 1){
-            gathererAndTrainer.evaluate(grid1, actions[0], grid2)
-        }
+        //grid2.setCell(grid2.playerX, grid2.playerY, 'A')
+        if (grid2.getCell(grid2.playerX, grid2.playerY).equals('o'))
+            grid2.setCell(grid2.playerX, grid2.playerY, 'u')
+        else
+            grid2.setCell(grid2.playerX, grid2.playerY, 'A')
+
+
+        gathererAndTrainer.evaluate(grid1, actions[0], grid2)
 
         //gather new patterns
         gathererAndTrainer.addGrid(grid1, grid2, actions[0], game.score() - score1)
@@ -96,6 +105,31 @@ class GathererAndTrainer {
         return predictedGrid
     }
 
+    fun predictGridWithTrueValues(grid: Grid, action: Int, grid2: Grid) : Grid {
+        val predictedGrid = grid.deepCopy()
+        for (x in 0 until grid.getWidth()) {
+            for (y in 0 until grid.getHeight()) {
+                val ip = extractVectorFixed(grid, x, y)
+                predictedGrid.setCell(x,y,tree.predictCell(ip, action).single())
+                if (predictedGrid.getCell(x,y) != grid2.getCell(x,y)){
+                    println("before")
+                    showPatternAt(grid, x, y)
+                    println()
+                    println("after")
+                    showPatternAt(grid2, x, y)
+                    println("Action: $action")
+                    println("True result: ${grid2.getCell(x,y)}")
+                    println("predicted Result: ${tree.predictCell(ip, action)}")
+
+                    println()
+                    if (totalTicks > 1000)
+                        tree.predictCell(ip, action)
+                }
+            }
+        }
+        return predictedGrid
+    }
+
 
     fun addGrid(grid1: Grid, grid2: Grid, action: Int, rewardDelta: Double) {
         assert(grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight())
@@ -112,9 +146,6 @@ class GathererAndTrainer {
                     tileDis = TileDistribution()
                     tileData.put(example, tileDis)
 
-                    val sb = StringBuilder()
-                    sb.append("${example.ip.joinToString(",")},${example.action},$op")
-                    trainData.add(sb.toString())
                     tree.addDataPoint(example.ip, example.action, op)
                 }
                 tileDis.add(op)
@@ -218,12 +249,27 @@ class GathererAndTrainer {
     }
 
     fun evaluate(grid1: Grid, action : Int, grid2: Grid){
-        val predictedGrid = this.predictGrid(grid1, action)
+        val predictedGrid : Grid
+        if (printDetails)
+            predictedGrid = this.predictGridWithTrueValues(grid1, action, grid2)
+        else
+            predictedGrid = this.predictGrid(grid1, action)
+
         val predicted = predictedGrid.grid.asSequence()
         val real = grid2.grid.asSequence()
         val correctlyPredicted = (predicted zip real).count{(a,b) -> a.equals(b)}
 
         totalPredictions += predicted.count()
         erroneousPredictions += predicted.count()-correctlyPredicted
+        if (printErrors)
+            println("$totalTicks, $erroneousPredictions")
+    }
+
+    fun showPatternAt(grid: Grid, x: Int, y: Int){
+        println("    ${grid.getCell(x,y-2)}    ")
+        println("    ${grid.getCell(x,y-1)}    ")
+        println("${grid.getCell(x-2,y-0)},${grid.getCell(x-1,y-0)},${grid.getCell(x,y-0)},${grid.getCell(x+1,y-0)},${grid.getCell(x+2,y-0)}")
+        println("    ${grid.getCell(x,y+1)}    ")
+        println("    ${grid.getCell(x,y+2)}    ")
     }
 }
