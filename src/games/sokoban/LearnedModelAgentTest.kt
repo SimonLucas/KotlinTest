@@ -11,7 +11,7 @@ import utilities.StatSummary
 fun main() {
 
     val nGames = 10
-    val useLearnedModel = false
+    val useLearnedModel = true
     val span = 2
     val maxSteps = 100
     val gatherer = GatherData(span)
