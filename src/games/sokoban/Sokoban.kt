@@ -3,10 +3,11 @@ package games.sokoban
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import java.util.*
+import java.io.File
 
 val random = Random()
 
-data class Grid(val w: Int = 8, val h: Int = 7) : GridInterface {
+data class Grid(val levelNo: Int = -1) : GridInterface {
 
     var playerX: Int = -1
     var playerY: Int = -1
@@ -16,6 +17,8 @@ data class Grid(val w: Int = 8, val h: Int = 7) : GridInterface {
     val AVATAR: Char = 'A'
     val WALL: Char = 'w'
     val BOXIN: Char = '+'
+    var w: Int = -1
+    var h: Int = -1
 
     var grid: CharArray = readGrid()
     var nBoxes = 0
@@ -23,13 +26,16 @@ data class Grid(val w: Int = 8, val h: Int = 7) : GridInterface {
 
     fun readGrid() : CharArray
     {
-        var level: String =     "wwwwwwww" +
-                                "ww.....w" +
-                                "ww.o.o.w" +
-                                "ww.*.*.w" +
-                                "w..o*o.w" +
-                                "w..A...w" +
-                                "wwwwwwww"
+
+        val file = File("data/Sokoban/levels/level-"+levelNo+".txt")
+        var lines:List<String> = file.readLines()
+        val dims = lines[1].split(",")
+        this.w = dims[0].toInt()
+        this.h = dims[1].toInt()
+
+        var level: String = ""
+        for (l in 2..(lines.size-1))
+            level += lines[l]
 
         var arraygrid = CharArray(level.length)
         level.toCharArray(arraygrid)
