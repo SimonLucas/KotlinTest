@@ -18,6 +18,7 @@ fun main() {
 
     var lfm: ForwardGridModel = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, dummySpeedTest)
     lfm = GPModel()
+    lfm = DummyForwardModel()
     val t = ElapsedTimer()
     var agent: SimplePlayerInterface = SimpleEvoAgent(
             useMutationTransducer = false, sequenceLength = 40, nEvals = 50,
