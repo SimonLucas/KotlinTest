@@ -1,0 +1,9 @@
+Two Boxes 12
+8,7
+wwwwwwww
+w...w..w
+w......w
+wwww...w
+.w.**www
+.w..+ow.
+.wwwwww.

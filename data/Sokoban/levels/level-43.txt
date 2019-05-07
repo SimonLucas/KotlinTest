@@ -1,0 +1,8 @@
+Five Boxes 2
+9,6
+....wwwww
+wwwwwA..w
+w...***.w
+woo..o.ww
+w......w.
+wwwwwwww.

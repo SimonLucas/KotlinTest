@@ -1,0 +1,9 @@
+Two Boxes 14
+7,7
+.wwwwww
+.w.o.ow
+ww*w..w
+w.....w
+w.*w..w
+w.Aw..w
+wwwwwww

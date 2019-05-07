@@ -1,0 +1,11 @@
+Two Boxes 7
+7,9
+wwwwwww
+w.....w
+w.A...w
+ww*w..w
+ww.o..w
+w..wwww
+w....w.
+w....w.
+wwwwww.

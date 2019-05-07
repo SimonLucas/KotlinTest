@@ -1,0 +1,10 @@
+Three Boxes 14
+6,8
+.wwww.
+ww..w.
+w.*+ww
+w..*ow
+w.*..w
+wo.www
+w..w..
+wwww..
