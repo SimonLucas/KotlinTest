@@ -4,21 +4,26 @@ import agents.RandomAgent
 import agents.SimpleEvoAgent
 import ggi.SimplePlayerInterface
 import utilities.ElapsedTimer
-import utilities.JEasyFrame
 import utilities.StatSummary
 
 
 fun main() {
 
-    val nGames = 10
+    val nGames = 100
     val useLearnedModel = true
+    val dummySpeedTest = false
     val span = 2
     val maxSteps = 100
     val gatherer = GatherData(span)
 
-    var lfm = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span)
+    var lfm: ForwardGridModel = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, dummySpeedTest)
+    lfm = GPModel()
     val t = ElapsedTimer()
-    var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 50, nEvals = 20)
+    var agent: SimplePlayerInterface = SimpleEvoAgent(
+            useMutationTransducer = false, sequenceLength = 40, nEvals = 50,
+//            discountFactor = 0.999,
+            flipAtLeastOneValue = false,
+            probMutation = 0.2)
     // agent = RandomAgent()
 
     // learn a forward model
@@ -37,7 +42,7 @@ fun main() {
 
 class AgentTester(val maxSteps: Int  = 1000, val useLearnedModel: Boolean = true) {
 
-    fun runModelTests(n: Int, agent: SimplePlayerInterface, lfm: LocalForwardModel): StatSummary {
+    fun runModelTests(n: Int, agent: SimplePlayerInterface, lfm: ForwardGridModel): StatSummary {
         val ss = StatSummary("Sokoban scores")
         for (i in 0 until n) {
             println("Running game $i")
@@ -49,7 +54,7 @@ class AgentTester(val maxSteps: Int  = 1000, val useLearnedModel: Boolean = true
         return ss
     }
 
-    fun runModelGame(agent: SimplePlayerInterface, lfm: LocalForwardModel): Double {
+    fun runModelGame(agent: SimplePlayerInterface, lfm: ForwardGridModel): Double {
         var game = Sokoban()
         val actions = intArrayOf(0, 0)
         var i = 0
@@ -58,7 +63,7 @@ class AgentTester(val maxSteps: Int  = 1000, val useLearnedModel: Boolean = true
         while (i < maxSteps && !gameOver) {
 
             // set the current state up in the Learned Forward Model
-            lfm.setGrid(game.board.grid, game.board.playerX, game.board.playerY)
+            lfm.setGridArray((game.copy() as Sokoban).board.grid, game.board.playerX, game.board.playerY)
 
 
             //Take and execute actions

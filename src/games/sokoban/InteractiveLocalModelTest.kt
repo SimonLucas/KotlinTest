@@ -12,8 +12,11 @@ fun main() {
     var game = Sokoban()
     val gatherer = GatherData(span)
 
-    var lfm = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span)
-    lfm.setGrid(game.board.grid, game.board.playerX, game.board.playerY)
+    var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, false)
+
+    // var lfm = GPModel()
+
+    lfm.setGridArray(game.board.grid, game.board.playerX, game.board.playerY)
 
     val gv = SokobanView(game.board)
     // set up with the same board for now, but change late

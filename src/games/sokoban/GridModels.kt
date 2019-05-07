@@ -10,60 +10,9 @@ interface GridInterface {
     fun getHeight(): Int
 }
 
-
-data class SimpleGrid(val w: Int = 8, val h: Int = 7) : GridInterface {
-
-    var grid: CharArray = CharArray(w * h)
-
-    fun getCell(i: Int): Char = grid[i]
-
-    fun setCell(i: Int, v: Char) {
-        grid[i] = v
-    }
-
-    override fun getCell(x: Int, y: Int): Char {
-        val xx = (x + w) % w
-        val yy = (y + h) % h
-        return grid[xx + w * yy]
-    }
-
-    override fun setCell(x: Int, y: Int, value: Char) {
-        if (x < 0 || y < 0 || x >= w || y >= h) return
-        grid[x + w * y] = value
-    }
-
-    override fun getWidth(): Int {
-        return this.w
-    }
-
-    override fun getHeight(): Int {
-        return this.h
-    }
-
-    fun deepCopy(): SimpleGrid {
-        val gc = this.copy()
-        gc.grid = grid.copyOf()
-        return gc
-    }
-
-    //    fun setGrid(grid: CharArray) : SimpleGrid {
-//        this.grid = grid.copyOf()
-//        return this
-//    }
-    fun setGrid(grid: CharArray, playerX: Int, playerY: Int): SimpleGrid {
-        this.grid = grid.copyOf()
-        // this is a quick hack for now
-        setCell(playerX, playerY, 'A')
-        return this
-    }
-
-    fun print() {
-        for (i in 0 until grid.size) {
-            print(grid[i])
-            if ((i + 1) % w == 0)
-                println()
-        }
-    }
+interface ForwardGridModel : ExtendedAbstractGameState {
+    fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel
+    // fun getGrid() : SimpleGrid
 }
 
 class PatternSampler(val span: Int = 2) {
@@ -88,8 +37,9 @@ class PatternSampler(val span: Int = 2) {
 
 class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
                         val rewardData: HashMap<Example, RewardDistribution>,
-                        val span: Int = 2
-) : ExtendedAbstractGameState {
+                        val span: Int = 2,
+                        var dummySpeedTest: Boolean = false
+) : ForwardGridModel {
 
 
     // learn this from the data
@@ -97,6 +47,8 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 
     init {
         // todo:  count the distinct number of actions
+//        println(dummySpeedTest)
+//        println(span)
 
     }
 
@@ -107,13 +59,15 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
     var grid = SimpleGrid()
     var score = 0.0
 
-    fun setGrid(array: CharArray, playerX: Int, playerY: Int): LocalForwardModel {
+    // override fun getGrid() : SimpleGrid { return grid }
+
+    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
         grid.setGrid(array, playerX, playerY)
         return this
     }
 
     override fun copy(): AbstractGameState {
-        val lfm = LocalForwardModel(tileData, rewardData)
+        val lfm = LocalForwardModel(tileData, rewardData, span, dummySpeedTest)
         lfm.grid = grid.deepCopy()
         lfm.score = score
         return lfm
@@ -125,6 +79,13 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
         // can be either deterministic or stochastic
 
         // need to iterate over all the grid positions updating the data
+//        println(dummySpeedTest)
+//        if (dummySpeedTest) {
+//            grid = grid.deepCopy()
+//            nTicks++
+//            total++
+//            return this
+//        }
 
         val nextGrid = grid.deepCopy()
         val action = actions[0]
@@ -141,15 +102,18 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
                 // data[Example(ip, action, op)]++
                 val example = Example(ip, action)
 
-                // now update the tile data
-                var tileDis = tileData[example]
+                if (dummySpeedTest) {
+                    // skip all the logic and just guess the next cell from the current value
+                    // which will be at position zero in the input
+                    nextGrid.setCell(x, y, ip[0])
+                } else {
 
-                val bestGuess = guessTile(tileDis, grid.getCell(x, y))
-                if (ip[0] == 'A' && action != 0) {
-                    // println("($x, $y), Centre: ${ip[0]},\t tileDis: $tileDis,\t best guess: $bestGuess")
+                    // now update the tile data
+                    var tileDis = tileData[example]
+                    val bestGuess = guessTile(tileDis, grid.getCell(x, y))
+                    nextGrid.setCell(x, y, bestGuess)
+
                 }
-                nextGrid.setCell(x, y, bestGuess)
-
 
                 if (!bypassScore) {
                     // now update the reward data
