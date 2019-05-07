@@ -46,6 +46,16 @@ data class SimpleGrid(val w: Int = 8, val h: Int = 7) : GridInterface {
         return this
     }
 
+    fun setGridKeepPlayerCell(grid: CharArray, playerX: Int, playerY: Int): SimpleGrid {
+        this.grid = grid.copyOf()
+        if (getCell(playerX, playerY) == 'o')
+            setCell(playerX, playerY, 'u')
+        else
+            setCell(playerX, playerY, 'A')
+
+        return this
+    }
+
     fun print() {
         for (i in 0 until grid.size) {
             print(grid[i])

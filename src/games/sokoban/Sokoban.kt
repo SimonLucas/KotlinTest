@@ -15,6 +15,7 @@ data class Grid(val levelNo: Int = -1) : GridInterface {
     val BOX: Char = '*'
     val HOLE: Char = 'o'
     val AVATAR: Char = 'A'
+    val AVATARONHOLE: Char = 'u'
     val WALL: Char = 'w'
     val BOXIN: Char = '+'
     var w: Int = -1
@@ -67,9 +68,11 @@ data class Grid(val levelNo: Int = -1) : GridInterface {
 
     fun forceArray(array: CharArray) : Grid {
         var playerLoc = array.indexOf(AVATAR)
+        if (playerLoc ==-1)
+            playerLoc = array.indexOf(AVATARONHOLE)
         if (playerLoc == -1)
         {
-            // println("ERROR: No player in level")
+            println("ERROR: No player in level")
         } else {
             playerX = playerLoc % w
             playerY = playerLoc / w
@@ -182,11 +185,10 @@ object SokobanConstants
     val ACTIONS: IntArray = intArrayOf(NIL, UP, RIGHT, DOWN, LEFT)
 }
 
-open class Sokoban : ExtendedAbstractGameState {
+open class Sokoban(private var level : Int = -1) : ExtendedAbstractGameState {
 
-    var board : Grid = Grid()
+    var board : Grid = Grid(level)
     var nTicks = 0
-
 
     override fun next(actions: IntArray): AbstractGameState {
 
@@ -292,7 +294,7 @@ open class Sokoban : ExtendedAbstractGameState {
     }
 
     override fun copy(): AbstractGameState {
-        val sokobanCopy = Sokoban()
+        val sokobanCopy = Sokoban(level)
         sokobanCopy.nTicks = nTicks
         sokobanCopy.board = board.deepCopy()
         return sokobanCopy

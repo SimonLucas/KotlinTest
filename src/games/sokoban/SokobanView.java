@@ -10,6 +10,7 @@ public class SokobanView extends JComponent {
     final char BOX = '*';
     final char HOLE = 'o';
     final char AVATAR = 'A';
+    final char AVATARONHOLE = 'u';
     final char WALL  = 'w';
     final char BOXIN = '+';
 
