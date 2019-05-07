@@ -9,11 +9,9 @@ import javax.swing.JComponent
 
 class WorldView (var game: EventQueueGame) : JComponent() {
 
-
+    val oliveGreen = Color(84, 79, 61)
 
     val dim = Dimension(400, 250)
-    val bg = Color.getHSBColor(0.1f, 1.0f, 0.2f)
-    val bgHue = 0.05f
     val outline = Color.lightGray
     val playerCols = hashMapOf<PlayerId,Color>(
             PlayerId.Neutral to Color.getHSBColor(0.3f, 0.8f, 0.8f),
@@ -32,7 +30,7 @@ class WorldView (var game: EventQueueGame) : JComponent() {
 
      //       val b = (1 + Math.sin(game.nTicks().toDouble() * 0.01 * Math.PI).toFloat()) / 2f
             // println(b)
-            g.color = Color.getHSBColor(bgHue, 0.5f, 0.0f)
+            g.color = oliveGreen
             g.fillRect(0, 0, getWidth(), getHeight())
 
             // now need to work out a scale

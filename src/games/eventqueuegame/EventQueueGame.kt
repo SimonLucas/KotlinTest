@@ -161,6 +161,8 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
         state.cities = ArrayList(cities.map { c -> City(c.location, c.radius, c.pop, c.owner) })
         state.currentTransits = ArrayList(currentTransits.filter { true })
         state.currentTicks = currentTicks
+        state.routes = routes       // immutable, so safe
+        state.allRoutesFromCity = allRoutesFromCity // immutable, so safe
         return state
     }
 
@@ -230,11 +232,14 @@ data class CityInflux(val player: PlayerId, val pop: Int, val destination: Int) 
     }
 }
 
-data class LaunchExpedition(val player: PlayerId, val from: Int, val to: Int, val proportion: Int, val wait: Int) : Action {
+data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int, val proportion: Int, val wait: Int) : Action {
+
     override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
         if (state is EventQueueGame) {
             val world = state.world
-            if (isValid(world)) {
+            val routes = world.allRoutesFromCity[from] ?: emptyList()
+            val to = routes[toCode % routes.size].toCity
+            if (isValid(world.cities[from], world.cities[to])) {
                 val sourceCityPop = world.cities[from].pop
                 val maxActions = world.cities.size.toDouble()
                 val distance = world.cities[from].location.distanceTo(world.cities[to].location)
@@ -251,9 +256,9 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val to: Int, va
         return state
     }
 
-    fun isValid(world: World): Boolean {
-        return world.cities[from].owner == player &&
-                world.cities[from].pop > 0 &&
+    fun isValid(from: City, to: City): Boolean {
+        return from.owner == player &&
+                from.pop > 0 &&
                 from != to
     }
 }
@@ -273,6 +278,7 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
     override fun copy(): EventQueueGame {
         val state = EventQueueGame(world.deepCopy())
         state.eventQueue.addAll(eventQueue)
+        state.scoreFunction = scoreFunction
         return state
     }
 
