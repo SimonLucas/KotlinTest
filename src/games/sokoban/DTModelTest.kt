@@ -16,7 +16,7 @@ fun main() {
     val gatherer = GatherData(span)
 
     var lfm: ForwardGridModel = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, dummySpeedTest)
-    lfm = GPModel()
+    // lfm = GPModel()
     val t = ElapsedTimer()
     val agent: SimplePlayerInterface = SimpleEvoAgent(
             useMutationTransducer = false, sequenceLength = 40, nEvals = 50,
