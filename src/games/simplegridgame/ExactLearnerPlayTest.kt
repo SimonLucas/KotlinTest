@@ -61,7 +61,7 @@ data class Experiment(
             } else {
                 var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 20)
                 if(!trueModel){
-                    var learner = train(lutSize, game, agent1)
+                    var learner = train(lutSize, RandomAgent())
                     obss.add(learner.lut.size)
                     //predictionTest(agent1, learner)
                     runGames(agent1, visual, predResults, scoreResults, learner)
@@ -71,7 +71,7 @@ data class Experiment(
             }
         }
         //output result
-        var outFile =  File(outFileName)
+        val outFile =  File(outFileName)
         val isNewFileCreated: Boolean = outFile.createNewFile()
         log("max lut size\t average AI performance\t sd AI performance\t pred error mean\t pred error sd\t patterns observed mean\t patterns observed sd\n",
                 outFile, isNewFileCreated)
@@ -109,8 +109,11 @@ data class Experiment(
     }
 
 
-    fun train(lutSizeLimit: Int, game : SimpleGridGame, agent1 : SimplePlayerInterface) : StatLearner {
+    fun train(lutSizeLimit: Int, agent1 : SimplePlayerInterface) : StatLearner {
 
+        var game = setUpGame()
+
+        learner = StatLearner()
         learner.lutSizeLimit = lutSizeLimit
         learner.diceRoll = diceRoll
 
@@ -145,7 +148,7 @@ data class Experiment(
                  scoreResults: TreeMap<Int,StatSummary>, learner: StatLearner? = null) {
         println("Testing")
         for (i in 0 until gamesPerEval) {
-            val game = setUpGame()
+            var game = setUpGame()
             val gridView = GridView(game.grid)
             if (visual) {
                 JEasyFrame(gridView, "Grid Game")

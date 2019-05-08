@@ -8,8 +8,8 @@ public class ExperimentCaller {
         boolean trueModel = Boolean.parseBoolean(System.getProperty("trueModel", "false"));
 
         int testSteps = Integer.parseInt(System.getProperty("testSteps", "100"));
-        int gamesPerEval = Integer.parseInt(System.getProperty("gamesPerEval", "30"));
-        int nReps =   Integer.parseInt(System.getProperty("nReps", "100"));
+        int gamesPerEval = Integer.parseInt(System.getProperty("gamesPerEval", "1"));
+        int nReps =   Integer.parseInt(System.getProperty("nReps", "3"));
         int lutSize =   Integer.parseInt(System.getProperty("lutSize", "512"));
 
         int w = Integer.parseInt(System.getProperty("w", "30"));
