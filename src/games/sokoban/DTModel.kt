@@ -14,7 +14,7 @@ var previousValue = 0
 
 class DTModel(private val span: Int, pre_train: Boolean = false,
               tree : MultiClassDecisionTree? = null) : ForwardGridModel {
-    private var totalAnalysedPatterns = 0
+    var totalAnalysedPatterns = 0
     private var tileData = HashSet<Example>()
     private var tree : MultiClassDecisionTree
     private var erroneousPredictions = 0
