@@ -9,7 +9,7 @@ var printErrors = false
 var printDetails = false
 
 fun main() {
-    val nGames = 10
+    val nGames = 100
     val useLearnedModel = true
     val pretrainModel = true
     val span = 2
@@ -22,7 +22,7 @@ fun main() {
 //            discountFactor = 0.999,
             flipAtLeastOneValue = false,
             probMutation = 0.2)
-
+    println("total analysed patter ${learnedModel.totalAnalysedPatterns}")
     //run agent test
     val timer = ElapsedTimer()
     val tester = AgentTesterDT(maxSteps, useLearnedModel)
