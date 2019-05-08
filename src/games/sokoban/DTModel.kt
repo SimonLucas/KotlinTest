@@ -47,7 +47,7 @@ class DTModel(private val span: Int, pre_train: Boolean = false,
     private fun pretrain(){
         println("Pretraining Phase")
 
-        for (i in 0..pretrainGames) {
+        for (i in 0 until pretrainGames) {
             if (!trainDifferentLevels)
                 trainingGame(-1)
             else
