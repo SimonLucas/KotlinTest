@@ -23,7 +23,7 @@ fun evaluateSequenceDelta(gameState: AbstractGameState,
                           playerId: Int,
                           discountFactor: Double,
                           opponentModel: SimplePlayerInterface = DoNothingAgent()): Double {
-    val intPerAction = if (gameState is ActionAbstractGameState) gameState.codonsPerAction() else 1
+    val intPerAction = gameState.codonsPerAction()
     val actions = IntArray(2 * intPerAction)
     var currentActionPointer = 0
     var runningScore = gameState.score()
@@ -45,8 +45,8 @@ fun evaluateSequenceDelta(gameState: AbstractGameState,
         if (gameState is ActionAbstractGameState) {
             currentActionPointer++
             if (currentActionPointer == intPerAction) {
-                val action1 = gameState.translateGene(0, actions.sliceArray(0..intPerAction))
-                val action2 = gameState.translateGene(1, actions.sliceArray(intPerAction..(2 * intPerAction - 1)))
+                val action1 = gameState.translateGene(0, actions.sliceArray(0 until intPerAction))
+                val action2 = gameState.translateGene(1, actions.sliceArray(intPerAction until 2 * intPerAction))
                 gameState.next(listOf(action1, action2))
                 currentActionPointer = 0
                 discount(gameState.score())
@@ -99,7 +99,7 @@ data class SimpleEvoAgent(
             if (solution == null)
                 solution = randomPoint(gameState.nActions())
             else {
-                val numberToShiftLeft = if (gameState is ActionAbstractGameState) gameState.codonsPerAction() else 1
+                val numberToShiftLeft = gameState.codonsPerAction()
                 solution = shiftLeftAndRandomAppend(solution, numberToShiftLeft, gameState.nActions())
             }
         } else {

@@ -1,5 +1,8 @@
 package games.eventqueuegame
 
+import agents.SimpleEvoAgent
+import ggi.SimpleActionPlayerInterface
+import ggi.SimplePlayerInterface
 import ggi.game.*
 import math.Vec2d
 import java.util.*
@@ -122,6 +125,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             }
 
             // TODO: Add in a check for routes to not cross each other, or cross the radius of another city
+            //  TODO: Add in a check that cities for a fully connected graph
         }
 
 
@@ -159,7 +163,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
     fun deepCopy(): World {
         val state = copy()
         state.cities = ArrayList(cities.map { c -> City(c.location, c.radius, c.pop, c.owner) })
-        state.currentTransits = ArrayList(currentTransits.filter { true })
+        state.currentTransits = ArrayList(currentTransits.filter { true }) // each Transit is immutable, but not the list of active ones
         state.currentTicks = currentTicks
         state.routes = routes       // immutable, so safe
         state.allRoutesFromCity = allRoutesFromCity // immutable, so safe
@@ -232,6 +236,22 @@ data class CityInflux(val player: PlayerId, val pop: Int, val destination: Int) 
     }
 }
 
+data class MakeDecision(val player: PlayerId) : Action {
+    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+        if (state is EventQueueGame) {
+            val agent = state.getAgent(player)
+            val playerRef = when (player) {
+                PlayerId.Blue -> 0
+                PlayerId.Red -> 1
+                else -> throw AssertionError("Decision-making not supported for $player")
+            }
+            val action = agent.getAction(state, playerRef)
+            action.apply(state)
+        }
+        return state
+    }
+}
+
 data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int, val proportion: Int, val wait: Int) : Action {
 
     override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
@@ -252,6 +272,7 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int
                 // and put their arrival in the queue for the game state
                 state.eventQueue.add(Event(arrivalTime, TransitEnd(transit)))
             }
+            state.eventQueue.add(Event(world.currentTicks + wait, MakeDecision(player)))
         }
         return state
     }
@@ -274,11 +295,19 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
         val redCities = it.world.cities.count { c -> c.owner == PlayerId.Red }
         (blueCities - redCities).toDouble()
     }
+    private val playerAgentMap = HashMap<PlayerId, SimpleActionPlayerInterface>()
+
+    fun registerAgent(player: PlayerId, agent: SimpleActionPlayerInterface) {
+        playerAgentMap[player] = agent
+    }
+
+    fun getAgent(player: PlayerId): SimpleActionPlayerInterface = playerAgentMap[player] ?: SimpleActionEvoAgent()
 
     override fun copy(): EventQueueGame {
         val state = EventQueueGame(world.deepCopy())
         state.eventQueue.addAll(eventQueue)
         state.scoreFunction = scoreFunction
+        playerAgentMap.forEach { (k, v) -> state.registerAgent(k, v.getForwardModelInterface()) }
         return state
     }
 

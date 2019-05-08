@@ -21,6 +21,8 @@ interface AbstractGameState {
 
     fun nTicks(): Int
 
+    fun codonsPerAction(): Int = 1
+
 }
 
 interface ExtendedAbstractGameState : AbstractGameState {

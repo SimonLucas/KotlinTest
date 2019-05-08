@@ -17,8 +17,6 @@ interface ActionAbstractGameState : AbstractGameState {
 
     fun playerCount(): Int
 
-    fun codonsPerAction(): Int
-
     fun possibleActions(player: Int): List<Action>
 
     fun next(actions: List<Action>) : ActionAbstractGameState
@@ -26,6 +24,6 @@ interface ActionAbstractGameState : AbstractGameState {
     fun translateGene(player: Int, gene: IntArray) : Action
 }
 
-interface Action {
+interface Action  {
     fun apply(state: ActionAbstractGameState) : ActionAbstractGameState
 }
