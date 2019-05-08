@@ -63,6 +63,7 @@ class DTModel(private val span: Int, pre_train: Boolean = false,
         println("finished training")
         println("$pretrainGames trained games; $pretrainTicks ticks each")
         println("tree was updated ${tree.timesTrained} times")
+        println("total analysed patterns = $totalAnalysedPatterns")
         println()
     }
 
