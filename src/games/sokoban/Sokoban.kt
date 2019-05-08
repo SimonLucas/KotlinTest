@@ -87,6 +87,12 @@ data class Grid(val levelNo: Int = -1) : GridInterface {
         nBoxesIn++
     }
 
+    fun boxScoreReverse()
+    {
+        nBoxes++
+        nBoxesIn--
+    }
+
     fun getCell(i: Int): Char = grid[i]
 
     fun setCell(i: Int, v: Char) {
@@ -226,9 +232,30 @@ open class Sokoban(private var level : Int = -1) : ExtendedAbstractGameState {
         when(destCell) {
             board.WALL -> return        //Moves against walls
             board.BOXIN ->  {
-                //println("BOXIN")
-                return
-            }//return       //Moves against box in place (change this for different versions of Sokoban)
+                //Against a box in a hole. Will move if empty on the other side.
+                var forwardX : Int = nextX + dir[0]
+                var forwardY : Int = nextY + dir[1]
+                if (! board.inLimits(forwardX, forwardY) ) //Pushing against outside of board, do nothing.
+                    return
+
+                var forwardCell : Char = board.getCell(forwardX, forwardY)
+                when(forwardCell)
+                {
+                    board.WALL -> return        //Moves against walls
+                    board.BOXIN -> return       //Moves against box in place (change this for different versions of Sokoban)
+                    board.BOX -> return         //Push against a BOX, we don't forward the push
+                    board.EMPTY -> {            //PROGRESS! (I hope)
+                        board.setCell(nextX, nextY, board.HOLE)
+                        board.setCell(forwardX, forwardY, board.BOX)
+                        board.boxScoreReverse() //Score goes down, box removed from hole
+                    }
+                    board.HOLE -> {             //EUREKA!
+                        board.setCell(nextX, nextY, board.HOLE)
+                        board.setCell(forwardX, forwardY, board.BOXIN)
+                        //board.boxScore()  //No need to change the score, went from one hole to another
+                    }
+                }
+            }//return       //Now also allows moving boxes that are already on targets (change this for different versions of Sokoban)
             board.EMPTY -> {            //Move with no obstacle, ALLOWED
                 //Empty, we move player at the end.
             }
