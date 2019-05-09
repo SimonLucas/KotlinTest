@@ -15,7 +15,15 @@ class SimpleEvoAgentTest {
             City(Vec2d(0.0, 20.0), 0, 10, PlayerId.Red),
             City(Vec2d(0.0, 10.0), 0, 0, PlayerId.Neutral)
     )
-    val world = World(cities, ArrayList(), 20, 20, 5.0, Random(10))
+    val routes = listOf(
+            Route(0, 1, 20, 1.0),
+            Route(0, 2, 10, 1.0),
+            Route(1, 0, 20, 1.0),
+            Route(1, 2, 10, 1.0),
+            Route(2, 0, 10, 1.0),
+            Route(2, 1, 10, 1.0)
+    )
+    val world = World(cities, routes, 20, 20, 5.0, Random(10))
     val game = EventQueueGame(world)
 
     @Test
@@ -45,14 +53,14 @@ class SimpleEvoAgentTest {
     @Test
     fun blueExpeditionRollsForwardToTakeNeutralWorld() {
         // launches half of force to the Neutral city
-        val blueGenome1 = intArrayOf(0, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        val blueGenome1 = intArrayOf(0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0)
         val projectedState1 = game.copy()
         var reward = evaluateSequenceDelta(projectedState1, blueGenome1, 0, 1.0)
         assertEquals(reward, +1.0)
         assert(projectedState1.world.cities[2].owner == PlayerId.Blue)
         assert(game.world.cities[2].owner == PlayerId.Neutral)
 
-        val blueGenome2 = intArrayOf(0, 2, 1, 0)
+        val blueGenome2 = intArrayOf(0, 1, 1, 1)
         val projectedState2 = game.copy()
         reward = evaluateSequenceDelta(projectedState2, blueGenome2, 0, 1.0)
         assertEquals(reward, 0.0)       // not yet reached
@@ -63,7 +71,7 @@ class SimpleEvoAgentTest {
 
     @Test
     fun redExpeditionLaunchedWhileBlueInProgressUpdatesCorrectly() {
-        val blueGenome2 = intArrayOf(0, 2, 1, 0, 1, 1, 1, 1)
+        val blueGenome2 = intArrayOf(0, 1, 1, 1, 1, 1, 1, 0)
         val projectedState2 = game.copy()
         var reward = evaluateSequenceDelta(projectedState2, blueGenome2, 0, 1.0)
         assert(projectedState2.world.cities[2].owner == PlayerId.Neutral)
@@ -73,14 +81,14 @@ class SimpleEvoAgentTest {
         assertEquals(reward, 0.0)
         // blue force now in transit
 
-        val redGenome1 = intArrayOf(1, 0, 2, 0, 1, 1, 1, 1)
+        val redGenome1 = intArrayOf(1, 0, 2, 1, 1, 1, 1, 0)
         val projectedState3 = projectedState2.copy()
         reward = evaluateSequenceDelta(projectedState3, redGenome1, 1, 1.0)
         assertEquals(projectedState2.world.currentTicks, 2)
         assertEquals(projectedState3.world.currentTicks, 4)
         assertEquals(reward, -1.0) // blue force reaches neutral city
 
-        val redGenome2 = intArrayOf(1, 0, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        val redGenome2 = intArrayOf(1, 0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0)
         val projectedState4 = projectedState2.copy()
         reward = evaluateSequenceDelta(projectedState4, redGenome2, 1, 1.0)
         assertEquals(reward, 1.0) // blue force reaches neutral city, and red force conquers blue base

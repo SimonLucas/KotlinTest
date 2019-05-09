@@ -8,6 +8,7 @@ import math.Vec2d
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.test.assertEquals
 
 // we create a simple world of 3 cities. One Blue and one Red, with a Neutral world sandwiched between them
 val cities = listOf(
@@ -15,14 +16,23 @@ val cities = listOf(
         City(Vec2d(0.0, 20.0), 0, 1, PlayerId.Red),
         City(Vec2d(0.0, 10.0), 0, 0, PlayerId.Neutral)
 )
-val world = World(cities, ArrayList(), 20, 20, 5.0, Random(10))
+val routes = listOf(
+        Route(0, 1, 20, 1.0),
+        Route(0, 2, 10, 1.0),
+        Route(1, 0, 20, 1.0),
+        Route(1, 2, 10, 1.0),
+        Route(2, 0, 10, 1.0),
+        Route(2, 1, 10, 1.0)
+)
+val world = World(cities, routes, 20, 20, 5.0, Random(10))
 val game = EventQueueGame(world)
 
 class TransitTest {
 
     @Test
     fun TransitHasMaxForce() {
-        val fullInvasion = game.translateGene(0, intArrayOf(0, 2, 2, 0))
+        val fullInvasion = game.translateGene(0, intArrayOf(0, 1, 2, 1))
+                // 0 = cityFrom, 1 = 2nd route (hence to 2)
         assert(fullInvasion is LaunchExpedition)
         val gameCopy = game.copy()
         fullInvasion.apply(gameCopy)
@@ -38,7 +48,7 @@ class TransitTest {
 
     @Test
     fun TransitHasMinimumOfOne() {
-        val tokenInvasion = game.translateGene(1, intArrayOf(1, 0, 0, 0))
+        val tokenInvasion = game.translateGene(1, intArrayOf(1, 0, 0, 1))
         assert(tokenInvasion is LaunchExpedition)
         val gameCopy = game.copy()
         tokenInvasion.apply(gameCopy)
@@ -85,4 +95,24 @@ class CityCreationTest() {
             assertEquals(routes.size, routes.distinct().size)
         }
     }
+}
+
+class MakeDecisionTest() {
+
+    @Test
+    fun makeDecisionSpawnedAfterLaunchExpedition() {
+        val fullInvasion = game.translateGene(0, intArrayOf(0, 1, 2, 5))
+        // 0 = cityFrom, 1 = 2nd route (hence to 2)
+        assert(fullInvasion is LaunchExpedition)
+        val gameCopy = game.copy()
+        fullInvasion.apply(gameCopy)
+        assertEquals(gameCopy.eventQueue.size, 2)
+        val firstAction = gameCopy.eventQueue.poll().action
+        assert(firstAction is TransitEnd)
+        val secondEvent = gameCopy.eventQueue.poll()
+        assert(secondEvent.action is MakeDecision)
+        assert((secondEvent.action as MakeDecision).player == PlayerId.Blue)
+        assertEquals(secondEvent.tick, 5)
+    }
+
 }

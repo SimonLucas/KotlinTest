@@ -1,7 +1,6 @@
 package games.eventqueuegame
 
 import agents.SimpleEvoAgent
-import ggi.SimpleActionPlayerInterface
 import ggi.SimplePlayerInterface
 import ggi.game.*
 import math.Vec2d
@@ -9,6 +8,7 @@ import java.util.*
 import kotlin.collections.*
 import kotlin.math.*
 import kotlin.random.Random
+import ggi.SimpleActionPlayerInterface as SimpleActionPlayerInterface
 
 // todo : Decide which effects to add next
 
@@ -66,7 +66,8 @@ data class EventGameParams(
         val autoConnect: Int = 300,
         val minConnections: Int = 2,
         val maxDistance: Int = 1000,
-        val speed: Double = 10.0
+        val speed: Double = 10.0,
+        val defaultOODALoop: Int = 10
 )
 
 
@@ -83,6 +84,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
 
     init {
         if (cities.isEmpty()) initialise()
+        allRoutesFromCity = routes.groupBy(Route::fromCity)
     }
 
     private fun initialise() {
@@ -127,9 +129,6 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             // TODO: Add in a check for routes to not cross each other, or cross the radius of another city
             //  TODO: Add in a check that cities for a fully connected graph
         }
-
-
-        allRoutesFromCity = routes.groupBy(Route::fromCity)
 
         var blueBase = 0
         var redBase = 0
@@ -236,6 +235,16 @@ data class CityInflux(val player: PlayerId, val pop: Int, val destination: Int) 
     }
 }
 
+data class Wait(val playerId: PlayerId, val wait: Int) : Action {
+    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+        if (state is EventQueueGame) {
+            val world = state.world
+            state.eventQueue.add(Event(world.currentTicks + wait, MakeDecision(playerId)))
+        }
+        return state
+    }
+}
+
 data class MakeDecision(val player: PlayerId) : Action {
     override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
         if (state is EventQueueGame) {
@@ -301,7 +310,7 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
         playerAgentMap[player] = agent
     }
 
-    fun getAgent(player: PlayerId): SimpleActionPlayerInterface = playerAgentMap[player] ?: SimpleActionEvoAgent()
+    fun getAgent(player: PlayerId) = playerAgentMap[player] ?: SimpleActionDoNothing
 
     override fun copy(): EventQueueGame {
         val state = EventQueueGame(world.deepCopy())
@@ -323,7 +332,8 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
 
     override fun translateGene(player: Int, gene: IntArray): Action {
         val playerId: PlayerId = if (player == 0) PlayerId.Blue else PlayerId.Red
-        return LaunchExpedition(playerId, gene.get(0), gene.get(1), gene.get(2), gene.get(3))
+        if (gene[3] == 0) return Wait(playerId, world.params.defaultOODALoop)
+        return LaunchExpedition(playerId, gene[0], gene[1], gene[2], gene[3])
     }
 
     override fun next(actions: List<Action>): EventQueueGame {

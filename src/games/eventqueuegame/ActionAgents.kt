@@ -55,3 +55,10 @@ class SimpleActionEvoAgentRollForward(var genome: IntArray) : SimpleActionPlayer
     }
 
 }
+
+object SimpleActionDoNothing : SimpleActionPlayerInterface {
+    override fun getAction(gameState: ActionAbstractGameState, playerId: Int) = NoAction
+    override fun reset() = this
+    override fun getAgentType() = "SimpleActionDoNothing"
+    override fun getForwardModelInterface() = this
+}
