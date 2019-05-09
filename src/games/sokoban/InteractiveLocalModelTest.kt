@@ -57,7 +57,7 @@ fun main() {
 
 
         frame.title = "tick = ${game.nTicks}, true score = ${game.score()}, estimate = ${lfm.score()}"
-        Thread.sleep(2000)
+        Thread.sleep(500)
 
         //next step
         i++
