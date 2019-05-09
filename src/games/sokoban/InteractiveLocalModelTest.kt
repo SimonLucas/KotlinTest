@@ -9,7 +9,7 @@ fun main() {
 
     val span = 2
 
-    var game = Sokoban()
+    var game = Sokoban(-1)
     val gatherer = GatherData(span)
 
     var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, false)
