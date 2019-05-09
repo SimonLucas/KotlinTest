@@ -44,10 +44,10 @@ class AgentTesterDT(private val maxSteps: Int  = 1000, private val useLearnedMod
             println("Running game $i")
             val score = runModelGame(agent, lfm)
             ss.add(score)
-            println()
+            //println()
         }
-        println(ss)
-        println()
+        //println(ss)
+        //println()
         return ss
     }
 
@@ -72,7 +72,7 @@ class AgentTesterDT(private val maxSteps: Int  = 1000, private val useLearnedMod
             gameOver = game.isTerminal()
             i++
         }
-        println(game.score())
+        //println(game.score())
         return game.score()
     }
 }

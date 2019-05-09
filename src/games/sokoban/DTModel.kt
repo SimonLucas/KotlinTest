@@ -11,6 +11,7 @@ const val pretrainGames = 100
 const val trainDifferentLevels = false
 var debug = false
 var previousValue = 0
+var useFastPrediction = true
 
 class DTModel(private val span: Int, pre_train: Boolean = false,
               tree : MultiClassDecisionTree? = null) : ForwardGridModel {
@@ -23,6 +24,7 @@ class DTModel(private val span: Int, pre_train: Boolean = false,
     var score = 0.0
     private var bypassScore = true
     private var trainable = true
+    private val gridIterator = CrossGridIterator(2)
 
     init {
         if (tree == null) {
@@ -34,7 +36,7 @@ class DTModel(private val span: Int, pre_train: Boolean = false,
             for (yy in 0 - span .. 0 + span) {
                 if (yy != 0) sb.append(";(0,$yy)")
             }
-            this.tree = MultiClassDecisionTree(sb.toString())
+            this.tree = MultiClassDecisionTree(gridIterator)
         } else {
             this.tree = tree
             this.trainable = false
@@ -103,11 +105,17 @@ class DTModel(private val span: Int, pre_train: Boolean = false,
     }
 
     private fun predictGrid(grid: GridInterface, action: Int) : SimpleGrid {
-        val predictedGrid = SimpleGrid(grid.getWidth(), grid.getHeight())
-        for (x in 0 until grid.getWidth()) {
-            for (y in 0 until grid.getHeight()) {
-                val ip = extractVector(grid, x, y)
-                predictedGrid.setCell(x,y,tree.predictCell(ip, action).single())
+        val predictedGrid : SimpleGrid
+        if (useFastPrediction) {
+            predictedGrid = tree.predict(grid, action)
+        }
+        else {
+            predictedGrid = SimpleGrid(grid.getWidth(), grid.getHeight())
+            for (x in 0 until grid.getWidth()) {
+                for (y in 0 until grid.getHeight()) {
+                    val ip = extractVector(grid, x, y)
+                    predictedGrid.setCell(x,y,tree.predictCell(ip, action).single())
+                }
             }
         }
         return predictedGrid
@@ -143,21 +151,51 @@ class DTModel(private val span: Int, pre_train: Boolean = false,
         if (!trainable)
             return
 
-        for (x in 0 until grid1.getWidth()) {
-            for (y in 0 until grid1.getHeight()) {
-                val op = grid2.getCell(x, y)
-                val ip = extractVector(grid1, x, y)
-                val example = Example(ip, action)
+        if (useFastPrediction) {
+            //tree.addGrid(grid1, grid2, action)
+            //totalAnalysedPatterns += grid1.getHeight() * grid1.getWidth()
+            //
+            val it = tree.gridIterator;
+            it.setGrid(grid1)
 
-                if (!tileData.contains(example)){
-                    tree.addDataPoint(example.ip, example.action, op)
-                    tileData.add(example)
+            for (x in 0 until grid1.getWidth()) {
+                for (y in 0 until grid1.getHeight()) {
+                    val op = grid2.getCell(x, y)
+                    val ip = extractVector(it, x, y)
+                    val example = Example(ip, action)
+
+                    if (!tileData.contains(example)) {
+                        tree.addDataPoint(example.ip, example.action, op)
+                        tileData.add(example)
+                    }
+                    totalAnalysedPatterns++
                 }
+            }
+            //println("number of patterns $totalAnalysedPatterns")
+        } else {
+            for (x in 0 until grid1.getWidth()) {
+                for (y in 0 until grid1.getHeight()) {
+                    val op = grid2.getCell(x, y)
+                    val ip = extractVector(grid1, x, y)
+                    val example = Example(ip, action)
 
-                totalAnalysedPatterns++
+                    if (!tileData.contains(example)) {
+                        tree.addDataPoint(example.ip, example.action, op)
+                        tileData.add(example)
+                    }
+
+                    totalAnalysedPatterns++
+                }
             }
         }
         tree.updateTree()
+    }
+
+    fun extractVector(it: GridIterator, x:Int, y:Int):ArrayList<Char> {
+        val a = ArrayList<Char>()
+        it.setCell(x,y)
+        it.forEach {a.add(it)}
+        return a
     }
 
     // should really generalise this to offer different extraction patterns
