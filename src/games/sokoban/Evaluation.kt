@@ -30,6 +30,11 @@ fun main(){
         models.add(DTModel(gridIterator))
     }
 
+    for (i in spansToTest) {
+        gridIterator = SquareGridIterator(i)
+        models.add(DTModel(gridIterator))
+    }
+
     println("Train Models")
     trainer.trainModel(models)
 

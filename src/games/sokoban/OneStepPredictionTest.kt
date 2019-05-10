@@ -60,13 +60,15 @@ class ModelTester(private val testLevels : IntRange = 10..19) {
         learnedModels.forEach {
             ss.add(StatSummary("One Step Prediction Stats: $it"))
         }
-        print("Testing learnedModels using ${agent.getAgentType()} ")
+        print("Testing learnedModels using ${agent.getAgentType()} for a total of " +
+                "${testLevels.count() * nStartsPerLevel} games each")
 
         val actions = intArrayOf(0,0)
 
         var nr_of_games = 0
         for (i in testLevels) {
             for (j in 0 until nStartsPerLevel) {
+                nr_of_games++
                 val game = Sokoban(i)
                 for (k in 0 until nStepsPerLevel) {
                     val action = agent.getAction(game, Constants.player1)
@@ -93,7 +95,6 @@ class ModelTester(private val testLevels : IntRange = 10..19) {
                 }
             }
         }
-        println("for a total of $nr_of_games games each")
         return ss
     }
 
@@ -134,7 +135,7 @@ class ModelTester(private val testLevels : IntRange = 10..19) {
                 }
             }
         }
-        println("$nrOfGames simulated games per agent")
+        //println("$nrOfGames simulated games per agent")
         return ss
     }
 
