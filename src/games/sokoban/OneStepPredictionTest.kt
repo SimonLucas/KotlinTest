@@ -60,7 +60,7 @@ class ModelTester(private val testLevels : IntRange = 10..19) {
         learnedModels.forEach {
             ss.add(StatSummary("One Step Prediction Stats: $it"))
         }
-        print("Testing learnedModels using ${agent.getAgentType()} for a total of " +
+        println("Testing learnedModels using ${agent.getAgentType()} for a total of " +
                 "${testLevels.count() * nStartsPerLevel} games each")
 
         val actions = intArrayOf(0,0)
