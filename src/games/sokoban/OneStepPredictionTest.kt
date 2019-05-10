@@ -8,9 +8,21 @@ import utilities.StatSummary
 fun main() {
 
     // val lfm = GPModel()
-    val lfm = DummyForwardModel()
+//    val lfm = DummyForwardModel()
 
-    val seed = -1L
+    val span = 2
+
+    //
+    // val gatherer = GatherData(span)
+
+    val gatherer = MultiLevelGatherer(trainLevels = 0..9).gatherData()
+    // gatherer.report()
+    println("Hashmap has ${gatherer.tileData.size} entries")
+
+    var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, false)
+
+
+    val seed = 99L
 
     val tester = OneStepTester(lfm, RandomAgent(seed))
     val timer = ElapsedTimer()
@@ -22,13 +34,13 @@ fun main() {
 
 class OneStepTester(val learnedModel: ForwardGridModel, val agent: SimplePlayerInterface = RandomAgent(99)) {
 
-    var nStartsPerLevel = 10
+    var nStartsPerLevel = 100
     var nStepsPerLevel = 100
 
     val testLevels = 10..19
     var debug = false
 
-    val ssTitle="One Step Prediction Stats"
+    val ssTitle="One Step Prediction Stats: ${learnedModel}"
 
     fun runTests(): StatSummary {
 
@@ -65,5 +77,3 @@ class OneStepTester(val learnedModel: ForwardGridModel, val agent: SimplePlayerI
         return (x zip y).count{(a,b) -> a == b} / x.size.toDouble()
     }
 }
-
-
