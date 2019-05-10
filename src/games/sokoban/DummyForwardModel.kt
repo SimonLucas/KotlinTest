@@ -12,6 +12,8 @@ import ggi.AbstractGameState
 
 class DummyForwardModel : ForwardGridModel {
 
+    var setWall = false
+
     // keep this for compatibility with other methods
     private var grid = SimpleGrid(0,0)
 
@@ -40,6 +42,9 @@ class DummyForwardModel : ForwardGridModel {
     }
 
     override fun next(actions: IntArray): AbstractGameState {
+        if (setWall) {
+            grid.grid.forEachIndexed{i,c -> grid.grid[i] = 'w'}
+        }
         nTicks++
         total++
         return this

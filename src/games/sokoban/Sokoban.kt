@@ -83,7 +83,7 @@ data class Grid(val levelNo: Int = -1) : GridInterface {
 
     fun getSimpleGrid() : SimpleGrid {
         val simpleGrid = SimpleGrid(w,h)
-        simpleGrid.setGridKeepPlayerCell(grid, playerX, playerY)
+        simpleGrid.setGridKeepPlayerCell(grid.copyOf(), playerX, playerY)
         return simpleGrid
     }
 

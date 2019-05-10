@@ -7,9 +7,12 @@ import utilities.StatSummary
 
 fun main() {
 
-    val lfm = GPModel()
+    // val lfm = GPModel()
+    val lfm = DummyForwardModel()
 
-    val tester = OneStepTester(lfm, RandomAgent())
+    val seed = -1L
+
+    val tester = OneStepTester(lfm, RandomAgent(seed))
     val timer = ElapsedTimer()
     println(tester.runTests())
     println(timer)
@@ -17,7 +20,7 @@ fun main() {
 }
 
 
-class OneStepTester(val learnedModel: ForwardGridModel, val agent: SimplePlayerInterface = RandomAgent()) {
+class OneStepTester(val learnedModel: ForwardGridModel, val agent: SimplePlayerInterface = RandomAgent(99)) {
 
     var nStartsPerLevel = 10
     var nStepsPerLevel = 100
