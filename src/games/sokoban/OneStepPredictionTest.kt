@@ -14,8 +14,8 @@ fun main() {
 
     //
     // val gatherer = GatherData(span)
-
-    val gatherer = MultiLevelGatherer(trainLevels = 0..9).gatherData()
+    val gridIterator = CrossGridIterator(2)
+    val gatherer = MultiLevelGatherer(trainLevels = 0..9, gridIterator = gridIterator).gatherData()
     // gatherer.report()
     println("Hashmap has ${gatherer.tileData.size} entries")
 

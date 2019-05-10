@@ -34,6 +34,14 @@ class PatternSampler(val span: Int = 2) {
         return v
     }
 
+    fun extractVector(grid: GridInterface, x: Int, y: Int, it: GridIterator): ArrayList<Char> {
+        val a = ArrayList<Char>(it.maxElements)
+        it.setGrid(grid)
+        it.setCell(x,y)
+        it.forEach {a.add(it)}
+        return a
+    }
+
 }
 
 class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,

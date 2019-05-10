@@ -27,7 +27,8 @@ fun GatherData(span: Int) : Gatherer {
     //var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
     var agent = RandomAgent()
 
-    val gatherer = Gatherer(span)
+    val gridIterator = CrossGridIterator(2)
+    val gatherer = Gatherer(gridIterator)
 
     val timer = ElapsedTimer()
     val nSteps = 10000
@@ -162,19 +163,20 @@ class RewardEstimator {
 }
 
 
-class Gatherer(val span: Int = 2) {
+class Gatherer(val gridIterator: GridIterator = CrossGridIterator(2)) {
 
     val tileData = HashMap<Example, TileDistribution>()
     val rewardData = HashMap<Example, RewardDistribution>()
     var total = 0
 
-    val sampler = PatternSampler(span)
+    val sampler = PatternSampler()
     fun addGrid(grid1: GridInterface, grid2: GridInterface, action: Int, rewardDelta: Double) {
         assert(grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight())
         for (x in 0 until grid1.getWidth()) {
             for (y in 0 until grid1.getHeight()) {
                 val op = grid2.getCell(x, y)
-                val ip = sampler.extractVector(grid1, x, y)
+                val ip = sampler.extractVector(grid1, x, y, gridIterator)
+
                 // data[Example(ip, action, op)]++
                 val example = Example(ip, action)
 
@@ -214,14 +216,15 @@ class Gatherer(val span: Int = 2) {
 
 
 
-class MultiLevelGatherer(val agent: SimplePlayerInterface = RandomAgent(99), val trainLevels: IntRange = 0..9) {
+class MultiLevelGatherer(val agent: SimplePlayerInterface = RandomAgent(99), val trainLevels: IntRange = 0..9,
+                         val gridIterator : GridIterator = CrossGridIterator(2)) {
 
     var nStartsPerLevel = 100
     var nStepsPerLevel = 100
 
     var debug = false
 
-    val gatherer = Gatherer()
+    val gatherer = Gatherer(gridIterator)
 
     fun gatherData() : Gatherer {
 
