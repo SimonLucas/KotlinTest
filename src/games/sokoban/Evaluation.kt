@@ -8,8 +8,8 @@ import ggi.SimplePlayerInterface
 fun main(){
     val spansToTest = 1..3
 
-    val trainLevels = 0..2
-    val testLevels = 3..5
+    val trainLevels = 0..9
+    val testLevels = 10..19
 
     val trainer = ModelTrainer(trainLevels, 100, 100)
 
@@ -38,7 +38,7 @@ fun main(){
     println()
 
     testModelAccuracy(testLevels, models, nStartsPerLevel = 100, nStepsPerLevel = 100)
-    testPlayingPerformance(testLevels, models, nStartsPerLevel = 3, nStepsPerLevel = 100)
+    testPlayingPerformance(testLevels, models, nStartsPerLevel = 100, nStepsPerLevel = 100)
 }
 
 
