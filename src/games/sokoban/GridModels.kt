@@ -16,6 +16,11 @@ interface ForwardGridModel : ExtendedAbstractGameState {
     fun getGrid() : SimpleGrid
 }
 
+interface GridModel {
+    fun addGrid(grid1: GridInterface, grid2: GridInterface, action: Int, reward: Double)
+    override fun toString() : String
+}
+
 class PatternSampler(val span: Int = 2) {
 
     // should really generalise this to offer different extraction patterns
@@ -34,11 +39,19 @@ class PatternSampler(val span: Int = 2) {
         return v
     }
 
+    fun extractVector(grid: GridInterface, x: Int, y: Int, it: GridIterator): ArrayList<Char> {
+        val a = ArrayList<Char>(it.maxElements)
+        it.setGrid(grid)
+        it.setCell(x,y)
+        it.forEach {a.add(it)}
+        return a
+    }
+
 }
 
 class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
                         val rewardData: HashMap<Example, RewardDistribution>,
-                        val span: Int = 2,
+                        val gridIterator: GridIterator,
                         var dummySpeedTest: Boolean = false
 ) : ForwardGridModel {
 
@@ -75,7 +88,7 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 //    }
 
     override fun copy(): AbstractGameState {
-        val lfm = LocalForwardModel(tileData, rewardData, span, dummySpeedTest)
+        val lfm = LocalForwardModel(tileData, rewardData, this.gridIterator, dummySpeedTest)
         lfm.grid = grid.deepCopy()
         lfm.score = score
         return lfm
@@ -101,12 +114,12 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 
         val rewarder = RewardEstimator()
 
-        val sampler = PatternSampler(span)
+        val sampler = PatternSampler()
 
         for (x in 0 until grid.getWidth()) {
             for (y in 0 until grid.getHeight()) {
 
-                val ip = sampler.extractVector(grid, x, y)
+                val ip = sampler.extractVector(grid, x, y, gridIterator)
                 // data[Example(ip, action, op)]++
                 val example = Example(ip, action)
 
@@ -191,6 +204,9 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
         return this
     }
 
+    override fun toString(): String {
+        return "LFModel:\t ${gridIterator.report()};\t entries: ${tileData.size}"
+    }
 }
 
 

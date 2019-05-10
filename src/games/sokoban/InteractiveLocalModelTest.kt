@@ -9,10 +9,15 @@ fun main() {
 
     val span = 2
 
-    var game = Sokoban(0)
-    val gatherer = GatherData(span)
+    val gatherer = Gatherer()
+    ModelTrainer(trainLevels = 0..9).trainModel(gatherer)
 
-    var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, false)
+    // gatherer.report()
+    println("Hashmap has ${gatherer.tileData.size} entries")
+
+    var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, CrossGridIterator(2), false)
+
+    var game = Sokoban(1)
 
     // var lfm = GPModel()
 

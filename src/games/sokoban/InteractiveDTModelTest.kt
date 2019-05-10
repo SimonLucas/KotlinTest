@@ -9,7 +9,9 @@ fun main() {
 
 
     val game = Sokoban()
-    val dtm = DTModel(span, pretrainModel)
+    val iterator = CrossGridIterator(2)
+    val dtm = DTModel(iterator)
+    if (pretrainModel) ModelTrainer().trainModel(dtm)
 
     // dtm.setGridArray(game.board.grid, game.board.playerX, game.board.playerY)
     dtm.setGrid((game.copy() as Sokoban).board.getSimpleGrid())

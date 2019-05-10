@@ -4,6 +4,7 @@ import agents.RandomAgent
 import games.gridgame.data
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
+import ggi.SimplePlayerInterface
 import utilities.ElapsedTimer
 import utilities.JEasyFrame
 import utilities.Picker
@@ -19,13 +20,15 @@ fun main(args: Array<String>) {
 }
 
 fun GatherData(span: Int) : Gatherer {
+    println("Warning: deprecated code: use MultiLevelGatherer instead")
     var game = Sokoban()
     game.print()
     val actions = intArrayOf(0, 0)
     //var agent1: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 5, nEvals = 40)
     var agent = RandomAgent()
 
-    val gatherer = Gatherer(span)
+    val gridIterator = CrossGridIterator(2)
+    val gatherer = Gatherer(gridIterator)
 
     val timer = ElapsedTimer()
     val nSteps = 10000
@@ -160,19 +163,21 @@ class RewardEstimator {
 }
 
 
-class Gatherer(val span: Int = 2) {
+class Gatherer(val gridIterator: GridIterator = CrossGridIterator(2)) : GridModel{
 
     val tileData = HashMap<Example, TileDistribution>()
     val rewardData = HashMap<Example, RewardDistribution>()
     var total = 0
 
-    val sampler = PatternSampler(span)
-    fun addGrid(grid1: Grid, grid2: Grid, action: Int, rewardDelta: Double) {
+    val sampler = PatternSampler()
+
+    override fun addGrid(grid1: GridInterface, grid2: GridInterface, action: Int, rewardDelta: Double) {
         assert(grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight())
         for (x in 0 until grid1.getWidth()) {
             for (y in 0 until grid1.getHeight()) {
                 val op = grid2.getCell(x, y)
-                val ip = sampler.extractVector(grid1, x, y)
+                val ip = sampler.extractVector(grid1, x, y, gridIterator)
+
                 // data[Example(ip, action, op)]++
                 val example = Example(ip, action)
 
@@ -208,6 +213,12 @@ class Gatherer(val span: Int = 2) {
         println("Reward distributions:")
         rewardData.forEach{key, value -> println("$key -> $value")}
     }
+
+    override fun toString() : String {
+        return "HashSetModel:\t ${gridIterator.report()},\t hashmap entries: ${tileData.size}"
+    }
 }
+
+
 
 

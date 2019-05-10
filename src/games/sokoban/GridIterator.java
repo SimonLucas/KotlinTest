@@ -7,4 +7,5 @@ public interface GridIterator extends Iterator<Character> {
     void setCell(int x, int y);
     void setGrid(GridInterface grid);
     String[] getHeader();
+    String report();
 }

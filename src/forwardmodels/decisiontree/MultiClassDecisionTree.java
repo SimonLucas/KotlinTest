@@ -28,9 +28,11 @@ public class MultiClassDecisionTree {
 
     private int timesTrained = 0;
 
+    public String getTreeInfoString(){
+        return "leaves: " + tree.measureNumLeaves() + "; nodes: " + tree.measureTreeSize();
+    }
 
     public MultiClassDecisionTree(GridIterator gridIterator){
-        System.out.println("create tree");
         String[] options = new String[4];
         options[0] = "-M";
         options[1] = "1";
@@ -202,12 +204,16 @@ public class MultiClassDecisionTree {
         instance.setDataset(trainingData);
 
         int i = 0;
-        for (gridIterator.setCell(x,y); gridIterator.hasNext();){
-            instance.setValue(i, gridIterator.next().toString());
-            i++;
+        try {
+            for (gridIterator.setCell(x, y); gridIterator.hasNext(); ) {
+                instance.setValue(i, gridIterator.next().toString());
+                i++;
+            }
+            instance.setValue(i, String.valueOf(action));
         }
-        instance.setValue(i,  String.valueOf(action));
-
+        catch(Exception e){
+            e.printStackTrace();
+        }
         return instance;
     }
 

@@ -15,7 +15,7 @@ fun main() {
     val maxSteps = 100
     val gatherer = GatherData(span)
 
-    var lfm: ForwardGridModel = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, dummySpeedTest)
+    var lfm: ForwardGridModel = LocalForwardModel(gatherer.tileData, gatherer.rewardData, CrossGridIterator(2), dummySpeedTest)
     // lfm = GPModel()
     val t = ElapsedTimer()
     val agent: SimplePlayerInterface = SimpleEvoAgent(
