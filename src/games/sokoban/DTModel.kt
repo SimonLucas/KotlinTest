@@ -13,7 +13,7 @@ var debug = false
 var previousValue = 0
 var useFastPrediction = true
 
-class DTModel(private val span: Int, pre_train: Boolean = false,
+class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false,
               tree : MultiClassDecisionTree? = null) : ForwardGridModel {
     var totalAnalysedPatterns = 0
     private var tileData = HashSet<Example>()
@@ -24,7 +24,6 @@ class DTModel(private val span: Int, pre_train: Boolean = false,
     var score = 0.0
     private var bypassScore = true
     private var trainable = true
-    private val gridIterator = CrossGridIterator(2)
 
     init {
         if (tree == null) {
