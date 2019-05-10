@@ -4,6 +4,7 @@ import agents.RandomAgent
 import games.gridgame.data
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
+import ggi.SimplePlayerInterface
 import utilities.ElapsedTimer
 import utilities.JEasyFrame
 import utilities.Picker
@@ -19,6 +20,7 @@ fun main(args: Array<String>) {
 }
 
 fun GatherData(span: Int) : Gatherer {
+    println("Warning: deprecated code: use MultiLevelGatherer instead")
     var game = Sokoban()
     game.print()
     val actions = intArrayOf(0, 0)
@@ -167,7 +169,7 @@ class Gatherer(val span: Int = 2) {
     var total = 0
 
     val sampler = PatternSampler(span)
-    fun addGrid(grid1: Grid, grid2: Grid, action: Int, rewardDelta: Double) {
+    fun addGrid(grid1: GridInterface, grid2: GridInterface, action: Int, rewardDelta: Double) {
         assert(grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight())
         for (x in 0 until grid1.getWidth()) {
             for (y in 0 until grid1.getHeight()) {
@@ -209,5 +211,41 @@ class Gatherer(val span: Int = 2) {
         rewardData.forEach{key, value -> println("$key -> $value")}
     }
 }
+
+
+
+class MultiLevelGatherer(val agent: SimplePlayerInterface = RandomAgent(99), val trainLevels: IntRange = 0..9) {
+
+    var nStartsPerLevel = 100
+    var nStepsPerLevel = 100
+
+    var debug = false
+
+    val gatherer = Gatherer()
+
+    fun gatherData() : Gatherer {
+
+        val actions = intArrayOf(0,0)
+
+        for (i in trainLevels) {
+            for (j in 0 until nStartsPerLevel) {
+                val game = Sokoban(i)
+                for (k in 0 until nStepsPerLevel) {
+                    val action = agent.getAction(game, Constants.player1)
+                    actions[0] = action
+                    val score = game.score()
+                    val grid1 = game.board.getSimpleGrid()
+                    game.next(actions)
+                    val grid2 = game.board.getSimpleGrid()
+                    gatherer.addGrid(grid1, grid2, action, game.score() - score)
+
+                }
+            }
+        }
+        return gatherer
+    }
+
+}
+
 
 

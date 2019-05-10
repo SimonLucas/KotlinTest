@@ -9,10 +9,14 @@ fun main() {
 
     val span = 2
 
-    var game = Sokoban(-1)
-    val gatherer = GatherData(span)
+
+    val gatherer = MultiLevelGatherer(trainLevels = 0..9).gatherData()
+    // gatherer.report()
+    println("Hashmap has ${gatherer.tileData.size} entries")
 
     var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, false)
+
+    var game = Sokoban(1)
 
     // var lfm = GPModel()
 
