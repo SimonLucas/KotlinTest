@@ -64,7 +64,8 @@ class AgentTester(val maxSteps: Int  = 1000, val useLearnedModel: Boolean = true
         while (i < maxSteps && !gameOver) {
 
             // set the current state up in the Learned Forward Model
-            lfm.setGridArray((game.copy() as Sokoban).board.grid, game.board.playerX, game.board.playerY)
+            // lfm.setGridArray((game.copy() as Sokoban).board.grid, game.board.playerX, game.board.playerY)
+            lfm.setGrid((game.copy() as Sokoban).board.getSimpleGrid())
 
 
             //Take and execute actions

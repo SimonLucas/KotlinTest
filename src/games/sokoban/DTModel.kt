@@ -20,7 +20,7 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
     private var tree : MultiClassDecisionTree
     private var erroneousPredictions = 0
     private var totalPredictions = 0
-    var grid : SimpleGrid = SimpleGrid()
+    private var grid : SimpleGrid = SimpleGrid(0,0)
     var score = 0.0
     private var bypassScore = true
     private var trainable = true
@@ -44,6 +44,13 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
         if (pre_train)
             this.pretrain()
     }
+
+    override fun getGrid() : SimpleGrid { return grid }
+    override fun setGrid(simpleGrid: SimpleGrid) {
+        grid = simpleGrid
+    }
+
+
 
     private fun pretrain(){
         println("Pretraining Phase")
@@ -271,10 +278,10 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
         var total: Long = 0
     }
 
-    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
-        grid.setGridKeepPlayerCell(array, playerX, playerY)
-        return this
-    }
+//    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
+//        grid.setGridKeepPlayerCell(array, playerX, playerY)
+//        return this
+//    }
 
     override fun copy(): AbstractGameState {
         val dtm = DTModel(this.span, false, tree)

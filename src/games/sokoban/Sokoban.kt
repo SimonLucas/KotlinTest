@@ -81,6 +81,12 @@ data class Grid(val levelNo: Int = -1) : GridInterface {
         return this
     }
 
+    fun getSimpleGrid() : SimpleGrid {
+        val simpleGrid = SimpleGrid(w,h)
+        simpleGrid.setGridKeepPlayerCell(grid.copyOf(), playerX, playerY)
+        return simpleGrid
+    }
+
     fun boxScore()
     {
         nBoxes--
@@ -215,6 +221,7 @@ open class Sokoban(private var level : Int = -1) : ExtendedAbstractGameState {
         nTicks++
         return this
     }
+
 
     fun move(dir : IntArray)
     {

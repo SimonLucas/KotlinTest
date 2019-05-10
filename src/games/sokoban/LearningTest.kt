@@ -62,7 +62,9 @@ class AgentTesterDT(private val maxSteps: Int  = 1000, private val useLearnedMod
             // for direct comparisons allow switching between the learned forward model
             // and other options
             if (useLearnedModel) {
-                fm.setGridArray((game.copy() as Sokoban).board.grid, game.board.playerX, game.board.playerY)
+                // fm.setGridArray((game.copy() as Sokoban).board.grid, game.board.playerX, game.board.playerY)
+                fm.setGrid((game.copy() as Sokoban).board.getSimpleGrid())
+
                 actions[0] = agent.getAction(fm, Constants.player1)
             } else {
                 actions[0] = agent.getAction(game.copy(), Constants.player1)

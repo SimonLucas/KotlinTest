@@ -6,13 +6,19 @@ import java.util.*
 
 // import java.util.*
 
-class RandomAgent : SimplePlayerInterface {
+class RandomAgent (val seed: Long = -1): SimplePlayerInterface {
 
     override fun getAgentType(): String {
         return "RandomAgent"
     }
 
     val random = Random()
+
+    init{
+        if (seed != -1L)
+            random.setSeed(seed)
+    }
+
     override fun getAction(gameState: AbstractGameState, playerId: Int): Int {
         return random.nextInt(gameState.nActions())
     }

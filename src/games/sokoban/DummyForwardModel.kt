@@ -12,18 +12,28 @@ import ggi.AbstractGameState
 
 class DummyForwardModel : ForwardGridModel {
 
+    var setWall = false
+
     // keep this for compatibility with other methods
-    var grid = SimpleGrid()
+    private var grid = SimpleGrid(0,0)
 
     companion object {
         var total: Long = 0
     }
 
+
+    override fun getGrid() : SimpleGrid { return grid }
+    override fun setGrid(simpleGrid: SimpleGrid) {
+        grid = simpleGrid
+    }
+
+
+
     var nTicks = 0
 
-    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
-        return this
-    }
+//    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
+//        return this
+//    }
 
     override fun copy(): AbstractGameState {
         val dfm = DummyForwardModel()
@@ -32,6 +42,9 @@ class DummyForwardModel : ForwardGridModel {
     }
 
     override fun next(actions: IntArray): AbstractGameState {
+        if (setWall) {
+            grid.grid.forEachIndexed{i,c -> grid.grid[i] = 'w'}
+        }
         nTicks++
         total++
         return this
