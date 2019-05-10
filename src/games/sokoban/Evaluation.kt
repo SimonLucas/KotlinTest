@@ -13,19 +13,19 @@ fun main() {
 
     //define model and agent
     val dtModel = DTModel(pattern, false)
-    val hsModel = HashSetModel(pattern)
+    //val hsModel = HashSetModel(pattern)
 
     //run agent test
     val timer = ElapsedTimer()
     val tester = Evaluation(maxSteps)
-    tester.testPatternLearning(nGames, learnedModel)
+    //tester.testPatternLearning(nGames, learnedModel)
     val elapsed = timer.elapsed()
     println("Time elapsed: $elapsed")
 }
 
 class Evaluation(private val maxSteps: Int  = 1000, private val useLearnedModel: Boolean = true) {
 
-    fun testPatternLearning(n: Int, dtm: DTModel, hsm: ForwardGridModel {
+    fun testPatternLearning(n: Int, dtm: DTModel, hsm: ForwardGridModel) {
         val agent: SimplePlayerInterface = RandomAgent()
 
         for (i in 0 until 10) {
@@ -34,13 +34,13 @@ class Evaluation(private val maxSteps: Int  = 1000, private val useLearnedModel:
         }
     }
 
-    private fun evaluatePredictionErrors(levelindex: Int, agent: SimplePlayerInterface, dtm: DTModel, hsm: HashSetModel): Double {
+    private fun evaluatePredictionErrors(levelindex: Int, agent: SimplePlayerInterface, dtm: DTModel, hsm: ForwardGridModel): Double {
         val game = Sokoban(levelindex)
         val actions = intArrayOf(0, 0)
 
         while (game.totalTicks() < maxSteps) {
             //Take and execute actions
-            actions[0] = agent.getAction(fm, Constants.player1)
+            actions[0] = agent.getAction(game, Constants.player1)
 
             game.next(actions)
         }

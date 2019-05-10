@@ -27,14 +27,6 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
 
     init {
         if (tree == null) {
-            val sb = StringBuilder()
-            sb.append("(0,0)")
-            for (xx in 0 - span .. 0 + span) {
-                if (xx != 0) sb.append(";($xx,0)")
-            }
-            for (yy in 0 - span .. 0 + span) {
-                if (yy != 0) sb.append(";(0,$yy)")
-            }
             this.tree = MultiClassDecisionTree(gridIterator)
         } else {
             this.tree = tree
@@ -205,7 +197,7 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
     }
 
     // should really generalise this to offer different extraction patterns
-    private fun extractVector(grid: GridInterface, x: Int, y: Int): ArrayList<Char> {
+    private fun extractVector(grid: GridInterface, x: Int, y: Int, span: Int = 2): ArrayList<Char> {
         val v = ArrayList<Char>()
         // add the centre cell
         v.add(grid.getCell(x,y))
@@ -284,7 +276,7 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
 //    }
 
     override fun copy(): AbstractGameState {
-        val dtm = DTModel(this.span, false, tree)
+        val dtm = DTModel(this.gridIterator, false, tree)
         dtm.grid = grid.deepCopy()
         dtm.score = score
         return dtm

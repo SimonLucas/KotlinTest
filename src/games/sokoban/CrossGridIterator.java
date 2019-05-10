@@ -102,6 +102,7 @@ public class CrossGridIterator implements GridIterator {
     public static void main(String[] args){
         Grid g = new Sokoban().getBoard();
         g.print();
+        System.out.println();
 
         CrossGridIterator iterator = new CrossGridIterator(2);
 
@@ -109,11 +110,11 @@ public class CrossGridIterator implements GridIterator {
         for (String s : iterator.getHeader()) {
             System.out.println(s);
         }
+        System.out.println();
 
         System.out.println("getPattern around cell x,y");
-        int x = 1;
-        int y = 1;
-        for (iterator.setCell(x,y); iterator.hasNext();) {
+        iterator.setGrid(g);
+        for (iterator.setCell(1,1); iterator.hasNext();) {
             Character c = iterator.next();
             System.out.println(c.toString());
         }

@@ -16,7 +16,8 @@ fun main() {
     val maxSteps = 100
 
     //define model and agent
-    val learnedModel = DTModel(span, pretrainModel)
+    val gridIterator = CrossGridIterator(2)
+    val learnedModel = DTModel(gridIterator, pretrainModel)
     val agent: SimplePlayerInterface = SimpleEvoAgent(
             useMutationTransducer = false, sequenceLength = 40, nEvals = 50,
 //            discountFactor = 0.999,

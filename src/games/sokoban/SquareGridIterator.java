@@ -87,6 +87,7 @@ public class SquareGridIterator implements GridIterator {
     public static void main(String[] args){
         Grid g = new Sokoban().getBoard();
         g.print();
+        System.out.println();
 
         SquareGridIterator iterator = new SquareGridIterator(2);
 
@@ -94,11 +95,11 @@ public class SquareGridIterator implements GridIterator {
         for (String s : iterator.getHeader()) {
             System.out.println(s);
         }
+        System.out.println();
 
         System.out.println("getPattern around cell x,y");
-        int x = 1;
-        int y = 1;
-        for (iterator.setCell(x,y); iterator.hasNext();) {
+        iterator.setGrid(g);
+        for (iterator.setCell(1,1); iterator.hasNext();) {
             Character c = iterator.next();
             System.out.println(c.toString());
         }
