@@ -104,4 +104,8 @@ public class SquareGridIterator implements GridIterator {
             System.out.println(c.toString());
         }
     }
+
+    public String report(){
+        return "SquareGridIterator(" + this.size + ")";
+    }
 }

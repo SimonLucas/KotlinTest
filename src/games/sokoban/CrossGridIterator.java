@@ -120,4 +120,7 @@ public class CrossGridIterator implements GridIterator {
         }
     }
 
+    public String report(){
+        return "CrossGridIterator(" + this.size + ")";
+    }
 }
