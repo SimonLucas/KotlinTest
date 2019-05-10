@@ -14,7 +14,7 @@ fun main() {
     // gatherer.report()
     println("Hashmap has ${gatherer.tileData.size} entries")
 
-    var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, false)
+    var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, CrossGridIterator(2), false)
 
     var game = Sokoban(1)
 

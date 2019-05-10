@@ -10,16 +10,16 @@ fun main() {
     // val lfm = GPModel()
 //    val lfm = DummyForwardModel()
 
-    val span = 2
+    val span = 10
 
     //
     // val gatherer = GatherData(span)
-    val gridIterator = CrossGridIterator(2)
+    val gridIterator = CrossGridIterator(span)
     val gatherer = MultiLevelGatherer(trainLevels = 0..9, gridIterator = gridIterator).gatherData()
     // gatherer.report()
     println("Hashmap has ${gatherer.tileData.size} entries")
 
-    var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, false)
+    var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, gridIterator, false)
 
 
     val seed = 99L

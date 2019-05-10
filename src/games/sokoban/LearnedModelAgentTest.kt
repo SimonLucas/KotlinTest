@@ -16,7 +16,7 @@ fun main() {
     val maxSteps = 100
     val gatherer = GatherData(span)
 
-    var lfm: ForwardGridModel = LocalForwardModel(gatherer.tileData, gatherer.rewardData, span, dummySpeedTest)
+    var lfm: ForwardGridModel = LocalForwardModel(gatherer.tileData, gatherer.rewardData, CrossGridIterator(2), dummySpeedTest)
     // lfm = GPModel()
     lfm = DummyForwardModel()
     val t = ElapsedTimer()

@@ -46,7 +46,7 @@ class PatternSampler(val span: Int = 2) {
 
 class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
                         val rewardData: HashMap<Example, RewardDistribution>,
-                        val span: Int = 2,
+                        val gridIterator: GridIterator,
                         var dummySpeedTest: Boolean = false
 ) : ForwardGridModel {
 
@@ -83,7 +83,7 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 //    }
 
     override fun copy(): AbstractGameState {
-        val lfm = LocalForwardModel(tileData, rewardData, span, dummySpeedTest)
+        val lfm = LocalForwardModel(tileData, rewardData, this.gridIterator, dummySpeedTest)
         lfm.grid = grid.deepCopy()
         lfm.score = score
         return lfm
@@ -109,12 +109,12 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 
         val rewarder = RewardEstimator()
 
-        val sampler = PatternSampler(span)
+        val sampler = PatternSampler()
 
         for (x in 0 until grid.getWidth()) {
             for (y in 0 until grid.getHeight()) {
 
-                val ip = sampler.extractVector(grid, x, y)
+                val ip = sampler.extractVector(grid, x, y, gridIterator)
                 // data[Example(ip, action, op)]++
                 val example = Example(ip, action)
 
