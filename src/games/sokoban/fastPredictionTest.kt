@@ -22,7 +22,9 @@ fun main() {
     val gridIterator = CrossGridIterator(2)
     useFastPrediction = false
     timer.reset()
-    var learnedModel = DTModel(gridIterator, pretrainModel)
+    var learnedModel = DTModel(gridIterator)
+    if (pretrainModel) ModelTrainer().trainModel(learnedModel)
+
     elapsed = timer.elapsed()
     println("learning: elapsed time fastPrediction=false: $elapsed")
     println()
@@ -30,7 +32,9 @@ fun main() {
     //define model and agent
     timer.reset()
     useFastPrediction = true
-    learnedModel = DTModel(gridIterator, pretrainModel)
+    learnedModel = DTModel(gridIterator)
+    if (pretrainModel) ModelTrainer().trainModel(learnedModel)
+
     elapsed = timer.elapsed()
     println("learning: elapsed time fastPrediction=true: $elapsed")
 

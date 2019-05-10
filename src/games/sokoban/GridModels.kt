@@ -16,6 +16,11 @@ interface ForwardGridModel : ExtendedAbstractGameState {
     fun getGrid() : SimpleGrid
 }
 
+interface GridModel {
+    fun addGrid(grid1: GridInterface, grid2: GridInterface, action: Int, reward: Double)
+    override fun toString() : String
+}
+
 class PatternSampler(val span: Int = 2) {
 
     // should really generalise this to offer different extraction patterns
@@ -199,6 +204,9 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
         return this
     }
 
+    override fun toString(): String {
+        return "LFModel:\t ${gridIterator.report()};\t entries: ${tileData.size}"
+    }
 }
 
 

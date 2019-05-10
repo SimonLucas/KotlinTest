@@ -3,48 +3,98 @@ package games.sokoban
 import agents.RandomAgent
 import agents.SimpleEvoAgent
 import ggi.SimplePlayerInterface
-import utilities.ElapsedTimer
-import utilities.StatSummary
 
 
-fun main() {
-    val pattern = CrossGridIterator(2)
-    val maxSteps = 100
+fun main(){
+    val spansToTest = 1..3
 
-    //define model and agent
-    val dtModel = DTModel(pattern, false)
-    //val hsModel = HashSetModel(pattern)
+    val trainLevels = 0..2
+    val testLevels = 3..5
 
-    //run agent test
-    val timer = ElapsedTimer()
-    val tester = Evaluation(maxSteps)
-    //tester.testPatternLearning(nGames, learnedModel)
-    val elapsed = timer.elapsed()
-    println("Time elapsed: $elapsed")
-}
+    val trainer = ModelTrainer(trainLevels, 100, 100)
 
-class Evaluation(private val maxSteps: Int  = 1000, private val useLearnedModel: Boolean = true) {
-
-    fun testPatternLearning(n: Int, dtm: DTModel, hsm: ForwardGridModel) {
-        val agent: SimplePlayerInterface = RandomAgent()
-
-        for (i in 0 until 10) {
-            println("Running game $i")
-            evaluatePredictionErrors(i, agent, dtm, hsm)
-        }
+    val models = ArrayList<GridModel>()
+    var gridIterator : GridIterator
+    for (i in spansToTest) {
+        gridIterator = SquareGridIterator(i)
+        models.add(Gatherer(gridIterator))
     }
 
-    private fun evaluatePredictionErrors(levelindex: Int, agent: SimplePlayerInterface, dtm: DTModel, hsm: ForwardGridModel): Double {
-        val game = Sokoban(levelindex)
-        val actions = intArrayOf(0, 0)
-
-        while (game.totalTicks() < maxSteps) {
-            //Take and execute actions
-            actions[0] = agent.getAction(game, Constants.player1)
-
-            game.next(actions)
-        }
-        return game.score()
+    for (i in spansToTest) {
+        gridIterator = CrossGridIterator(i)
+        models.add(Gatherer(gridIterator))
     }
+
+    for (i in spansToTest) {
+        gridIterator = CrossGridIterator(i)
+        models.add(DTModel(gridIterator))
+    }
+
+    println("Train Models")
+    trainer.trainModel(models)
+
+    models.add(Gatherer(CrossGridIterator(0)))
+    models.forEach{ println(it.toString()) }
+    println()
+
+    testModelAccuracy(testLevels, models, nStartsPerLevel = 100, nStepsPerLevel = 100)
+    testPlayingPerformance(testLevels, models, nStartsPerLevel = 3, nStepsPerLevel = 100)
 }
 
+
+fun testModelAccuracy(testLevels:IntRange,
+                      models: ArrayList<GridModel>,
+                      testAgent:SimplePlayerInterface = RandomAgent(99L),
+                      nStartsPerLevel:Int = 100,
+                      nStepsPerLevel:Int = 100){
+
+    val forwardModels = ArrayList<ForwardGridModel>()
+    models.forEach{
+        if (it.toString().startsWith("HashSetModel"))
+            forwardModels.add(LocalForwardModel((it as Gatherer).tileData, it.rewardData, it.gridIterator, false))
+        else
+            forwardModels.add((it as DTModel))
+    }
+
+
+    println("Test Model Accuracy")
+    val tester = ModelTester(testLevels)
+    val ss = tester.testOneStepAccuracy(forwardModels, testAgent, 100, 100)
+
+    ss.forEach{
+        println("${it.name}; " + "accuracy = " + "%.4f".format(it.mean()))
+    }
+    println()
+}
+
+
+fun testPlayingPerformance(testLevels:IntRange,
+                           models: ArrayList<GridModel>,
+                           testAgent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false,
+                                    sequenceLength = 20,
+                                    nEvals = 50,
+                                    //  discountFactor = 0.999,
+                                    flipAtLeastOneValue = false,
+                                    probMutation = 0.2),
+                           nStartsPerLevel:Int = 100,
+                           nStepsPerLevel:Int = 100){
+
+    val forwardModels = ArrayList<ForwardGridModel?>()
+    models.forEach{
+        if (it.toString().startsWith("HashSetModel"))
+            forwardModels.add(LocalForwardModel((it as Gatherer).tileData, it.rewardData, it.gridIterator, false))
+        else
+            forwardModels.add((it as DTModel))
+    }
+
+    println("Test Model Playing Performance")
+    val tester = ModelTester(testLevels)
+    val ss = tester.testPlayingPerformance(forwardModels, testAgent, nStartsPerLevel, nStepsPerLevel)
+
+    ss.forEach{
+        println("${it.name}" +
+                ";\t avg score = " + "%.4f".format(it.mean()) +
+                ";\t total score = " + "%.4f".format(it.sum()))
+    }
+    println()
+}

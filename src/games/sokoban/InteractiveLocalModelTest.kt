@@ -10,7 +10,9 @@ fun main() {
     val span = 2
 
 
-    val gatherer = MultiLevelGatherer(trainLevels = 0..9).gatherData()
+    val gatherer = Gatherer()
+    ModelTrainer(trainLevels = 0..9).trainModel(gatherer)
+
     // gatherer.report()
     println("Hashmap has ${gatherer.tileData.size} entries")
 

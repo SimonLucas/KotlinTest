@@ -3,7 +3,6 @@ package games.sokoban
 import agents.RandomAgent
 import forwardmodels.decisiontree.MultiClassDecisionTree
 import ggi.AbstractGameState
-import java.lang.StringBuilder
 
 
 const val pretrainTicks = 100
@@ -13,8 +12,8 @@ var debug = false
 var previousValue = 0
 var useFastPrediction = true
 
-class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false,
-              tree : MultiClassDecisionTree? = null) : ForwardGridModel {
+class DTModel(private val gridIterator: GridIterator,
+              tree : MultiClassDecisionTree? = null) : ForwardGridModel, GridModel {
     var totalAnalysedPatterns = 0
     private var tileData = HashSet<Example>()
     private var tree : MultiClassDecisionTree
@@ -32,9 +31,6 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
             this.tree = tree
             this.trainable = false
         }
-
-        if (pre_train)
-            this.pretrain()
     }
 
     override fun getGrid() : SimpleGrid { return grid }
@@ -42,9 +38,11 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
         grid = simpleGrid
     }
 
+    fun getTreeInfoString():String{
+        return this.tree.treeInfoString
+    }
 
-
-    private fun pretrain(){
+    private fun train(){
         println("Pretraining Phase")
 
         for (i in 0 until pretrainGames) {
@@ -98,7 +96,7 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
                 grid2.setCell(grid2.playerX, grid2.playerY, 'A')
 
             if (debug) this.evaluate(grid1, actions[0], grid2)
-            this.addGrid(grid1, grid2, actions[0])    //gather new patterns and retrain
+            this.addGrid(grid1, grid2, actions[0], 0.0)    //gather new patterns and retrain
         }
     }
 
@@ -144,7 +142,7 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
         return predictedGrid
     }
 
-    fun addGrid(grid1: Grid, grid2: Grid, action: Int) {
+    override fun addGrid(grid1: GridInterface, grid2: GridInterface, action: Int, reward: Double) {
         assert(grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight())
         if (!trainable)
             return
@@ -276,9 +274,10 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
 //    }
 
     override fun copy(): AbstractGameState {
-        val dtm = DTModel(this.gridIterator, false, tree)
+        val dtm = DTModel(this.gridIterator,  tree)
         dtm.grid = grid.deepCopy()
         dtm.score = score
+        dtm.trainable = false
         return dtm
     }
 
@@ -326,5 +325,9 @@ class DTModel(private val gridIterator: GridIterator, pre_train: Boolean = false
         // deliberately do nothing for now
         println("Not able to set a random initial state")
         return this
+    }
+
+    override fun toString() : String {
+        return "DTModel:\t ${gridIterator.report()};\t ${tree.treeInfoString}"
     }
 }

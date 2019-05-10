@@ -4,7 +4,6 @@ import agents.RandomAgent
 import agents.SimpleEvoAgent
 import ggi.SimplePlayerInterface
 import utilities.ElapsedTimer
-import utilities.JEasyFrame
 import utilities.StatSummary
 
 val nSteps = 1000
@@ -14,7 +13,7 @@ fun main() {
     val t = ElapsedTimer()
     var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 100, nEvals = 100)
     agent = RandomAgent()
-    runTests(100, agent)
+    testModels(100, agent)
     val elapsed = t.elapsed()
 
     println(t)
@@ -23,7 +22,7 @@ fun main() {
 
 }
 
-fun runTests(n: Int, agent: SimplePlayerInterface) : StatSummary {
+fun testModels(n: Int, agent: SimplePlayerInterface) : StatSummary {
     val ss = StatSummary("Sokoban scores")
     for (i in 0 until n) {
         // println("Running game $i")

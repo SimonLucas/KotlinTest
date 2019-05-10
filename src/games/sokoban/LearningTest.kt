@@ -17,24 +17,26 @@ fun main() {
 
     //define model and agent
     val gridIterator = CrossGridIterator(2)
-    val learnedModel = DTModel(gridIterator, pretrainModel)
+    val dtm = DTModel(gridIterator)
+    if (pretrainModel) ModelTrainer().trainModel(dtm)
+
     val agent: SimplePlayerInterface = SimpleEvoAgent(
             useMutationTransducer = false, sequenceLength = 40, nEvals = 50,
 //            discountFactor = 0.999,
             flipAtLeastOneValue = false,
             probMutation = 0.2)
-    println("total analysed patter ${learnedModel.totalAnalysedPatterns}")
+    println("total analysed patter ${dtm.totalAnalysedPatterns}")
     //run agent test
     val timer = ElapsedTimer()
     val tester = AgentTesterDT(maxSteps, useLearnedModel)
-    val ss = tester.runModelTests(nGames, agent, learnedModel)
+    val ss = tester.runModelTests(nGames, agent, dtm)
     val elapsed = timer.elapsed()
 
     //report stats
     println("total game ticks     = %e".format( Sokoban().totalTicks().toDouble()))
-    println("learned model ticks  = %e".format( learnedModel.totalTicks().toDouble()))
+    println("learned model ticks  = %e".format( dtm.totalTicks().toDouble()))
     println("mTicks/s for game    = %.2f".format( Sokoban().totalTicks().toDouble() * 1e-3 / elapsed))
-    println("mTicks/s for model   = %.2f".format( learnedModel.totalTicks().toDouble() * 1e-3 / elapsed))
+    println("mTicks/s for model   = %.2f".format( dtm.totalTicks().toDouble() * 1e-3 / elapsed))
 }
 
 class AgentTesterDT(private val maxSteps: Int  = 1000, private val useLearnedModel: Boolean = true) {
