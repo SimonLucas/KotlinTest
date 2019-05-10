@@ -11,8 +11,9 @@ interface GridInterface {
 }
 
 interface ForwardGridModel : ExtendedAbstractGameState {
-    fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel
-    // fun getGrid() : SimpleGrid
+    // fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel
+    fun setGrid(simpleGrid: SimpleGrid)
+    fun getGrid() : SimpleGrid
 }
 
 class PatternSampler(val span: Int = 2) {
@@ -52,19 +53,26 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
 
     }
 
+    override fun getGrid() : SimpleGrid { return grid }
+
+    override fun setGrid(simpleGrid: SimpleGrid) {
+        grid = simpleGrid
+    }
+
+
     companion object Ticker {
         var total: Long = 0
     }
 
-    var grid = SimpleGrid()
+    private var grid = SimpleGrid(0,0)
     var score = 0.0
 
     // override fun getGrid() : SimpleGrid { return grid }
 
-    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
-        grid.setGrid(array, playerX, playerY)
-        return this
-    }
+//    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
+//        grid.setGrid(array, playerX, playerY)
+//        return this
+//    }
 
     override fun copy(): AbstractGameState {
         val lfm = LocalForwardModel(tileData, rewardData, span, dummySpeedTest)
@@ -114,7 +122,6 @@ class LocalForwardModel(val tileData: HashMap<Example, TileDistribution>,
                     nextGrid.setCell(x, y, bestGuess)
 
                 }
-
                 if (!bypassScore) {
                     // now update the reward data
                     var rewardDis = rewardData[example]

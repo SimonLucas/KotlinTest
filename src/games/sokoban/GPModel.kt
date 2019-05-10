@@ -5,17 +5,25 @@ import ggi.ExtendedAbstractGameState
 
 class GPModel() : ForwardGridModel {
 
-    var grid = SimpleGrid()
+    private var grid = SimpleGrid(0,0)
     var score = 0.0
 
     companion object Ticker {
         var total: Long = 0
     }
 
-    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
-        grid.setGrid(array, playerX, playerY)
-        return this
+    override fun getGrid() : SimpleGrid { return grid }
+    override fun setGrid(simpleGrid: SimpleGrid) {
+        grid = simpleGrid
     }
+
+
+
+
+//    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
+//        grid.setGrid(array, playerX, playerY)
+//        return this
+//    }
 
     override fun copy(): AbstractGameState {
         val gpm = GPModel()
@@ -25,7 +33,7 @@ class GPModel() : ForwardGridModel {
     }
 
     override fun next(actions: IntArray): AbstractGameState {
-        val nextGrid = SimpleGrid()
+        val nextGrid = grid.deepCopy()
         val action = actions[0]
         val gpLocal = LocalGPModel()
         for (x in 0 until grid.getWidth()) {

@@ -11,7 +11,9 @@ fun main() {
     val game = Sokoban()
     val dtm = DTModel(span, pretrainModel)
 
-    dtm.setGridArray(game.board.grid, game.board.playerX, game.board.playerY)
+    // dtm.setGridArray(game.board.grid, game.board.playerX, game.board.playerY)
+    dtm.setGrid((game.copy() as Sokoban).board.getSimpleGrid())
+
 
     val gv = SokobanView(game.board)
     val gvShadow = SokobanView(game.board)
@@ -37,7 +39,7 @@ fun main() {
         dtm.next(actions)
 
 
-        if (actions[0] != 0) dtm.grid.print()
+        if (actions[0] != 0) dtm.getGrid().print()
 
         //visuals
         gv.grid = game.board
@@ -47,7 +49,7 @@ fun main() {
         // that never occur during training, and
         // can have a domino effect on the level falling apart
         // lfm.grid.setCell(0, 0, 'o')
-        gvShadow.grid = Grid().forceArray(dtm.grid.grid)
+        gvShadow.grid = Grid().forceArray(dtm.getGrid().grid)
         gvShadow.repaint()
 
 

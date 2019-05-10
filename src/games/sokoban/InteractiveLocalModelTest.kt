@@ -16,7 +16,7 @@ fun main() {
 
     // var lfm = GPModel()
 
-    lfm.setGridArray(game.board.grid, game.board.playerX, game.board.playerY)
+    lfm.setGrid(game.board.getSimpleGrid())
 
     val gv = SokobanView(game.board)
     // set up with the same board for now, but change late
@@ -42,7 +42,7 @@ fun main() {
         lfm.next(actions)
 
 
-        if (actions[0] != 0) lfm.grid.print()
+        if (actions[0] != 0) lfm.getGrid().print()
 
         //visuals
         gv.grid = game.board
@@ -52,7 +52,7 @@ fun main() {
         // that never occur during training, and
         // can have a domino effect on the level falling apart
         // lfm.grid.setCell(0, 0, 'o')
-        gvShadow.grid = Grid().forceArray(lfm.grid.grid)
+        gvShadow.grid = game.board.deepCopy().forceArray(lfm.getGrid().grid)
         gvShadow.repaint()
 
 

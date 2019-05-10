@@ -1,6 +1,8 @@
 package games.sokoban
 
-data class SimpleGrid(val w: Int = 8, val h: Int = 7) : GridInterface {
+data class SimpleGrid(val w: Int, val h: Int) : GridInterface {
+
+    // constructor(fullGrid: )
 
     var grid: CharArray = CharArray(w * h)
 
@@ -39,6 +41,9 @@ data class SimpleGrid(val w: Int = 8, val h: Int = 7) : GridInterface {
 //        this.grid = grid.copyOf()
 //        return this
 //    }
+
+    // todo - try commenting this out to check that all code is using the
+    // keepPlayerCell option
     fun setGrid(grid: CharArray, playerX: Int, playerY: Int): SimpleGrid {
         this.grid = grid.copyOf()
         // this is a quick hack for now
