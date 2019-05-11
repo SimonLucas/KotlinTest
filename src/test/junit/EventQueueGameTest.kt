@@ -1,11 +1,8 @@
 package test.junit
 
 
-import agents.*
 import games.eventqueuegame.*
-import ggi.game.Action
 import math.Vec2d
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.test.assertEquals
@@ -101,7 +98,7 @@ class MakeDecisionTest() {
 
     @Test
     fun makeDecisionSpawnedAfterLaunchExpedition() {
-        val fullInvasion = game.translateGene(0, intArrayOf(0, 1, 2, 5))
+        val fullInvasion = game.translateGene(0, intArrayOf(0, 1, 2, 15))
         // 0 = cityFrom, 1 = 2nd route (hence to 2)
         assert(fullInvasion is LaunchExpedition)
         val gameCopy = game.copy()
@@ -112,7 +109,22 @@ class MakeDecisionTest() {
         val secondEvent = gameCopy.eventQueue.poll()
         assert(secondEvent.action is MakeDecision)
         assert((secondEvent.action as MakeDecision).player == PlayerId.Blue)
-        assertEquals(secondEvent.tick, 5)
+        assertEquals(secondEvent.tick, 15)
+    }
+
+    @Test
+    fun makeDecisionObeysDefaultOODALoop() {
+        assertEquals(world.params.defaultOODALoop, 10);
+        val fullInvasion = game.translateGene(0, intArrayOf(0, 1, 2, 5))
+        val gameCopy = game.copy()
+        fullInvasion.apply(gameCopy)
+        assertEquals(gameCopy.eventQueue.size, 2)
+        val firstAction = gameCopy.eventQueue.poll().action
+        assert(firstAction is TransitEnd)
+        val secondEvent = gameCopy.eventQueue.poll()
+        assert(secondEvent.action is MakeDecision)
+        assert((secondEvent.action as MakeDecision).player == PlayerId.Blue)
+        assertEquals(secondEvent.tick, 10)
     }
 
 }

@@ -1,12 +1,11 @@
 package games.eventqueuegame
 
-import agents.SimpleEvoAgent
-import ggi.SimplePlayerInterface
 import ggi.game.*
 import math.Vec2d
+import java.lang.Math.pow
+import kotlin.math.*
 import java.util.*
 import kotlin.collections.*
-import kotlin.math.*
 import kotlin.random.Random
 import ggi.SimpleActionPlayerInterface as SimpleActionPlayerInterface
 
@@ -53,6 +52,18 @@ fun lanchesterLinearBattle(attack: Double, defence: Double, attackerDamageCoeff:
     return if (defendingForce > 0.0) -defendingForce else attackingForce
 }
 
+fun lanchesterClosedFormBattle(attack: Double, defence: Double, attCoeff: Double, attExp: Double, defCoeff: Double, defExp: Double): Double {
+    // firstly calculate which side will win
+    val constant: Double = attCoeff * pow(attack, attExp + 1) - defCoeff * pow(defence, defExp + 1)
+    if (constant > 0.0) {
+        // attacker wins
+        return pow(constant / attCoeff, 1.0 / (attExp + 1.0))
+    } else {
+        // defender wins
+        return -pow(-constant / defCoeff, 1.0 / (defExp + 1.0))
+    }
+}
+
 data class EventGameParams(
         val nAttempts: Int = 10,
         val width: Int = 1000,
@@ -67,7 +78,11 @@ data class EventGameParams(
         val minConnections: Int = 2,
         val maxDistance: Int = 1000,
         val speed: Double = 10.0,
-        val defaultOODALoop: Int = 10
+        val defaultOODALoop: Int = 10,
+        val blueLanchesterCoeff: Double = 0.05,
+        val redLanchesterCoeff: Double = 0.05,
+        val blueLanchesterExp: Double = 1.0,    // should be between 0.0 and 1.0
+        val redLanchesterExp: Double = 1.0   // should be between 0.0 and 1.0
 )
 
 
@@ -220,7 +235,13 @@ data class CityInflux(val player: PlayerId, val pop: Int, val destination: Int) 
             if (city.owner == player) {
                 city.pop += pop
             } else {
-                val result = lanchesterLinearBattle(pop.toDouble(), city.pop.toDouble(), 0.05, 0.05)
+                val p = world.params
+                val result = lanchesterClosedFormBattle(pop.toDouble(), city.pop.toDouble(),
+                        if (player == PlayerId.Blue) p.blueLanchesterCoeff else p.redLanchesterCoeff,
+                        if (player == PlayerId.Blue) p.blueLanchesterExp else p.redLanchesterExp,
+                        if (player == PlayerId.Blue) p.redLanchesterCoeff else p.blueLanchesterCoeff,
+                        if (player == PlayerId.Blue) p.redLanchesterExp else p.blueLanchesterExp
+                )
                 if (result > 0.0) {
                     // attackers win
                     city.owner = player
@@ -332,8 +353,8 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
 
     override fun translateGene(player: Int, gene: IntArray): Action {
         val playerId: PlayerId = if (player == 0) PlayerId.Blue else PlayerId.Red
-        if (gene[3] == 0) return Wait(playerId, world.params.defaultOODALoop)
-        return LaunchExpedition(playerId, gene[0], gene[1], gene[2], gene[3])
+        if (gene[3] == 0) return Wait(playerId, 1) // special code for Do Nothing...wait one tick and see what has changed
+        return LaunchExpedition(playerId, gene[0], gene[1], gene[2], max(gene[3], world.params.defaultOODALoop))
     }
 
     override fun next(actions: List<Action>): EventQueueGame {
