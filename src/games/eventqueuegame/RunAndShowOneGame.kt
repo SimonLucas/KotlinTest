@@ -8,8 +8,8 @@ import kotlin.random.Random
         val params = EventGameParams(minSep = 50)
         val world = World(speed = 10.0, random = Random(1), params = params)
         val game = EventQueueGame(world)
-        game.registerAgent(PlayerId.Blue, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 100, sequenceLength = 100)))
-        game.registerAgent(PlayerId.Red, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 20, sequenceLength = 100)))
+        game.registerAgent(PlayerId.Blue, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 1000, sequenceLength = 40)))
+        game.registerAgent(PlayerId.Red, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40)))
         MakeDecision(PlayerId.Blue).apply(game)
         MakeDecision(PlayerId.Red).apply(game)
 

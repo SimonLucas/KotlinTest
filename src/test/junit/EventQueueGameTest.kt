@@ -5,7 +5,7 @@ import games.eventqueuegame.*
 import math.Vec2d
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 // we create a simple world of 3 cities. One Blue and one Red, with a Neutral world sandwiched between them
 val cities = listOf(

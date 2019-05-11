@@ -1,6 +1,5 @@
 package math
 
-
 import kotlin.math.*
 
 // Vec2d from trykotlin.org (Creatures.kt example)
