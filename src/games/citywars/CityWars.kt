@@ -95,6 +95,8 @@ object Constants {
 
 var totalTicks: Long = 0
 
+val CELL_POSSESION = 10
+val MIN_CELL_POSSESION = 5
 val NIL: Int = 0
 val UP: Int = 1
 val RIGHT: Int = 2
@@ -264,8 +266,19 @@ open class CityWars : ExtendedAbstractGameState {
     }
 
     override fun score(): Double {
-        return troops.grid.sum().toDouble();
+
+        var possession: Int = 0;
+        for (i in 0 until troops.grid.size) {
+            if (troops.grid[i] > MIN_CELL_POSSESION) {
+                possession += CELL_POSSESION
+            } else if (troops.grid[i] < -MIN_CELL_POSSESION){
+                possession += CELL_POSSESION
+            }
+        }
+
+        var rawScore = troops.grid.sum().toDouble();
         //return 0.0 //board.count('+').toDouble()
+        return possession + rawScore
     }
 
     override fun isTerminal(): Boolean {
