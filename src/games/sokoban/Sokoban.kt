@@ -27,7 +27,6 @@ data class Grid(val levelNo: Int = -1) : GridInterface {
 
     fun readGrid() : CharArray
     {
-
         val file = File("data/Sokoban/levels/level-"+levelNo+".txt")
         var lines:List<String> = file.readLines()
         val dims = lines[1].split(",")
