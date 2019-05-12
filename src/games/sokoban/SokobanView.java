@@ -78,6 +78,14 @@ public class SokobanView extends JComponent {
                         case BOXIN:
                             toDraw = boxinImage;
                             break;
+                        case AVATAR:
+                            toDraw = avatarImage;
+                            requiresBackground = true;
+                            break;
+                        case AVATARONHOLE:
+                            toDraw = avatarImage;
+                            requiresBackground = true;
+                            break;
                     }
                 }
 
