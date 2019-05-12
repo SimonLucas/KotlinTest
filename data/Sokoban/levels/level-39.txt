@@ -1,0 +1,11 @@
+Four Boxes 11
+6,9
+wwwwww
+wAw..w
+w*w..w
+w.*..w
+wo...w
+w...ww
+w.o..w
+ww...w
+.wwwww

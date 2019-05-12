@@ -3,10 +3,11 @@ package games.sokoban
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import java.util.*
+import java.io.File
 
 val random = Random()
 
-data class Grid(val w: Int = 8, val h: Int = 7) {
+data class Grid(val levelNo: Int = -1) : GridInterface {
 
     var playerX: Int = -1
     var playerY: Int = -1
@@ -14,8 +15,11 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
     val BOX: Char = '*'
     val HOLE: Char = 'o'
     val AVATAR: Char = 'A'
+    val AVATARONHOLE: Char = 'u'
     val WALL: Char = 'w'
     val BOXIN: Char = '+'
+    var w: Int = -1
+    var h: Int = -1
 
     var grid: CharArray = readGrid()
     var nBoxes = 0
@@ -23,29 +27,64 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
 
     fun readGrid() : CharArray
     {
-        var level: String =     "wwwwwwww" +
-                                "ww.....w" +
-                                "ww.o.o.w" +
-                                "ww.*.*.w" +
-                                "w..o*o.w" +
-                                "w..A...w" +
-                                "wwwwwwww"
+
+        val file = File("data/Sokoban/levels/level-"+levelNo+".txt")
+        var lines:List<String> = file.readLines()
+        val dims = lines[1].split(",")
+        this.w = dims[0].toInt()
+        this.h = dims[1].toInt()
+
+        var level: String = ""
+        for (l in 2..(lines.size-1))
+            level += lines[l]
 
         var arraygrid = CharArray(level.length)
         level.toCharArray(arraygrid)
 
+        setArray(arraygrid)
+
+
+        return arraygrid
+    }
+
+
+
+
+    fun setArray(array: CharArray) : Grid {
         //Find player
-        var playerLoc = arraygrid.indexOf(AVATAR)
+        var playerLoc = array.indexOf(AVATAR)
+        if (playerLoc == -1)
+        {
+            // println("ERROR: No player in level")
+        } else {
+            playerX = playerLoc % w
+            playerY = playerLoc / w
+            array.set(playerLoc, EMPTY)
+        }
+
+        grid = array
+        return this
+    }
+
+    fun forceArray(array: CharArray) : Grid {
+        var playerLoc = array.indexOf(AVATAR)
+        if (playerLoc ==-1)
+            playerLoc = array.indexOf(AVATARONHOLE)
         if (playerLoc == -1)
         {
             println("ERROR: No player in level")
-        }else{
+        } else {
             playerX = playerLoc % w
             playerY = playerLoc / w
-            arraygrid.set(playerLoc, EMPTY)
         }
+        grid = array
+        return this
+    }
 
-        return arraygrid
+    fun getSimpleGrid() : SimpleGrid {
+        val simpleGrid = SimpleGrid(w,h)
+        simpleGrid.setGridKeepPlayerCell(grid.copyOf(), playerX, playerY)
+        return simpleGrid
     }
 
     fun boxScore()
@@ -54,19 +93,26 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         nBoxesIn++
     }
 
+    fun boxScoreReverse()
+    {
+        nBoxes++
+        nBoxesIn--
+    }
+
     fun getCell(i: Int): Char = grid[i]
 
     fun setCell(i: Int, v: Char) {
         grid[i] = v
     }
 
-    fun getCell(x: Int, y: Int): Char {
+    override fun getCell(x: Int, y: Int): Char {
         val xx = (x + w) % w
         val yy = (y + h) % h
+        //println("x: $x; y: $y; xx: $xx; yy: $yy")
         return grid[xx + w * yy]
     }
 
-    fun setCell(x: Int, y: Int, value: Char) {
+    override fun setCell(x: Int, y: Int, value: Char) {
         if (x < 0 || y < 0 || x >= w || y >= h) return
         grid[x + w * y] = value
     }
@@ -103,11 +149,11 @@ data class Grid(val w: Int = 8, val h: Int = 7) {
         println("Player at: " + playerX + " " + playerY + "; " + count(BOX) + " boxes")
     }
 
-    fun getWidth() : Int {
+    override fun getWidth() : Int {
         return this.w
     }
 
-    fun getHeight() : Int {
+    override fun getHeight() : Int {
         return this.h
     }
 
@@ -151,11 +197,10 @@ object SokobanConstants
     val ACTIONS: IntArray = intArrayOf(NIL, UP, RIGHT, DOWN, LEFT)
 }
 
-open class Sokoban : ExtendedAbstractGameState {
+open class Sokoban(private var level : Int = -1) : ExtendedAbstractGameState {
 
-    var board : Grid = Grid()
+    var board : Grid = Grid(level)
     var nTicks = 0
-
 
     override fun next(actions: IntArray): AbstractGameState {
 
@@ -177,6 +222,7 @@ open class Sokoban : ExtendedAbstractGameState {
         return this
     }
 
+
     fun move(dir : IntArray)
     {
         var nextX : Int = board.playerX + dir[0]
@@ -193,9 +239,30 @@ open class Sokoban : ExtendedAbstractGameState {
         when(destCell) {
             board.WALL -> return        //Moves against walls
             board.BOXIN ->  {
-                //println("BOXIN")
-                return
-            }//return       //Moves against box in place (change this for different versions of Sokoban)
+                //Against a box in a hole. Will move if empty on the other side.
+                var forwardX : Int = nextX + dir[0]
+                var forwardY : Int = nextY + dir[1]
+                if (! board.inLimits(forwardX, forwardY) ) //Pushing against outside of board, do nothing.
+                    return
+
+                var forwardCell : Char = board.getCell(forwardX, forwardY)
+                when(forwardCell)
+                {
+                    board.WALL -> return        //Moves against walls
+                    board.BOXIN -> return       //Moves against box in place (change this for different versions of Sokoban)
+                    board.BOX -> return         //Push against a BOX, we don't forward the push
+                    board.EMPTY -> {            //PROGRESS! (I hope)
+                        board.setCell(nextX, nextY, board.HOLE)
+                        board.setCell(forwardX, forwardY, board.BOX)
+                        board.boxScoreReverse() //Score goes down, box removed from hole
+                    }
+                    board.HOLE -> {             //EUREKA!
+                        board.setCell(nextX, nextY, board.HOLE)
+                        board.setCell(forwardX, forwardY, board.BOXIN)
+                        //board.boxScore()  //No need to change the score, went from one hole to another
+                    }
+                }
+            }//return       //Now also allows moving boxes that are already on targets (change this for different versions of Sokoban)
             board.EMPTY -> {            //Move with no obstacle, ALLOWED
                 //Empty, we move player at the end.
             }
@@ -261,7 +328,7 @@ open class Sokoban : ExtendedAbstractGameState {
     }
 
     override fun copy(): AbstractGameState {
-        val sokobanCopy = Sokoban()
+        val sokobanCopy = Sokoban(level)
         sokobanCopy.nTicks = nTicks
         sokobanCopy.board = board.deepCopy()
         return sokobanCopy

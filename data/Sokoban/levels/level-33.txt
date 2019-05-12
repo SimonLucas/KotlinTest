@@ -1,0 +1,9 @@
+Four Boxes 5
+7,7
+wwwwww.
+wooo.w.
+w.wo.ww
+w...*.w
+w***..w
+wA.w..w
+wwwwwww

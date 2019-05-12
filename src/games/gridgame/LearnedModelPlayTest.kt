@@ -3,7 +3,7 @@ package games.gridgame
 import agents.DoNothingAgent
 import agents.SimpleEvoAgent
 import forwardmodels.decisiontree.DecisionTree
-import forwardmodels.modelinterface.ForwardModelTrainer
+import forwardmodels.modelinterface.ForwardModelTrainerSimpleGridGame
 import ggi.AbstractGameState
 import ggi.SimplePlayerInterface
 import utilities.JEasyFrame
@@ -30,7 +30,7 @@ fun main(args: Array<String>) {
     //agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
-    val modelTrainer = ForwardModelTrainer(InputType.PlayerInt)
+    val modelTrainer = ForwardModelTrainerSimpleGridGame(InputType.PlayerInt)
 
     val nSteps = 200
     for (i in 0 until nSteps) {

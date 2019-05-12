@@ -1,23 +1,21 @@
 package games.gridgame
 
 import agents.DoNothingAgent
-import agents.RandomAgent
 import agents.SimpleEvoAgent
 import forwardmodels.decisiontree.DecisionTree
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
 import utilities.JEasyFrame
-import utilities.StatSummary
 import views.GridView
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
-import forwardmodels.modelinterface.ForwardModelTrainer
+import forwardmodels.modelinterface.ForwardModelTrainerSimpleGridGame
 
 
 enum class InputType {
-    None, PlayerInt, PlayerOneHot, Simple
+    None, PlayerInt, PlayerOneHot, Simple, Sokoban
 }
 
 val includeNeighbourInputs = InputType.PlayerInt
@@ -46,7 +44,7 @@ fun main(args: Array<String>) {
     // agent1 = DoNothingAgent(game.doNothingAction())
     agent2 = DoNothingAgent(game.doNothingAction())
 
-    val modelTrainer = ForwardModelTrainer(InputType.PlayerInt)
+    val modelTrainer = ForwardModelTrainerSimpleGridGame(InputType.PlayerInt)
 
     val nSteps = 2000
     for (i in 0 until nSteps) {

@@ -3,7 +3,7 @@ package games.simplegridgame
 import agents.DoNothingAgent
 import agents.SimpleEvoAgent
 import forwardmodels.decisiontree.DecisionTree
-import forwardmodels.modelinterface.ForwardModelTrainer
+import forwardmodels.modelinterface.ForwardModelTrainerSimpleGridGame
 import games.gridgame.*
 import games.gridgame.Constants
 import games.gridgame.InputType
@@ -54,7 +54,7 @@ fun main(args: Array<String>) {
         for (y in 0 until runs){
             game = SimpleGridGame(10, 10)
             val learningStats : LearningStats? = LearningStats(nSteps)
-            val modelTrainer = ForwardModelTrainer(InputType.Simple)
+            val modelTrainer = ForwardModelTrainerSimpleGridGame(InputType.Simple)
             var decisionTree : DecisionTree? = null
             for (i in 0 until nSteps) {
                 if (decisionTree != null) {

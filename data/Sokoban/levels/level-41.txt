@@ -1,0 +1,8 @@
+Four Boxes 13 - Devilish Level
+9,6
+.wwwwwww.
+.w.o...ww
+.w..*...w
+wwww*..ow
+wA*.o...w
+wwwwwwwww

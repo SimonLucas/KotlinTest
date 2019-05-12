@@ -122,9 +122,9 @@ public class DecisionTree {
 
 
 	/**
-	 * Train the tree from the psv File
+	 * Train the tree from an ArrayList of Strings
 	 *
-	 * @param psvFile
+	 * @param data
 	 */
 	public void train(ArrayList<String> data) {
 		try {

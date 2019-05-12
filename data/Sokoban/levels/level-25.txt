@@ -1,0 +1,9 @@
+Three Boxes 11
+11,7
+......wwww.
+......w..w.
+wwwwwww.oww
+w..ww...oow
+wA*...**..w
+wwww...wwww
+...wwwww...

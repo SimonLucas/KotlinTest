@@ -44,6 +44,10 @@ interface EventQueue {
 
 }
 
+interface Effect {
+    fun apply(state: GameState)
+}
+
 data class Event (val tick: Int) : Comparable<Event> {
     override fun compareTo(other: Event): Int {
         return tick.compareTo(other.tick)

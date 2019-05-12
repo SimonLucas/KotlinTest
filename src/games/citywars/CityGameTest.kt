@@ -28,5 +28,4 @@ fun main() {
         view.repaint()
         Thread.sleep(50)
     }
-
 }

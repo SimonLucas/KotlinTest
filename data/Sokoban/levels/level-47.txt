@@ -1,0 +1,9 @@
+Five Boxes 6
+11,7
+..wwwwwww..
+..w..o.Aw..
+www..**.w..
+w..*.w.wwww
+w....w.*.ow
+wwwwoo..www
+...wwwwww..

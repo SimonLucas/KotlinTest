@@ -11,7 +11,8 @@ val showNumbers = true
 val showDots = true
 val showCityOutline = true
 
-val playerOneColor = Color.getHSBColor(0.2f, 1f, 1f)
+// val playerOneColor = Color.getHSBColor(0.2f, 1f, 1f)
+val playerOneColor = Color(85,107,47)
 val playerTwoColor = Color.getHSBColor(0.8f, 1f, 1f)
 
 fun main() {

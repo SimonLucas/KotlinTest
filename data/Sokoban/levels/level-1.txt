@@ -1,0 +1,8 @@
+Two Boxes 2
+6,6
+.wwwww
+wwAoow
+w.**ww
+w....w
+ww...w
+.wwwww

@@ -1,0 +1,9 @@
+Default
+8,7
+wwwwwwww
+ww.....w
+ww.o.o.w
+ww.*.*.w
+w..o*o.w
+w..A...w
+wwwwwwww

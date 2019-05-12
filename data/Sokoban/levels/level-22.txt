@@ -1,0 +1,9 @@
+Three Boxes 8
+8,7
+wwwwwww.
+wooo..w.
+w.*A*.ww
+ww.ww..w
+.w..*..w
+.w..w..w
+.wwwwwww

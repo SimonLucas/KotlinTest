@@ -17,6 +17,7 @@ public class CaveView extends JComponent {
     Color deadZone = Color.getHSBColor(0.9f, 1, 1);
     Color goalZone = Color.getHSBColor(0.3f, 1, 1);
     Color finishZone = Color.getHSBColor(0.7f, 1, 1);
+    Color sandpit = Color.getHSBColor(0.15f, 1.0f, 1.0f);
 
     int nStars = 200;
     int rad = 10;
@@ -194,6 +195,13 @@ public class CaveView extends JComponent {
 
         g.setColor(goalZone);
         g.fillRect(p.getWidth(), 0, zoneWidth / goalRatio, getHeight() / goalRatio);
+
+        if (p.getSandpit() != 0) {
+            g.setColor(sandpit);
+            int xPit = (int) (p.getSandpit() * p.getWidth());
+            int pitWidth = (int) ((1 - p.getSandpit()) * p.getWidth());
+            g.fillRect(xPit, getHeight() - getHeight() / borderRatio, pitWidth, getHeight() / borderRatio);
+        }
 
 
     }

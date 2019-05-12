@@ -1,0 +1,10 @@
+Two Boxes 4
+10,8
+......wwww
+.wwwwww..w
+.wA*...*.w
+.wow.....w
+ww....wwww
+w.o..ww...
+w...ww....
+wwwww.....

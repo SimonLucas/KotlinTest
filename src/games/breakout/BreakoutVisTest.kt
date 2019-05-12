@@ -22,10 +22,10 @@ fun main(args: Array<String>) {
         player = SimpleEvoAgent()
         if (player is SimpleEvoAgent) {
             player.sequenceLength *= 2
-            player.nEvals *= 2
+            player.nEvals *= 4
             player.useShiftBuffer = true
             player.useMutationTransducer = true
-            player.probMutation = 0.2
+            player.probMutation = 0.3
             player.repeatProb = 0.5
         }
         // player = BreakoutKeyController()

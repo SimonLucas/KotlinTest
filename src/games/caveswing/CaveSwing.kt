@@ -25,6 +25,10 @@ object Constants {
 }
 
 
+//data class Sandpit (val position = 0.9) {
+//
+//}
+
 data class Anchor(val s: Vector2d) : Serializable {
     fun getForce(position: Vector2d, hooke: Double): Vector2d {
         // note that this is currently modelled as an elastic
