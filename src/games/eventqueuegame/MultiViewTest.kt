@@ -30,7 +30,7 @@ fun main() {
 
     while (true) {
         multiView.repaint()
-        game.next(emptyList())
+        game.next(1)
         // now process each version of the game
 
         // create separate fogged out copies for each view

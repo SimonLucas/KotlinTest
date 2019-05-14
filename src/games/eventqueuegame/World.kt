@@ -7,7 +7,7 @@ enum class PlayerId {
     Blue, Red, Neutral, Fog
 }
 
-data class City(val location: Vec2d, val radius: Int = 40, var pop: Int = 100, var owner: PlayerId = PlayerId.Neutral)
+data class City(val location: Vec2d, val radius: Int = 40, var pop: Int = 100, var owner: PlayerId = PlayerId.Neutral, val name:String = "")
 
 data class Route(val fromCity: Int, val toCity: Int, val length: Int, val terrainDifficulty: Double)
 
@@ -55,9 +55,9 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
         cities = ArrayList()
         with(params) {
             for (i in 0 until nAttempts) {
-                val location = Vec2d(minSep + random.nextDouble((width - 2.0 * minSep)),
-                        minSep + random.nextDouble((height - 2.0 * minSep)))
-                val city = City(location, minSep / 2, 0)
+                val location = Vec2d(minRad + random.nextDouble((width - 2.0 * minRad)),
+                        minRad + random.nextDouble((height - 2.0 * minRad)))
+                val city = City(location, minRad, 0, name = i.toString())
                 if (canPlace(city, cities, minSep)) cities += city
             }
         }
@@ -89,8 +89,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                 routes += Route(cities.indexOf(proposal), i, distance, 1.0)
             }
 
-            // TODO: Add in a check for routes to not cross each other, or cross the radius of another city
-            //  TODO: Add in a check that cities for a fully connected graph
+           //  TODO: Add in a check that cities for a fully connected graph
         }
 
         var blueBase = 0

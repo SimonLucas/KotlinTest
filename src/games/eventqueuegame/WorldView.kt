@@ -54,6 +54,7 @@ class WorldView (var game: EventQueueGame) : JComponent() {
                 g.fill(ellipse)
                 val label = if (c.owner == PlayerId.Fog) "?" else  "${c.pop}"
                 DrawUtil().centreString(g, label, xScale * c.location.x, yScale*c.location.y)
+                DrawUtil().centreString(g, c.name, xScale * (c.location.x + params.minRad + 20), yScale * (c.location.y + params.minRad +20), Color.WHITE)
             }
 
             for (t in currentTransits) {

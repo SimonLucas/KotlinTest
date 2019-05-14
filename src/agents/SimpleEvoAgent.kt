@@ -1,6 +1,9 @@
 package agents
 
+import games.eventqueuegame.SimpleActionDoNothing
+import games.eventqueuegame.SimpleActionEvoAgentRollForward
 import ggi.AbstractGameState
+import ggi.SimpleActionPlayerInterface
 import ggi.SimplePlayerInterface
 import ggi.game.ActionAbstractGameState
 
@@ -22,10 +25,10 @@ fun evaluateSequenceDelta(gameState: AbstractGameState,
                           seq: IntArray,
                           playerId: Int,
                           discountFactor: Double,
+                          horizon: Int,
                           opponentModel: SimplePlayerInterface = DoNothingAgent()): Double {
     val intPerAction = gameState.codonsPerAction()
     val actions = IntArray(2 * intPerAction)
-    var currentActionPointer = 0
     var runningScore = gameState.score()
     var discount = 1.0
     var delta = 0.0
@@ -37,21 +40,23 @@ fun evaluateSequenceDelta(gameState: AbstractGameState,
         discount *= discountFactor
     }
 
-    for (action in seq) {
-        actions[playerId * intPerAction + currentActionPointer] = action
-        //TODO: This is fine with an opponent model that does nothing...but will not work otherwise
-        // The problem being that SimpleAgentInterface only permits getAction: Int
-        actions[(1 - playerId) * intPerAction + currentActionPointer] = opponentModel.getAction(gameState, 1 - playerId)
-        if (gameState is ActionAbstractGameState) {
-            currentActionPointer++
-            if (currentActionPointer == intPerAction) {
-                val action1 = gameState.translateGene(0, actions.sliceArray(0 until intPerAction))
-                val action2 = gameState.translateGene(1, actions.sliceArray(intPerAction until 2 * intPerAction))
-                gameState.next(listOf(action1, action2))
-                currentActionPointer = 0
-                discount(gameState.score())
-            }
-        } else {
+    if (gameState is ActionAbstractGameState) {
+        val mutatedAgent = SimpleActionEvoAgentRollForward(seq)
+        gameState.registerAgent(playerId, mutatedAgent)
+        if (opponentModel is SimpleActionPlayerInterface)
+            gameState.registerAgent(1 - playerId, opponentModel)
+        else
+            gameState.registerAgent(1 - playerId, SimpleActionDoNothing)
+        if (discountFactor < 1.0) {
+            throw AssertionError("Discount not currently implemented for ActionAbstractGameState")
+            // TODO: need to get vector of future rewards back, along with the times at which they occur to calculate this
+        }
+        gameState.next(if (horizon > 0) horizon else seq.size)
+        discount(gameState.score())
+    } else {
+        for (action in seq) {
+            actions[playerId * intPerAction] = action
+            actions[(1 - playerId) * intPerAction] = opponentModel.getAction(gameState, 1 - playerId)
             gameState.next(actions)
             discount(gameState.score())
         }
@@ -72,6 +77,7 @@ data class SimpleEvoAgent(
         var useMutationTransducer: Boolean = true,
         var repeatProb: Double = 0.5,  // only used with mutation transducer
         var discountFactor: Double? = null,
+        val horizon: Int = -1,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ) : SimplePlayerInterface {
     override fun getAgentType(): String {
@@ -108,6 +114,8 @@ data class SimpleEvoAgent(
         }
         solutions.clear()
         solutions.add(solution)
+        val startScore: Double = evalSeq(gameState.copy(), solution, playerId)
+ //       println(String.format("Player %d starting score to beat is %.1f", playerId, startScore))
         for (i in 0 until nEvals) {
             // evaluate the current one
             val mut = mutate(solution, probMutation, gameState.nActions())
@@ -115,6 +123,7 @@ data class SimpleEvoAgent(
             val mutScore = evalSeq(gameState.copy(), mut, playerId)
             if (mutScore >= curScore) {
                 solution = mut
+        //        println(String.format("Player %d finds better score of %.1f with %s", playerId, mutScore, solution.joinToString("")))
             }
             solutions.add(solution)
         }
@@ -171,7 +180,7 @@ data class SimpleEvoAgent(
 
 
     private fun evalSeq(gameState: AbstractGameState, seq: IntArray, playerId: Int): Double {
-        return evaluateSequenceDelta(gameState, seq, playerId, discountFactor?: 1.0, opponentModel)
+        return evaluateSequenceDelta(gameState, seq, playerId, discountFactor ?: 1.0, this.horizon, opponentModel)
     }
 
 

@@ -73,13 +73,13 @@ data class Wait(val playerId: PlayerId, val wait: Int) : Action {
 
 data class MakeDecision(val player: PlayerId) : Action {
     override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+        val playerRef = when (player) {
+            PlayerId.Blue -> 0
+            PlayerId.Red -> 1
+            else -> throw AssertionError("Decision-making not supported for $player")
+        }
         if (state is EventQueueGame) {
-            val agent = state.getAgent(player)
-            val playerRef = when (player) {
-                PlayerId.Blue -> 0
-                PlayerId.Red -> 1
-                else -> throw AssertionError("Decision-making not supported for $player")
-            }
+            val agent = state.getAgent(playerRef)
             val action = agent.getAction(state, playerRef)
             action.apply(state)
         }

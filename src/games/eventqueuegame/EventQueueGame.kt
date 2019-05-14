@@ -22,8 +22,8 @@ data class EventGameParams(
         val nAttempts: Int = 10,
         val width: Int = 1000,
         val height: Int = 600,
-        val minRad: Int = 20,
-        val maxRad: Int = 100,
+        val minRad: Int = 25,
+        val maxRad: Int = 25,
         val minPop: Int = 10,
         val maxPop: Int = 100,
         val minSep: Int = 30,
@@ -36,7 +36,8 @@ data class EventGameParams(
         val blueLanchesterCoeff: Double = 0.05,
         val redLanchesterCoeff: Double = 0.05,
         val blueLanchesterExp: Double = 1.0,    // should be between 0.0 and 1.0
-        val redLanchesterExp: Double = 1.0   // should be between 0.0 and 1.0
+        val redLanchesterExp: Double = 1.0,  // should be between 0.0 and 1.0
+        val planningHorizon: Int = 100
 )
 
 var totalTicks: Long = 0
@@ -57,13 +58,17 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
         val redCities = it.world.cities.count { c -> c.owner == PlayerId.Red }
         (blueCities - redCities).toDouble()
     }
-    private val playerAgentMap = HashMap<PlayerId, SimpleActionPlayerInterface>()
+    private val playerAgentMap = HashMap<Int, SimpleActionPlayerInterface>()
 
-    fun registerAgent(player: PlayerId, agent: SimpleActionPlayerInterface) {
+    override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) {
         playerAgentMap[player] = agent
+        val playerID =  if (player == 0) PlayerId.Blue else PlayerId.Red
+        if (eventQueue.none{e -> e.action is MakeDecision && e.action.player == playerID}) {
+            eventQueue.add(Event(world.currentTicks, MakeDecision(playerID)))
+        }
     }
 
-    fun getAgent(player: PlayerId) = playerAgentMap[player] ?: SimpleActionDoNothing
+    override fun getAgent(player: Int) = playerAgentMap[player] ?: SimpleActionDoNothing
 
     override fun copy(): EventQueueGame {
         val state = EventQueueGame(world.deepCopy())
@@ -89,25 +94,24 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
         return LaunchExpedition(playerId, gene[0], gene[1], gene[2], max(gene[3], world.params.defaultOODALoop))
     }
 
-    override fun next(actions: List<Action>): EventQueueGame {
-        world.currentTicks++
+    override fun next(forwardTicks: Int): EventQueueGame {
+        for (i in 1..forwardTicks) {
+            world.currentTicks++
 
-        var finished = false
-        do {
-            // we may have multiple events triggering in the same tick
-            val event = eventQueue.peek()
-            if (event != null && event.tick < world.currentTicks) {
-                // the time has come to trigger it
-                eventQueue.poll()
-                event.action.apply(this)
-                //           println("Triggered event: ${event} in Game $this")
-            } else {
-                finished = true
-            }
-        } while (!finished)
-
-        actions.forEach({ a -> a.apply(this) })
-
+            var finished = false
+            do {
+                // we may have multiple events triggering in the same tick
+                val event = eventQueue.peek()
+                if (event != null && event.tick < world.currentTicks) {
+                    // the time has come to trigger it
+                    eventQueue.poll()
+                    event.action.apply(this)
+                    //           println("Triggered event: ${event} in Game $this")
+                } else {
+                    finished = true
+                }
+            } while (!finished)
+        }
         return this
     }
 
