@@ -33,7 +33,7 @@ fun main() {
     val multiView = ListComponent()
     multiView.add(WorldView(game))
     val planView = PlanView(game.getAgent(0), game, 0)
- //   multiView.add(planView)
+    multiView.add(planView)
     val frame = JEasyFrame(multiView, "Event Based Game")
 
     while (!game.isTerminal()) {
@@ -41,6 +41,6 @@ fun main() {
         frame.title = "${game.nTicks()}"
         multiView.repaint()
         planView.refresh()
-        Thread.sleep(50)
+        Thread.sleep(500)
     }
 }

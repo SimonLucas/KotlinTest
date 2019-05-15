@@ -3,6 +3,7 @@ package test.junit
 import agents.*
 import games.eventqueuegame.*
 import math.Vec2d
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
@@ -92,6 +93,52 @@ class SimpleEvoAgentTest {
         val projectedState4 = projectedState2.copy()
         reward = evaluateSequenceDelta(projectedState4, redGenome2, 1, 1.0, 6)
         assertEquals(reward, 1.0) // blue force reaches neutral city, and red force conquers blue base
+    }
+
+    @Test
+    fun follForwardAgentIsUsedOnGameCopy() {
+        val blueAgent = SimpleActionEvoAgent(SimpleEvoAgent(horizon = 100))
+        val redAgent = SimpleActionEvoAgent(SimpleEvoAgent())
+        game.registerAgent(0, blueAgent)
+        game.registerAgent(1, redAgent)
+        val copy = game.copy()
+
+        val copiedBlueAgent = copy.getAgent(0)
+        val copiedRedAgent = copy.getAgent(1)
+        assertTrue(copiedBlueAgent is SimpleActionEvoAgentRollForward)
+        assertFalse(game.getAgent(0) is SimpleActionEvoAgentRollForward)
+        assertTrue(copiedRedAgent is SimpleActionEvoAgentRollForward)
+        assertFalse(game.getAgent(1) is SimpleActionEvoAgentRollForward)
+        assertFalse(copiedBlueAgent is SimpleActionEvoAgent)
+        assertTrue(game.getAgent(0) is SimpleActionEvoAgent)
+        assertFalse(copiedRedAgent is SimpleActionEvoAgent)
+        assertTrue(game.getAgent(1) is SimpleActionEvoAgent)
+
+        assertTrue(copy.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Red})
+        assertTrue(copy.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Blue})
+    }
+
+    @Test
+    fun rollForwardFor10TicksWithOneAction() {
+        val blueGenome = intArrayOf(1, 0, 0, 8, 0, 1, 1, 8, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0)
+        // Blue first of all gives a Wait order for 8 time units, then a March order (which will take 3 time units to arrive) to invade the Neutral city
+        // MakeDecision should be at tick = 20 (1 + 8 + 10), as the default wait after a LaunchExpedition is 10
+        val redGenome = intArrayOf(1, 1, 2, 12, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0)
+        // Red gives an expedition order immediately to attack the Neutral city, that takes 3 time units
+        // Make Decision should be at tick = 13
+        val blueAgent = SimpleActionEvoAgentRollForward(blueGenome)
+        val redAgent = SimpleActionEvoAgentRollForward(redGenome)
+        game.registerAgent(0, blueAgent)
+        game.registerAgent(1, redAgent)
+        game.next(10)
+        assertEquals(game.world.currentTicks, 10)
+        assertEquals(game.score(), -1.0)
+        assert(game.world.cities[2].owner == PlayerId.Red)
+        assertEquals(game.world.currentTransits.size, 1)
+        assertTrue(game.world.currentTransits[0].playerId == PlayerId.Blue)
+
+        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Red && e.tick == 13})
+        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Blue && e.tick == 20})
     }
 
 }

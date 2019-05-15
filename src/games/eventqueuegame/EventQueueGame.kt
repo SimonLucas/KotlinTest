@@ -89,9 +89,13 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
     }
 
     override fun translateGene(player: Int, gene: IntArray): Action {
+        // if the gene does not encode a valid LaunchExpedition, then we interpret it as a Wait action
+        // if we take a real action, then we must wait for a minimum period before the next one
         val playerId: PlayerId = if (player == 0) PlayerId.Blue else PlayerId.Red
-        if (gene[3] == 0) return Wait(playerId, 1) // special code for Do Nothing...wait one tick and see what has changed
-        return LaunchExpedition(playerId, gene[0], gene[1], gene[2], max(gene[3], world.params.defaultOODALoop))
+        val proposedAction = LaunchExpedition(playerId, gene[0], gene[1], gene[2], max(gene[3], world.params.defaultOODALoop))
+        if (!proposedAction.isValid(this.world))
+            return Wait(playerId, max(gene[3], 1))
+        return proposedAction
     }
 
     override fun next(forwardTicks: Int): EventQueueGame {

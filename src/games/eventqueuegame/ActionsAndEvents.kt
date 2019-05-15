@@ -92,9 +92,8 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int
     override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
         if (state is EventQueueGame) {
             val world = state.world
-            val routes = world.allRoutesFromCity[from] ?: emptyList()
-            val to = routes[toCode % routes.size].toCity
-            if (isValid(world.cities[from], world.cities[to])) {
+            val to = destinationCity(world, from, toCode)
+            if (isValid(world)) {
                 val sourceCityPop = world.cities[from].pop
                 val maxActions = world.cities.size.toDouble()
                 val distance = world.cities[from].location.distanceTo(world.cities[to].location)
@@ -112,9 +111,15 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int
         return state
     }
 
-    fun isValid(from: City, to: City): Boolean {
-        return from.owner == player &&
-                from.pop > 0 &&
+    private fun destinationCity(world: World, from: Int, toCode: Int): Int {
+        val routes = world.allRoutesFromCity[from] ?: emptyList()
+        return routes[toCode % routes.size].toCity
+    }
+
+    fun isValid(world: World): Boolean {
+        val to = destinationCity(world, from, toCode)
+        return world.cities[from].owner == player &&
+                world.cities[from].pop > 0 &&
                 from != to
     }
 }

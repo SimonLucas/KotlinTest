@@ -7,7 +7,7 @@ enum class PlayerId {
     Blue, Red, Neutral, Fog
 }
 
-data class City(val location: Vec2d, val radius: Int = 40, var pop: Int = 100, var owner: PlayerId = PlayerId.Neutral, val name:String = "")
+data class City(val location: Vec2d, val radius: Int = 40, var pop: Int = 100, var owner: PlayerId = PlayerId.Neutral, val name: String = "")
 
 data class Route(val fromCity: Int, val toCity: Int, val length: Int, val terrainDifficulty: Double)
 
@@ -42,6 +42,9 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                  val params: EventGameParams = EventGameParams()) {
 
     var currentTransits: ArrayList<Transit> = ArrayList()
+        private set(newTransits) {
+            field = newTransits
+        }
     var currentTicks: Int = 0
     var allRoutesFromCity: Map<Int, List<Route>> = HashMap()
 
@@ -70,7 +73,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                     routes += Route(i, j, cities[i].location.distanceTo(cities[j].location).toInt(), 1.0)
                 }
             }
-            while (routes.filter {r -> r.fromCity == i }.size < params.minConnections) {
+            while (routes.filter { r -> r.fromCity == i }.size < params.minConnections) {
                 // then connect to random cities up to minimum
                 val eligibleCities = cities.filter {
                     val distance = cities[i].location.distanceTo(it.location)
@@ -89,7 +92,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                 routes += Route(cities.indexOf(proposal), i, distance, 1.0)
             }
 
-           //  TODO: Add in a check that cities for a fully connected graph
+            //  TODO: Add in a check that cities for a fully connected graph
         }
 
         var blueBase = 0
