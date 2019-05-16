@@ -33,11 +33,22 @@ fun routesCross(start1: Vec2d, end1: Vec2d, start2: Vec2d, end2: Vec2d): Boolean
     return (t2 in 0.001..0.999 && t1 in 0.001..0.999)
 }
 
-data class Transit(val nPeople: Int, val fromCity: Int, val toCity: Int, val playerId: PlayerId, val startTime: Int, val endTime: Int)
+data class Transit(val nPeople: Int, val fromCity: Int, val toCity: Int, val playerId: PlayerId, val startTime: Int, val endTime: Int) {
+    fun currentPosition(time: Int, cities: List<City>): Vec2d {
+        val proportion: Double = (time - startTime).toDouble() / (endTime - startTime).toDouble()
+        return cities[fromCity].location + (cities[toCity].location - cities[fromCity].location) * proportion
+    }
+    fun collisionEvent(otherTransit: Transit, world: World) : Event {
+        val currentEnemyPosition = otherTransit.currentPosition(world.currentTicks, world.cities)
+        val ourPosition = this.currentPosition(world.currentTicks, world.cities)
+        val distance = ourPosition.distanceTo(currentEnemyPosition) / 2.0
+        val timeOfCollision = world.currentTicks + (distance / world.params.speed).toInt()
+        return Event(timeOfCollision, Battle(this, otherTransit))
+    }
+}
 
 data class World(var cities: List<City> = ArrayList(), var routes: List<Route> = ArrayList(),
                  val width: Int = 1000, val height: Int = 600,
-                 val speed: Double = 1.0,
                  val random: Random = Random(3),
                  val params: EventGameParams = EventGameParams()) {
 
@@ -57,11 +68,15 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
         // just keep it like so
         cities = ArrayList()
         with(params) {
+            var n = 0
             for (i in 0 until nAttempts) {
                 val location = Vec2d(minRad + random.nextDouble((width - 2.0 * minRad)),
                         minRad + random.nextDouble((height - 2.0 * minRad)))
-                val city = City(location, minRad, 0, name = i.toString())
-                if (canPlace(city, cities, minSep)) cities += city
+                val city = City(location, minRad, 0, name = n.toString())
+                if (canPlace(city, cities, minSep)) {
+                    cities += city
+                    n++
+                }
             }
         }
 
@@ -143,6 +158,24 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             currentTransits.remove(transit)
         else
             throw AssertionError("Transit to be removed is not recognised")
+    }
+
+    fun nextCollidingTransit(newTransit: Transit): Transit? {
+        if (currentTransits.any{
+                    it.fromCity == newTransit.fromCity
+                            && it.toCity == newTransit.toCity
+                            && it.playerId == newTransit.playerId
+                            && it !== newTransit
+                }) return null
+        // the check above looks for any pre-existing force by the same player on the arc. If one exists, then it will fight a battle first
+        val collidingTransit = currentTransits.filter {
+            it.fromCity == newTransit.toCity
+                    && it.toCity == newTransit.fromCity
+                    && it.playerId != newTransit.playerId
+                    && it.endTime > currentTicks
+        }.minBy(Transit::endTime)
+        // find the transit on the rout closest to us
+        return collidingTransit
     }
 
 }

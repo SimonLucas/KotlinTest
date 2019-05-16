@@ -62,8 +62,8 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
 
     override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) {
         playerAgentMap[player] = agent
-        val playerID =  if (player == 0) PlayerId.Blue else PlayerId.Red
-        if (eventQueue.none{e -> e.action is MakeDecision && e.action.player == playerID}) {
+        val playerID = if (player == 0) PlayerId.Blue else PlayerId.Red
+        if (eventQueue.none { e -> e.action is MakeDecision && e.action.player == playerID }) {
             eventQueue.add(Event(world.currentTicks, MakeDecision(playerID)))
         }
     }
@@ -99,23 +99,20 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
     }
 
     override fun next(forwardTicks: Int): EventQueueGame {
-        for (i in 1..forwardTicks) {
-            world.currentTicks++
-
-            var finished = false
-            do {
-                // we may have multiple events triggering in the same tick
-                val event = eventQueue.peek()
-                if (event != null && event.tick < world.currentTicks) {
-                    // the time has come to trigger it
-                    eventQueue.poll()
-                    event.action.apply(this)
-                    //           println("Triggered event: ${event} in Game $this")
-                } else {
-                    finished = true
-                }
-            } while (!finished)
-        }
+        val timeToFinish = world.currentTicks + forwardTicks
+        do {
+            // we may have multiple events triggering in the same tick
+            val event = eventQueue.peek()
+            if (event != null && event.tick < timeToFinish) {
+                // the time has come to trigger it
+                eventQueue.poll()
+                world.currentTicks = event.tick
+                event.action.apply(this)
+                //           println("Triggered event: ${event} in Game $this")
+            } else {
+                world.currentTicks = timeToFinish
+            }
+        } while (timeToFinish > world.currentTicks)
         return this
     }
 

@@ -24,7 +24,7 @@ class SimpleEvoAgentTest {
             Route(2, 0, 10, 1.0),
             Route(2, 1, 10, 1.0)
     )
-    val world = World(cities, routes, 20, 20, 5.0, Random(10))
+    val world = World(cities, routes, 20, 20, Random(10))
     val game = EventQueueGame(world)
 
     @Test
@@ -74,9 +74,9 @@ class SimpleEvoAgentTest {
     fun redExpeditionLaunchedWhileBlueInProgressUpdatesCorrectly() {
         val blueGenome2 = intArrayOf(0, 1, 1, 1, 1, 1, 1, 0)
         val projectedState2 = game.copy()
-        var reward = evaluateSequenceDelta(projectedState2, blueGenome2, 0, 1.0, 2)
+        var reward = evaluateSequenceDelta(projectedState2, blueGenome2, 0, 1.0, 1)
         assert(projectedState2.world.cities[2].owner == PlayerId.Neutral)
-        assertEquals(projectedState2.world.currentTicks, 2)
+        assertEquals(projectedState2.world.currentTicks, 1)
         assert(game.world.cities[2].owner == PlayerId.Neutral)
         assertEquals(projectedState2.world.currentTransits.size, 1)
         assertEquals(reward, 0.0)
@@ -84,9 +84,9 @@ class SimpleEvoAgentTest {
 
         val redGenome1 = intArrayOf(1, 0, 2, 1, 1, 1, 1, 0)
         val projectedState3 = projectedState2.copy()
-        reward = evaluateSequenceDelta(projectedState3, redGenome1, 1, 1.0, 2)
-        assertEquals(projectedState2.world.currentTicks, 2)
-        assertEquals(projectedState3.world.currentTicks, 4)
+        reward = evaluateSequenceDelta(projectedState3, redGenome1, 1, 1.0, 1)
+        assertEquals(projectedState2.world.currentTicks, 1)
+        assertEquals(projectedState3.world.currentTicks, 2)
         assertEquals(reward, -1.0) // blue force reaches neutral city
 
         val redGenome2 = intArrayOf(1, 0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0)
@@ -119,26 +119,26 @@ class SimpleEvoAgentTest {
     }
 
     @Test
-    fun rollForwardFor10TicksWithOneAction() {
+    fun rollForwardForSeveralTicksWithOneAction() {
         val blueGenome = intArrayOf(1, 0, 0, 8, 0, 1, 1, 8, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0)
         // Blue first of all gives a Wait order for 8 time units, then a March order (which will take 3 time units to arrive) to invade the Neutral city
-        // MakeDecision should be at tick = 20 (1 + 8 + 10), as the default wait after a LaunchExpedition is 10
+        // MakeDecision should be at tick = 18 (8 + 10), as the default wait after a LaunchExpedition is 10
         val redGenome = intArrayOf(1, 1, 2, 12, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0)
         // Red gives an expedition order immediately to attack the Neutral city, that takes 3 time units
-        // Make Decision should be at tick = 13
+        // Make Decision should be at tick = 12
         val blueAgent = SimpleActionEvoAgentRollForward(blueGenome)
         val redAgent = SimpleActionEvoAgentRollForward(redGenome)
         game.registerAgent(0, blueAgent)
         game.registerAgent(1, redAgent)
-        game.next(10)
-        assertEquals(game.world.currentTicks, 10)
+        game.next(9)
+        assertEquals(game.world.currentTicks, 9)
         assertEquals(game.score(), -1.0)
         assert(game.world.cities[2].owner == PlayerId.Red)
         assertEquals(game.world.currentTransits.size, 1)
         assertTrue(game.world.currentTransits[0].playerId == PlayerId.Blue)
 
-        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Red && e.tick == 13})
-        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Blue && e.tick == 20})
+        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Red && e.tick == 12})
+        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Blue && e.tick == 18})
     }
 
 }

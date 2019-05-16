@@ -16,17 +16,26 @@ data class TransitStart(val transit: Transit) : Action {
             } else {
                 throw AssertionError("Invalid Transit - must be from city owned by playerId")
             }
+            val enemyCollision = world.nextCollidingTransit(transit)
             world.addTransit(transit)
+            if (enemyCollision != null) {
+                state.eventQueue.add(transit.collisionEvent(enemyCollision, world))
+            }
         }
         return state
     }
 }
 
-data class TransitEnd(val transit: Transit) : Action {
+data class TransitEnd(val player: PlayerId, val fromCity: Int, val toCity: Int, val endTime: Int) : Action {
     override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
         if (state is EventQueueGame) {
-            CityInflux(transit.playerId, transit.nPeople, transit.toCity).apply(state)
-            state.world.removeTransit(transit)
+            val transit = state.world.currentTransits.filter {
+                it.endTime == endTime && it.playerId == player && it.fromCity == fromCity && it.toCity == toCity
+            }.firstOrNull()
+            if (transit != null) {
+                CityInflux(player, transit.nPeople, toCity).apply(state)
+                state.world.removeTransit(transit)
+            }
         }
         return state
     }
@@ -54,6 +63,36 @@ data class CityInflux(val player: PlayerId, val pop: Int, val destination: Int) 
                 } else {
                     // defenders win
                     city.pop = -result.toInt()
+                }
+            }
+        }
+        return state
+    }
+}
+
+data class Battle(val transit1: Transit, val transit2: Transit) : Action {
+    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+        if (state is EventQueueGame) {
+            val p = state.world.params
+            val result = lanchesterClosedFormBattle(transit1.nPeople.toDouble(), transit2.nPeople.toDouble(),
+                    if (transit1.playerId == PlayerId.Blue) p.blueLanchesterCoeff else p.redLanchesterCoeff,
+                    if (transit1.playerId == PlayerId.Blue) p.blueLanchesterExp else p.redLanchesterExp,
+                    if (transit1.playerId == PlayerId.Blue) p.redLanchesterCoeff else p.blueLanchesterCoeff,
+                    if (transit1.playerId == PlayerId.Blue) p.redLanchesterExp else p.blueLanchesterExp
+            )
+            val winningTransit = if (result > 0.0) transit1 else transit2
+            val losingTransit = if (result > 0.0) transit2 else transit1
+
+            state.world.removeTransit(losingTransit)
+            state.world.removeTransit(winningTransit)
+            if (Math.abs(result).toInt() == 0) {
+                // do nothing
+            } else {
+                val successorTransit = winningTransit.copy(nPeople = Math.abs(result).toInt());
+                state.world.addTransit(successorTransit)
+                val nextCollidingTransit = state.world.nextCollidingTransit(successorTransit)
+                if (nextCollidingTransit != null) {
+                    state.eventQueue.add(successorTransit.collisionEvent(nextCollidingTransit, state.world))
                 }
             }
         }
@@ -97,14 +136,14 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int
                 val sourceCityPop = world.cities[from].pop
                 val maxActions = world.cities.size.toDouble()
                 val distance = world.cities[from].location.distanceTo(world.cities[to].location)
-                val arrivalTime = world.currentTicks + (distance / world.speed).toInt()
+                val arrivalTime = world.currentTicks + (distance / world.params.speed).toInt()
                 var forcesSent = ((proportion + 1.0) / maxActions * sourceCityPop).roundToInt()
                 if (forcesSent == 0) forcesSent = 1
                 val transit = Transit(forcesSent, from, to, player, world.currentTicks, arrivalTime)
                 // we execute the troop departure immediately
                 TransitStart(transit).apply(state)
                 // and put their arrival in the queue for the game state
-                state.eventQueue.add(Event(arrivalTime, TransitEnd(transit)))
+                state.eventQueue.add(Event(arrivalTime, TransitEnd(transit.playerId, transit.fromCity, transit.toCity, transit.endTime)))
             }
             state.eventQueue.add(Event(world.currentTicks + wait, MakeDecision(player)))
         }

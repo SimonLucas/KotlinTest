@@ -5,21 +5,19 @@ import ggi.SimpleActionPlayerInterface
 import utilities.JEasyFrame
 import kotlin.random.Random
 
-val calendar = java.util.Calendar.getInstance()
-
 fun main() {
     val params = EventGameParams(minSep = 50)
     val agents = HashMap<PlayerId, SimpleActionPlayerInterface>()
-    agents[PlayerId.Blue] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 50, sequenceLength = 40, horizon = 40))
-    agents[PlayerId.Red] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 50, sequenceLength = 40, horizon = 50))
+    agents[PlayerId.Blue] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40, horizon =100))
+    agents[PlayerId.Red] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40, horizon = 100))
 
     var blueWins = 0;
     var redWins = 0;
     var draws = 0
     val maxGames = 500
-    val startTime = calendar.timeInMillis
+    val startTime = java.util.Calendar.getInstance().timeInMillis
     for (g in 1..maxGames) {
-        val world = World(speed = 10.0, random = Random(1), params = params)
+        val world = World(random = Random(1), params = params)
         val game = EventQueueGame(world)
         game.scoreFunction = {
             // 5 points per city
@@ -44,5 +42,5 @@ fun main() {
             else -> draws++
         }
     }
-    println("$blueWins wins for Blue, $redWins for Red and $draws draws out of $maxGames in ${(calendar.timeInMillis - startTime) / maxGames} ms per game")
+    println("$blueWins wins for Blue, $redWins for Red and $draws draws out of $maxGames in ${(java.util.Calendar.getInstance().timeInMillis - startTime) / maxGames} ms per game")
 }

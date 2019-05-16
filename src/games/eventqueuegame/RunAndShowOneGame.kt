@@ -6,7 +6,7 @@ import kotlin.random.Random
 
 fun main() {
     val params = EventGameParams(minSep = 50, defaultOODALoop = 5)
-    val world = World(speed = 10.0, random = Random(1), params = params)
+    val world = World(random = Random(1), params = params)
     val game = EventQueueGame(world)
     game.scoreFunction = {
         // 5 points per city
@@ -33,7 +33,7 @@ fun main() {
     val multiView = ListComponent()
     multiView.add(WorldView(game))
     val planView = PlanView(game.getAgent(0), game, 0)
-    multiView.add(planView)
+//    multiView.add(planView)
     val frame = JEasyFrame(multiView, "Event Based Game")
 
     while (!game.isTerminal()) {
@@ -41,6 +41,6 @@ fun main() {
         frame.title = "${game.nTicks()}"
         multiView.repaint()
         planView.refresh()
-        Thread.sleep(500)
+        Thread.sleep(50)
     }
 }
