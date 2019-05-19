@@ -114,14 +114,14 @@ data class SimpleEvoAgent(
         }
         solutions.clear()
         solutions.add(solution)
-        val startScore: Double = evalSeq(gameState.copy(), solution, playerId)
+        var curScore: Double = evalSeq(gameState.copy(), solution, playerId)
  //       println(String.format("Player %d starting score to beat is %.1f", playerId, startScore))
         for (i in 0 until nEvals) {
             // evaluate the current one
             val mut = mutate(solution, probMutation, gameState.nActions())
-            val curScore = evalSeq(gameState.copy(), solution, playerId)
             val mutScore = evalSeq(gameState.copy(), mut, playerId)
             if (mutScore >= curScore) {
+                curScore = mutScore
                 solution = mut
         //        println(String.format("Player %d finds better score of %.1f with %s", playerId, mutScore, solution.joinToString("")))
             }

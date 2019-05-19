@@ -14,7 +14,8 @@ object NoAction : Action {
     }
 }
 
-class SimpleActionEvoAgent(val underlyingAgent: SimpleEvoAgent = SimpleEvoAgent()) : SimpleActionPlayerInterface {
+class SimpleActionEvoAgent(val underlyingAgent: SimpleEvoAgent = SimpleEvoAgent(),
+                           val opponentModel: SimpleActionPlayerInterface = SimpleActionDoNothing) : SimpleActionPlayerInterface {
     override fun reset() = this
 
     override fun getAgentType() = "SimpleActionEvoAgent: $underlyingAgent"
@@ -23,6 +24,11 @@ class SimpleActionEvoAgent(val underlyingAgent: SimpleEvoAgent = SimpleEvoAgent(
         val intPerAction = gameState.codonsPerAction()
         // the underlyingAgent does all the work on mutating the genome
         // we're just a wrapper for it
+        if (opponentModel != null) {
+            opponentModel.getAction(gameState, 1 - playerRef)
+            // this is just to give the opponent model some thinking time
+            underlyingAgent.opponentModel = opponentModel.getForwardModelInterface()
+        }
         val gene = underlyingAgent.getActions(gameState, playerRef).sliceArray(0 until intPerAction)
         return gameState.translateGene(playerRef, gene)
     }
@@ -41,7 +47,7 @@ fun convertGenomeToActionList(genome: IntArray?, gameState: ActionAbstractGameSt
     val intPerAction = gameState.codonsPerAction()
     if (genome == null || genome.isEmpty()) return listOf()
     val retValue = (0 until (genome.size / intPerAction)).map { i ->
-        val gene = genome.sliceArray(i * intPerAction until (i+1) * intPerAction)
+        val gene = genome.sliceArray(i * intPerAction until (i + 1) * intPerAction)
         gameState.translateGene(playerRef, gene)
     }
     return retValue

@@ -22,10 +22,16 @@ fun main() {
 
     println(world)
 
-    game.registerAgent(0, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40, useMutationTransducer = false, probMutation = 0.1, horizon =  params.planningHorizon)))
-    game.registerAgent(1, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 50, sequenceLength = 40, horizon = params.planningHorizon)))
-   // MakeDecision(PlayerId.Blue).apply(game)
-  //  MakeDecision(PlayerId.Red).apply(game)
+    val blueAgent = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 100, sequenceLength = 40,
+            useMutationTransducer = false, probMutation = 0.1,
+            horizon = params.planningHorizon),
+            opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40,
+                    useMutationTransducer = false, probMutation = 0.1,
+                    horizon = params.planningHorizon)))
+    game.registerAgent(0, blueAgent)
+    game.registerAgent(1, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 50, sequenceLength = 40, useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon)))
+    // MakeDecision(PlayerId.Blue).apply(game)
+    //  MakeDecision(PlayerId.Red).apply(game)
 
     println(world)
 
