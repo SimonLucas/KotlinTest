@@ -1,8 +1,9 @@
 package test.junit
 
-import games.eventqueuegame.routesCross
+import games.eventqueuegame.*
 import math.Vec2d
 import org.junit.jupiter.api.*
+import kotlin.random.Random
 import kotlin.test.*
 
 class CityLocationTest {
@@ -19,5 +20,13 @@ class CityLocationTest {
         assertFalse(routesCross(Vec2d(772.8, 413.6), Vec2d(833.9, 123.9), Vec2d(836.5, 530.6), Vec2d(772.8, 413.6)))
         assertFalse(routesCross(Vec2d(833.9, 123.9), Vec2d(772.8, 413.6), Vec2d(836.5, 530.6), Vec2d(772.8, 413.6)))
         assertFalse(routesCross(Vec2d(222.1, 346.5), Vec2d(116.2, 204.8), Vec2d(175.8, 488.6), Vec2d(116.2, 204.8)))
+    }
+
+    @Test
+    fun fullyConnectedNetworkTest() {
+        for (i in 1..25) {
+            val world = World(random = Random(i))
+            assertTrue(allCitiesConnected(world.routes, world.cities))
+        }
     }
 }

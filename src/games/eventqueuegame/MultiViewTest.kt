@@ -12,7 +12,7 @@ fun main() {
     val game = EventQueueGame(world)
 
     game.eventQueue.add(Event(200,
-            CityInflux(pop = 100, destination = 5, player = PlayerId.Blue)))
+            CityInflux(pop = 100.0, destination = 5, player = PlayerId.Blue)))
 
     println(world)
 

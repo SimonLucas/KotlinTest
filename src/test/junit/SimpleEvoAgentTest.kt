@@ -12,9 +12,9 @@ class SimpleEvoAgentTest {
 
     // we create a simple world of 3 cities. One Blue and one Red, with a Neutral world sandwiched between them
     val cities = listOf(
-            City(Vec2d(0.0, 0.0), 0, 10, PlayerId.Blue),
-            City(Vec2d(0.0, 20.0), 0, 10, PlayerId.Red),
-            City(Vec2d(0.0, 10.0), 0, 0, PlayerId.Neutral)
+            City(Vec2d(0.0, 0.0), 0, 10.0, PlayerId.Blue),
+            City(Vec2d(0.0, 20.0), 0, 10.0, PlayerId.Red),
+            City(Vec2d(0.0, 10.0), 0, 0.0, PlayerId.Neutral)
     )
     val routes = listOf(
             Route(0, 1, 20, 1.0),

@@ -7,12 +7,26 @@ enum class PlayerId {
     Blue, Red, Neutral, Fog
 }
 
-data class City(val location: Vec2d, val radius: Int = 40, var pop: Int = 100, var owner: PlayerId = PlayerId.Neutral, val name: String = "")
+data class City(val location: Vec2d, val radius: Int = 40, var pop: Double = 100.0, var owner: PlayerId = PlayerId.Neutral, val name: String = "")
 
 data class Route(val fromCity: Int, val toCity: Int, val length: Int, val terrainDifficulty: Double)
 
 fun routesCross(start: Vec2d, end: Vec2d, routesToCheck: List<Route>, cities: List<City>): Boolean {
     return routesToCheck.any { r -> routesCross(start, end, cities[r.fromCity].location, cities[r.toCity].location) }
+}
+
+fun allCitiesConnected(routes: List<Route>, cities: List<City>): Boolean {
+    // check to see if we can get from every city to every other city
+    // We start from any one city, and make sure we can reach the others
+
+    var connectedCities = setOf(0)
+    do {
+        val networkSizeOnLastIteration = connectedCities.size
+        connectedCities = routes.filter { r -> r.fromCity in connectedCities }
+                .map(Route::toCity)
+                .toSet() + connectedCities
+    } while (networkSizeOnLastIteration != connectedCities.size)
+    return connectedCities.size == cities.size
 }
 
 fun routesCross(start1: Vec2d, end1: Vec2d, start2: Vec2d, end2: Vec2d): Boolean {
@@ -33,12 +47,13 @@ fun routesCross(start1: Vec2d, end1: Vec2d, start2: Vec2d, end2: Vec2d): Boolean
     return (t2 in 0.001..0.999 && t1 in 0.001..0.999)
 }
 
-data class Transit(val nPeople: Int, val fromCity: Int, val toCity: Int, val playerId: PlayerId, val startTime: Int, val endTime: Int) {
+data class Transit(val nPeople: Double, val fromCity: Int, val toCity: Int, val playerId: PlayerId, val startTime: Int, val endTime: Int) {
     fun currentPosition(time: Int, cities: List<City>): Vec2d {
         val proportion: Double = (time - startTime).toDouble() / (endTime - startTime).toDouble()
         return cities[fromCity].location + (cities[toCity].location - cities[fromCity].location) * proportion
     }
-    fun collisionEvent(otherTransit: Transit, world: World) : Event {
+
+    fun collisionEvent(otherTransit: Transit, world: World): Event {
         val currentEnemyPosition = otherTransit.currentPosition(world.currentTicks, world.cities)
         val ourPosition = this.currentPosition(world.currentTicks, world.cities)
         val distance = ourPosition.distanceTo(currentEnemyPosition) / 2.0
@@ -65,6 +80,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
     }
 
     private fun initialise() {
+
         // just keep it like so
         cities = ArrayList()
         with(params) {
@@ -72,7 +88,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             for (i in 0 until nAttempts) {
                 val location = Vec2d(minRad + random.nextDouble((width - 2.0 * minRad)),
                         minRad + random.nextDouble((height - 2.0 * minRad)))
-                val city = City(location, minRad, 0, name = n.toString())
+                val city = City(location, minRad, 0.0, name = n.toString())
                 if (canPlace(city, cities, minSep)) {
                     cities += city
                     n++
@@ -90,24 +106,18 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             }
             while (routes.filter { r -> r.fromCity == i }.size < params.minConnections) {
                 // then connect to random cities up to minimum
-                val eligibleCities = cities.filter {
-                    val distance = cities[i].location.distanceTo(it.location)
-                    distance > params.autoConnect && distance <= params.maxDistance
-                }.filter {
-                    !routes.any { r -> r.fromCity == i && r.toCity == cities.indexOf(it) }
-                }.filter {
-                    !routesCross(cities[i].location, it.location, routes, cities)
-                }
-                if (eligibleCities.isEmpty())
-                    break
-
-                val proposal = eligibleCities[random.nextInt(eligibleCities.size)]
-                val distance = cities[i].location.distanceTo(proposal.location).toInt()
-                routes += Route(i, cities.indexOf(proposal), distance, 1.0)
-                routes += Route(cities.indexOf(proposal), i, distance, 1.0)
+                linkRandomCityTo(i)
             }
+        }
 
-            //  TODO: Add in a check that cities for a fully connected graph
+
+        var count = 0;
+        while (!allCitiesConnected(routes, cities)) {
+            linkRandomCityTo(random.nextInt(cities.size))
+            count++
+            if (count > 50) {
+                throw AssertionError("WTF")
+            }
         }
 
         var blueBase = 0
@@ -117,9 +127,28 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             redBase = random.nextInt(cities.size)
         }
         cities[blueBase].owner = PlayerId.Blue
-        cities[blueBase].pop = params.maxPop
+        cities[blueBase].pop = params.maxPop.toDouble()
         cities[redBase].owner = PlayerId.Red
-        cities[redBase].pop = params.maxPop
+        cities[redBase].pop = params.maxPop.toDouble()
+    }
+
+    private fun linkRandomCityTo(cityIndex: Int): Boolean {
+        val eligibleCities = cities.filter {
+            val distance = cities[cityIndex].location.distanceTo(it.location)
+            distance > params.autoConnect && distance <= params.maxDistance
+        }.filter {
+            !routes.any { r -> r.fromCity == cityIndex && r.toCity == cities.indexOf(it) }
+        }.filter {
+            !routesCross(cities[cityIndex].location, it.location, routes, cities)
+        }
+        if (eligibleCities.isEmpty())
+            return false
+
+        val proposal = eligibleCities[random.nextInt(eligibleCities.size)]
+        val distance = cities[cityIndex].location.distanceTo(proposal.location).toInt()
+        routes += Route(cityIndex, cities.indexOf(proposal), distance, 1.0)
+        routes += Route(cities.indexOf(proposal), cityIndex, distance, 1.0)
+        return true
     }
 
     fun canPlace(c: City, cities: List<City>, minSep: Int): Boolean {
@@ -133,7 +162,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             if (c.owner != id) {
                 // fog it out
                 c.owner = PlayerId.Fog
-                c.pop = -1
+                c.pop = -1.0
             }
         }
         return this
@@ -161,7 +190,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
     }
 
     fun nextCollidingTransit(newTransit: Transit): Transit? {
-        if (currentTransits.any{
+        if (currentTransits.any {
                     it.fromCity == newTransit.fromCity
                             && it.toCity == newTransit.toCity
                             && it.playerId == newTransit.playerId

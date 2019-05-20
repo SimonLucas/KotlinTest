@@ -41,7 +41,7 @@ data class TransitEnd(val player: PlayerId, val fromCity: Int, val toCity: Int, 
     }
 }
 
-data class CityInflux(val player: PlayerId, val pop: Int, val destination: Int) : Action {
+data class CityInflux(val player: PlayerId, val pop: Double, val destination: Int) : Action {
     override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
         if (state is EventQueueGame) {
             val world = state.world
@@ -50,7 +50,7 @@ data class CityInflux(val player: PlayerId, val pop: Int, val destination: Int) 
                 city.pop += pop
             } else {
                 val p = world.params
-                val result = lanchesterClosedFormBattle(pop.toDouble(), city.pop.toDouble(),
+                val result = lanchesterClosedFormBattle(pop, city.pop,
                         if (player == PlayerId.Blue) p.blueLanchesterCoeff else p.redLanchesterCoeff,
                         if (player == PlayerId.Blue) p.blueLanchesterExp else p.redLanchesterExp,
                         if (player == PlayerId.Blue) p.redLanchesterCoeff else p.blueLanchesterCoeff,
@@ -59,10 +59,10 @@ data class CityInflux(val player: PlayerId, val pop: Int, val destination: Int) 
                 if (result > 0.0) {
                     // attackers win
                     city.owner = player
-                    city.pop = result.toInt()
+                    city.pop = result
                 } else {
                     // defenders win
-                    city.pop = -result.toInt()
+                    city.pop = -result
                 }
             }
         }
@@ -88,7 +88,7 @@ data class Battle(val transit1: Transit, val transit2: Transit) : Action {
             if (Math.abs(result).toInt() == 0) {
                 // do nothing
             } else {
-                val successorTransit = winningTransit.copy(nPeople = Math.abs(result).toInt());
+                val successorTransit = winningTransit.copy(nPeople = Math.abs(result));
                 state.world.addTransit(successorTransit)
                 val nextCollidingTransit = state.world.nextCollidingTransit(successorTransit)
                 if (nextCollidingTransit != null) {
@@ -137,8 +137,8 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int
                 val maxActions = world.cities.size.toDouble()
                 val distance = world.cities[from].location.distanceTo(world.cities[to].location)
                 val arrivalTime = world.currentTicks + (distance / world.params.speed).toInt()
-                var forcesSent = ((proportion + 1.0) / maxActions * sourceCityPop).roundToInt()
-                if (forcesSent == 0) forcesSent = 1
+                var forcesSent = ((proportion + 1.0) / maxActions * sourceCityPop)
+                if (forcesSent < 1.0) forcesSent = Math.min(1.0, sourceCityPop)
                 val transit = Transit(forcesSent, from, to, player, world.currentTicks, arrivalTime)
                 // we execute the troop departure immediately
                 TransitStart(transit).apply(state)
@@ -152,6 +152,8 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int
 
     private fun destinationCity(world: World, from: Int, toCode: Int): Int {
         val routes = world.allRoutesFromCity[from] ?: emptyList()
+        if (routes.isEmpty())
+            throw AssertionError("Should not be empty")
         return routes[toCode % routes.size].toCity
     }
 

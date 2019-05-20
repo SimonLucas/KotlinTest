@@ -15,7 +15,7 @@ fun main() {
     val citiesCopy = ArrayList<City>()
     cities.forEach { el -> citiesCopy.add(el.copy()) }
 
-    c1.pop = 50
+    c1.pop = 50.0
     println("Original: ${cities}")
     println("Copy:     ${citiesCopy}")
 
@@ -25,7 +25,7 @@ fun main() {
 
     println(w1.equals(w2))
 
-    c1.pop = 10
+    c1.pop = 10.0
 
     println(w1.equals(w2))
 
@@ -34,7 +34,7 @@ fun main() {
 
     println("Hashcode 1: " + w1.hashCode())
 
-    c1.pop = 100
+    c1.pop = 100.0
     println("Hashcode 2: " + w1.hashCode())
 
 

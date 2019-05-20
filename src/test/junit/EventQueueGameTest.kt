@@ -9,9 +9,9 @@ import kotlin.test.*
 
 // we create a simple world of 3 cities. One Blue and one Red, with a Neutral world sandwiched between them
 val cities = listOf(
-        City(Vec2d(0.0, 0.0), 0, 10, PlayerId.Blue),
-        City(Vec2d(0.0, 20.0), 0, 10, PlayerId.Red),
-        City(Vec2d(0.0, 10.0), 0, 0, PlayerId.Neutral)
+        City(Vec2d(0.0, 0.0), 0, 10.0, PlayerId.Blue),
+        City(Vec2d(0.0, 20.0), 0, 10.0, PlayerId.Red),
+        City(Vec2d(0.0, 10.0), 0, 0.0, PlayerId.Neutral)
 )
 val routes = listOf(
         Route(0, 1, 20, 1.0),
@@ -40,7 +40,7 @@ object TransitTest {
         assertEquals(transit.fromCity, 0)
         assertEquals(transit.toCity, 2)
         assertEquals(transit.playerId, PlayerId.Blue)
-        assertEquals(transit.nPeople, 10)
+        assertEquals(transit.nPeople, 10.0)
         assertEquals(transit.startTime, 0)
         assertEquals(transit.endTime, 2)
     }
@@ -50,14 +50,14 @@ object TransitTest {
         val tokenInvasion = game.translateGene(1, intArrayOf(1, 0, 0, 1))
         assert(tokenInvasion is LaunchExpedition)
         val gameCopy = game.copy()
-        gameCopy.world.cities[1].pop = 1
+        gameCopy.world.cities[1].pop = 1.0
         tokenInvasion.apply(gameCopy)
         assertEquals(gameCopy.world.currentTransits.size, 1)
         val transit = gameCopy.world.currentTransits.first()
         assertEquals(transit.fromCity, 1)
         assertEquals(transit.toCity, 0)
         assertEquals(transit.playerId, PlayerId.Red)
-        assertEquals(transit.nPeople, 1)
+        assertEquals(transit.nPeople, 1.0)
         assertEquals(transit.startTime, 0)
         assertEquals(transit.endTime, 4)
     }
@@ -68,8 +68,8 @@ object TransitTest {
         val arrivalTime = gameCopy.world.currentTicks + (20.0 / world.params.speed).toInt()
         assertEquals(arrivalTime, 4)
         assertEquals(gameCopy.world.currentTicks, 0)
-        val oneWay = Transit(5, 0, 1, PlayerId.Blue, 0, arrivalTime)
-        val otherWay = Transit(7, 1, 0, PlayerId.Red, 0, arrivalTime)
+        val oneWay = Transit(5.0, 0, 1, PlayerId.Blue, 0, arrivalTime)
+        val otherWay = Transit(7.0, 1, 0, PlayerId.Red, 0, arrivalTime)
         // note that the endTime on the Transit
         assertEquals(oneWay.currentPosition(0, gameCopy.world.cities).x, 0.0)
         assertEquals(oneWay.currentPosition(0, gameCopy.world.cities).y, 0.0)
@@ -113,12 +113,14 @@ object BattleTest {
         assert(nextEvent.action is Battle)
         val startingTransits = gameCopy.world.currentTransits.toList()
         assertEquals(startingTransits.size, 2)
-        assertEquals(startingTransits[0], Transit(10, 0, 1, PlayerId.Blue, 0, 4))
-        assertEquals(startingTransits[1], Transit(7, 1, 0, PlayerId.Red, 0, 4))
+        assertEquals(startingTransits[0], Transit(10.0, 0, 1, PlayerId.Blue, 0, 4))
+        assert(Math.abs(startingTransits[1].nPeople - 6.666) < 0.01)
+        assertEquals(startingTransits[1], Transit(startingTransits[1].nPeople, 1, 0, PlayerId.Red, 0, 4))
         nextEvent.action.apply(gameCopy)
         val endingTransits = gameCopy.world.currentTransits.toList()
         assertEquals(endingTransits.size, 1)
-        assertEquals(endingTransits[0], Transit(7, 0, 1, PlayerId.Blue, 0, 4))
+        assert(Math.abs(endingTransits[0].nPeople - 7.453) < 0.01)
+        assertEquals(endingTransits[0], Transit(endingTransits[0].nPeople, 0, 1, PlayerId.Blue, 0, 4))
         assert(endingTransits[0] !== startingTransits[0])
     }
 
@@ -143,15 +145,19 @@ object BattleTest {
         assert(nextEvent.action is Battle)
         val startingTransits = gameCopy.world.currentTransits.toList()
         assertEquals(startingTransits.size, 3)
-        assertEquals(startingTransits[0], Transit(10, 0, 1, PlayerId.Blue, 0, 4))
-        assertEquals(startingTransits[1], Transit(7, 1, 0, PlayerId.Red, 0, 4))
-        assertEquals(startingTransits[2], Transit(3, 1, 0, PlayerId.Red, 1, 5))
+        assertEquals(startingTransits[0], Transit(10.0, 0, 1, PlayerId.Blue, 0, 4))
+        assert(Math.abs(startingTransits[1].nPeople - 6.666) < 0.01)
+        assertEquals(startingTransits[1], Transit(startingTransits[1].nPeople, 1, 0, PlayerId.Red, 0, 4))
+        assert(Math.abs(startingTransits[2].nPeople - 3.333) < 0.01)
+        assertEquals(startingTransits[2], Transit(startingTransits[2].nPeople, 1, 0, PlayerId.Red, 1, 5))
         gameCopy.eventQueue.poll()
         nextEvent.action.apply(gameCopy)
         val endingTransits = gameCopy.world.currentTransits.toList()
         assertEquals(endingTransits.size, 2)
-        assertEquals(endingTransits[1], Transit(7, 0, 1, PlayerId.Blue, 0, 4))
-        assertEquals(endingTransits[0], Transit(3, 1, 0, PlayerId.Red, 1, 5))
+        assert(Math.abs(endingTransits[1].nPeople - 7.453) < 0.01)
+        assertEquals(endingTransits[1], Transit(endingTransits[1].nPeople, 0, 1, PlayerId.Blue, 0, 4))
+        assert(Math.abs(endingTransits[0].nPeople - 3.333) < 0.01)
+        assertEquals(endingTransits[0], Transit(endingTransits[0].nPeople, 1, 0, PlayerId.Red, 1, 5))
         assertEquals(gameCopy.eventQueue.filter { e -> e.action is Battle }.size, 1)
     }
 }

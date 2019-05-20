@@ -10,16 +10,6 @@ import ggi.game.ActionAbstractGameState
 
 import java.util.Random
 
-fun shiftLeftAndRandomAppend(startingArray: IntArray, nShift: Int, nActions: Int): IntArray {
-    val p = IntArray(startingArray.size)
-    for (i in 0 until p.size)
-        p[i] = when {
-            i >= p.size - nShift -> random.nextInt(nActions)
-            else -> startingArray[i + nShift]
-        }
-    return p
-}
-
 
 fun evaluateSequenceDelta(gameState: AbstractGameState,
                           seq: IntArray,
@@ -67,6 +57,16 @@ fun evaluateSequenceDelta(gameState: AbstractGameState,
         -delta
 }
 
+fun shiftLeftAndRandomAppend(startingArray: IntArray, nShift: Int, nActions: Int): IntArray {
+    val p = IntArray(startingArray.size)
+    for (i in 0 until p.size)
+        p[i] = when {
+            i >= p.size - nShift -> random.nextInt(nActions)
+            else -> startingArray[i + nShift]
+        }
+    return p
+}
+
 data class SimpleEvoAgent(
         var flipAtLeastOneValue: Boolean = true,
         // var expectedMutations: Double = 10.0,
@@ -91,7 +91,7 @@ data class SimpleEvoAgent(
 
     // SimplePlayerInterface opponentModel = new RandomAgent();
     override fun reset(): SimplePlayerInterface {
-        // buffer = null
+        buffer = null
         return this
     }
 
@@ -102,9 +102,9 @@ data class SimpleEvoAgent(
     fun getActions(gameState: AbstractGameState, playerId: Int): IntArray {
         var solution = buffer ?: randomPoint(gameState.nActions())
         if (useShiftBuffer) {
-            if (solution == null)
+            if (solution == null) {
                 solution = randomPoint(gameState.nActions())
-            else {
+            } else {
                 val numberToShiftLeft = gameState.codonsPerAction()
                 solution = shiftLeftAndRandomAppend(solution, numberToShiftLeft, gameState.nActions())
             }
@@ -115,7 +115,7 @@ data class SimpleEvoAgent(
         solutions.clear()
         solutions.add(solution)
         var curScore: Double = evalSeq(gameState.copy(), solution, playerId)
- //       println(String.format("Player %d starting score to beat is %.1f", playerId, startScore))
+        //       println(String.format("Player %d starting score to beat is %.1f", playerId, startScore))
         for (i in 0 until nEvals) {
             // evaluate the current one
             val mut = mutate(solution, probMutation, gameState.nActions())
@@ -123,7 +123,7 @@ data class SimpleEvoAgent(
             if (mutScore >= curScore) {
                 curScore = mutScore
                 solution = mut
-        //        println(String.format("Player %d finds better score of %.1f with %s", playerId, mutScore, solution.joinToString("")))
+                //        println(String.format("Player %d finds better score of %.1f with %s", playerId, mutScore, solution.joinToString("")))
             }
             solutions.add(solution)
         }

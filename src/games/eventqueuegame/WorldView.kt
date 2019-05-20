@@ -6,6 +6,7 @@ import java.awt.*
 import java.awt.geom.Ellipse2D
 import java.awt.geom.Rectangle2D
 import javax.swing.JComponent
+import kotlin.math.roundToInt
 
 class WorldView (var game: EventQueueGame) : JComponent() {
 
@@ -52,7 +53,7 @@ class WorldView (var game: EventQueueGame) : JComponent() {
                 g.draw(ellipse)
                 g.setColor(playerCols[c.owner])
                 g.fill(ellipse)
-                val label = if (c.owner == PlayerId.Fog) "?" else  "${c.pop}"
+                val label = if (c.owner == PlayerId.Fog) "?" else  "${c.pop.roundToInt()}"
                 DrawUtil().centreString(g, label, xScale * c.location.x, yScale*c.location.y)
                 DrawUtil().centreString(g, c.name, xScale * (c.location.x + params.minRad + 20), yScale * (c.location.y + params.minRad +20), Color.WHITE)
             }
@@ -64,7 +65,7 @@ class WorldView (var game: EventQueueGame) : JComponent() {
                 g.setColor(playerCols[t.playerId])
                 g.draw(ellipse)
                 g.fill(ellipse)
-                val label = "${t.nPeople}"
+                val label = "${t.nPeople.roundToInt()}"
                 g.setColor(Color.white)
                 DrawUtil().centreString(g, label, xScale * currentLocation.x, yScale*currentLocation.y)
             }
