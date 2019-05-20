@@ -1,7 +1,6 @@
 package games.eventqueuegame
 
 import agents.SimpleEvoAgent
-import agents.shiftLeftAndRandomAppend
 import ggi.SimpleActionPlayerInterface
 import ggi.game.Action
 import ggi.game.ActionAbstractGameState
@@ -16,7 +15,11 @@ object NoAction : Action {
 
 class SimpleActionEvoAgent(val underlyingAgent: SimpleEvoAgent = SimpleEvoAgent(),
                            val opponentModel: SimpleActionPlayerInterface = SimpleActionDoNothing) : SimpleActionPlayerInterface {
-    override fun reset() = this
+    override fun reset(): SimpleActionPlayerInterface {
+        underlyingAgent.reset()
+        opponentModel.reset()
+        return this
+    }
 
     override fun getAgentType() = "SimpleActionEvoAgent: $underlyingAgent"
 
