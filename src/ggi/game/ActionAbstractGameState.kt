@@ -19,6 +19,16 @@ interface ActionAbstractGameState : AbstractGameState {
     **/
     override fun nActions(): Int
 
+    /**
+     * Unlike AbstractGameState, we now allow different players to have different score functions
+     * so that things are not necessarily purely zero-sum
+     */
+    fun score(player: Int): Double
+
+    override fun score(): Double {
+        throw AssertionError("Please specify which player's perspective you mean")
+    }
+
     fun playerCount(): Int
 
     fun possibleActions(player: Int): List<Action>

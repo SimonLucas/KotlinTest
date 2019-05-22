@@ -8,7 +8,7 @@ fun main() {
     val params = EventGameParams(
             minSep = 50,
             planningHorizon = 100,
-            defaultOODALoop = 5,
+            OODALoop = intArrayOf(5, 5),
             blueLanchesterCoeff = 0.05,
             redLanchesterCoeff = 0.05,
             blueLanchesterExp = 0.5,
@@ -19,14 +19,15 @@ fun main() {
 
     println(world)
 
-    val blueAgent = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 500, sequenceLength = 40,
+    val blueAgent = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
             useMutationTransducer = false, probMutation = 0.1,
-            horizon = params.planningHorizon),
-            opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40,
-                    useMutationTransducer = false, probMutation = 0.1,
-                    horizon = params.planningHorizon)))
+            horizon = params.planningHorizon))
+//            opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40,
+ //                   useMutationTransducer = false, probMutation = 0.1,
+ //                   horizon = params.planningHorizon)))
     game.registerAgent(0, blueAgent)
-    game.registerAgent(1, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 100, sequenceLength = 40, useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon)))
+    game.registerAgent(1, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
+            useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon)))
     // MakeDecision(PlayerId.Blue).apply(game)
     //  MakeDecision(PlayerId.Red).apply(game)
 

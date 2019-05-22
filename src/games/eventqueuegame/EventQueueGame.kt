@@ -32,7 +32,7 @@ data class EventGameParams(
         val minConnections: Int = 2,
         val maxDistance: Int = 1000,
         val speed: Double = 10.0,
-        val defaultOODALoop: Int = 10,
+        val OODALoop: IntArray = intArrayOf(10, 10),
         val blueLanchesterCoeff: Double = 0.05,
         val redLanchesterCoeff: Double = 0.05,
         val blueLanchesterExp: Double = 1.0,    // should be between 0.0 and 1.0
@@ -52,11 +52,14 @@ data class Event(val tick: Int, val action: Action) : Comparable<Event> {
 class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
 
     val eventQueue = PriorityQueue<Event>()
-    var scoreFunction: (EventQueueGame) -> Double = {
+    var scoreFunction: (EventQueueGame, Int) -> Double = { game, player ->
         // as a default we count the number of Blue cities, and subtract the number of red cities
-        val blueCities = it.world.cities.count { c -> c.owner == PlayerId.Blue }
-        val redCities = it.world.cities.count { c -> c.owner == PlayerId.Red }
-        (blueCities - redCities).toDouble()
+        val sign = if (player == 0) +1 else -1
+        with (game.world.cities) {
+            val blueCities = count { c -> c.owner == PlayerId.Blue }
+            val redCities = count { c -> c.owner == PlayerId.Red }
+            sign * (blueCities - redCities).toDouble()
+        }
     }
     private val playerAgentMap = HashMap<Int, SimpleActionPlayerInterface>()
 
@@ -92,7 +95,7 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
         // if the gene does not encode a valid LaunchExpedition, then we interpret it as a Wait action
         // if we take a real action, then we must wait for a minimum period before the next one
         val playerId: PlayerId = if (player == 0) PlayerId.Blue else PlayerId.Red
-        val proposedAction = LaunchExpedition(playerId, gene[0], gene[1], gene[2], max(gene[3], world.params.defaultOODALoop))
+        val proposedAction = LaunchExpedition(playerId, gene[0], gene[1], gene[2], max(gene[3], world.params.OODALoop[player]))
         if (!proposedAction.isValid(this.world))
             return Wait(playerId, max(gene[3], 1))
         return proposedAction
@@ -116,8 +119,8 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
         return this
     }
 
-    override fun score(): Double {
-        return scoreFunction(this)
+    override fun score(player: Int): Double {
+        return scoreFunction(this, player)
     }
 
     override fun isTerminal(): Boolean {

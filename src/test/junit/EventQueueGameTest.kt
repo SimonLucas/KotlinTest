@@ -216,7 +216,7 @@ class MakeDecisionTest() {
 
     @Test
     fun makeDecisionObeysDefaultOODALoop() {
-        assertEquals(world.params.defaultOODALoop, 10);
+        assertEquals(world.params.OODALoop[0], 10);
         val fullInvasion = game.translateGene(0, intArrayOf(0, 1, 2, 5))
         val gameCopy = game.copy()
         fullInvasion.apply(gameCopy)

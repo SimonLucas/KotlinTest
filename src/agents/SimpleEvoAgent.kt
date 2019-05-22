@@ -19,7 +19,7 @@ fun evaluateSequenceDelta(gameState: AbstractGameState,
                           opponentModel: SimplePlayerInterface = DoNothingAgent()): Double {
     val intPerAction = gameState.codonsPerAction()
     val actions = IntArray(2 * intPerAction)
-    var runningScore = gameState.score()
+    var runningScore = if (gameState is ActionAbstractGameState) gameState.score(playerId) else gameState.score()
     var discount = 1.0
     var delta = 0.0
 
@@ -42,7 +42,8 @@ fun evaluateSequenceDelta(gameState: AbstractGameState,
             // TODO: need to get vector of future rewards back, along with the times at which they occur to calculate this
         }
         gameState.next(if (horizon > 0) horizon else seq.size)
-        discount(gameState.score())
+        discount(gameState.score(playerId))
+        return delta
     } else {
         for (action in seq) {
             actions[playerId * intPerAction] = action

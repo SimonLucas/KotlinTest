@@ -3,7 +3,6 @@ package test.junit
 import agents.*
 import games.eventqueuegame.*
 import math.Vec2d
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
@@ -24,7 +23,8 @@ class SimpleEvoAgentTest {
             Route(2, 0, 10, 1.0),
             Route(2, 1, 10, 1.0)
     )
-    val world = World(cities, routes, 20, 20, Random(10))
+    val gameParams = EventGameParams(OODALoop = intArrayOf(10, 10))
+    val world = World(cities, routes, 20, 20, Random(10), params = gameParams)
     val game = EventQueueGame(world)
 
     @Test
@@ -132,7 +132,8 @@ class SimpleEvoAgentTest {
         game.registerAgent(1, redAgent)
         game.next(9)
         assertEquals(game.world.currentTicks, 9)
-        assertEquals(game.score(), -1.0)
+        assertEquals(game.score(0), -1.0)
+        assertEquals(game.score(1), 1.0)
         assert(game.world.cities[2].owner == PlayerId.Red)
         assertEquals(game.world.currentTransits.size, 1)
         assertTrue(game.world.currentTransits[0].playerId == PlayerId.Blue)

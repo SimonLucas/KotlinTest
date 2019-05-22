@@ -7,11 +7,12 @@ import utilities.JEasyFrame
 import kotlin.random.Random
 
 fun main() {
-    val params = EventGameParams(minSep = 50)
+    val params = EventGameParams(minSep = 50,
+            OODALoop = intArrayOf(10, 30))
     val agents = HashMap<PlayerId, SimpleActionPlayerInterface>()
-    agents[PlayerId.Blue] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 20, sequenceLength = 12, horizon = 100, useMutationTransducer = false, probMutation = 0.25))
+    agents[PlayerId.Blue] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 50, sequenceLength = 40, horizon = 100, useMutationTransducer = false, probMutation = 0.25))
 //        opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 12, useMutationTransducer = false, probMutation = 0.25, horizon = 100)))
-    agents[PlayerId.Red] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 20, sequenceLength = 40, horizon = 100, useMutationTransducer = false, probMutation = 0.1))
+    agents[PlayerId.Red] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 50, sequenceLength = 40, horizon = 100, useMutationTransducer = false, probMutation = 0.1))
 
     var blueWins = 0;
     var redWins = 0;
@@ -19,19 +20,21 @@ fun main() {
     val maxGames = 1000
 
     val startTime = java.util.Calendar.getInstance().timeInMillis
+    val useConstantWorld = false
+    val constantWorld = 1
     for (r in 1..maxGames) {
 
         agents[PlayerId.Blue]?.reset()
         agents[PlayerId.Red]?.reset()
 
-        val world = World(random = Random(r), params = params)
+        val world = World(random = Random( if (useConstantWorld) constantWorld else r), params = params)
         val game = EventQueueGame(world)
         game.scoreFunction = simpleScoreFunction(5.0, 1.0)
 
         game.registerAgent(0, agents[PlayerId.Blue] ?: SimpleActionDoNothing)
         game.registerAgent(1, agents[PlayerId.Red] ?: SimpleActionDoNothing)
         game.next(1000)
-        val gameScore = game.score()
+        val gameScore = game.score(0)
 //        println(gameScore)
         when {
             gameScore > 0.0 -> blueWins++
