@@ -1,5 +1,7 @@
 package games.eventqueuegame
 
+import java.lang.AssertionError
+
 fun simpleScoreFunction(cityValue: Double, forceValue: Double): (EventQueueGame, Int) -> Double {
     return { game: EventQueueGame, player: Int ->
         val sign = if (player == 0) +1 else -1
@@ -17,6 +19,21 @@ fun simpleScoreFunction(cityValue: Double, forceValue: Double): (EventQueueGame,
 }
 
 
-fun specificTargetScoreFunction(targets: List<Int>, targetValue: Double = 100.0, ownForceValue: Double = 1.0, enemyForceValue: Double = -1.0) {
-
+fun specificTargetScoreFunction(targetValue: Double = 100.0,
+                                ownForceValue: Double = 1.0, enemyForceValue: Double = -1.0): (EventQueueGame, Int) -> Double {
+    return { game: EventQueueGame, player: Int ->
+        val playerColour = when (player) {
+            0 -> PlayerId.Blue
+            1 -> PlayerId.Red
+            else -> throw AssertionError("Unknown Player")
+        }
+        with(game.world) {
+            val targetsAcquired = game.targets[player].count { i -> cities[i].owner == playerColour}
+            val ourForces = cities.filter { c -> c.owner == playerColour }.sumByDouble(City::pop) +
+                    currentTransits.filter { t -> t.playerId == playerColour }.sumByDouble(Transit::nPeople)
+            val enemyForces = cities.filter { c -> c.owner != playerColour }.sumByDouble(City::pop) +
+                    currentTransits.filter { t -> t.playerId != playerColour }.sumByDouble(Transit::nPeople)
+            targetsAcquired * targetValue + ourForces * ownForceValue - enemyForces * enemyForceValue
+        }
+    }
 }

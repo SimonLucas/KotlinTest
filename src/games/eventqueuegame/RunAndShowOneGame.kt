@@ -14,8 +14,9 @@ fun main() {
             blueLanchesterExp = 0.5,
             redLanchesterExp = 0.5)
     val world = World(random = Random(1), params = params)
-    val game = EventQueueGame(world)
-    game.scoreFunction = simpleScoreFunction(5.0, 1.0)
+    val game = EventQueueGame(world, targets = listOf(listOf(0, 2, 4), listOf(1, 3, 5)))
+    //   game.scoreFunction = simpleScoreFunction(5.0, 1.0)
+    game.scoreFunction = specificTargetScoreFunction(50.0)
 
     println(world)
 
@@ -23,8 +24,8 @@ fun main() {
             useMutationTransducer = false, probMutation = 0.1,
             horizon = params.planningHorizon))
 //            opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40,
- //                   useMutationTransducer = false, probMutation = 0.1,
- //                   horizon = params.planningHorizon)))
+    //                   useMutationTransducer = false, probMutation = 0.1,
+    //                   horizon = params.planningHorizon)))
     game.registerAgent(0, blueAgent)
     game.registerAgent(1, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
             useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon)))

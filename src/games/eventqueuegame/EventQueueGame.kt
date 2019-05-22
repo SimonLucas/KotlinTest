@@ -49,9 +49,10 @@ data class Event(val tick: Int, val action: Action) : Comparable<Event> {
     }
 }
 
-class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
+class EventQueueGame(val world: World = World(), val targets: List<List<Int>> = emptyList()) : ActionAbstractGameState {
 
     val eventQueue = PriorityQueue<Event>()
+
     var scoreFunction: (EventQueueGame, Int) -> Double = { game, player ->
         // as a default we count the number of Blue cities, and subtract the number of red cities
         val sign = if (player == 0) +1 else -1
@@ -74,7 +75,7 @@ class EventQueueGame(val world: World = World()) : ActionAbstractGameState {
     override fun getAgent(player: Int) = playerAgentMap[player] ?: SimpleActionDoNothing
 
     override fun copy(): EventQueueGame {
-        val state = EventQueueGame(world.deepCopy())
+        val state = EventQueueGame(world.deepCopy(), targets)
         state.eventQueue.addAll(eventQueue)
         state.scoreFunction = scoreFunction
         playerAgentMap.forEach { (k, v) -> state.registerAgent(k, v.getForwardModelInterface()) }
