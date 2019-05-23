@@ -162,40 +162,6 @@ object BattleTest {
     }
 }
 
-class CityCreationTest() {
-
-    val cityCreationParams = EventGameParams(seed = 3, minConnections = 2, autoConnect = 300, maxDistance = 1000)
-    val cityCreationWorld = World(params = cityCreationParams)
-
-    @Test
-    fun allCitiesHaveMinimumConnections() {
-        for ((i, c) in cityCreationWorld.cities.withIndex()) {
-            assert(cityCreationWorld.allRoutesFromCity[i]?.size ?: 0 >= 2)
-        }
-    }
-
-    @Test
-    fun allCitiesHaveConnectionsToNeighbours() {
-        with(cityCreationWorld) {
-            val allCityPairs = cities.flatMap { c1 -> cities.map { c2 -> c1 to c2 } }
-            val allRoutes = routes.map { r -> cities[r.fromCity] to cities[r.toCity] }
-            for ((c1, c2) in allCityPairs) {
-                if (c1 != c2 && c1.location.distanceTo(c2.location) <= cityCreationParams.minConnections) {
-                    assert((c1 to c2) in allRoutes)
-                    assert((c2 to c1) in allRoutes)
-                }
-            }
-        }
-    }
-
-    @Test
-    fun noDuplicateRoutes() {
-        with(cityCreationWorld) {
-            assertEquals(routes.size, routes.distinct().size)
-        }
-    }
-}
-
 class MakeDecisionTest() {
 
     @Test

@@ -8,7 +8,7 @@ fun main() {
     val params = EventGameParams(
             minSep = 50,
             planningHorizon = 100,
-            OODALoop = intArrayOf(5, 5),
+            OODALoop = intArrayOf(25, 50),
             blueLanchesterCoeff = 0.05,
             redLanchesterCoeff = 0.05,
             blueLanchesterExp = 0.5,

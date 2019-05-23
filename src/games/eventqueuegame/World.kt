@@ -172,7 +172,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
 
     fun deepCopy(): World {
         val state = copy()
-        state.cities = ArrayList(cities.map { c -> City(c.location, c.radius, c.pop, c.owner) })
+        state.cities = ArrayList(cities.map { c -> City(c.location, c.radius, c.pop, c.owner, c.name, c.fort) })
         state.currentTransits = ArrayList(currentTransits.filter { true }) // each Transit is immutable, but not the list of active ones
         state.currentTicks = currentTicks
         state.routes = routes       // immutable, so safe
