@@ -43,7 +43,6 @@ data class EventGameParams(
         var seed: Long? = 10
 )
 
-
 data class World(var cities: ArrayList<City> = ArrayList()) {
     var width = 1000
     var height = 600

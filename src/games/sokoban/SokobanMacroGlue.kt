@@ -10,48 +10,65 @@ class SokobanMacroGlue(var gameState: Sokoban) : ExtendedAbstractGameState {
     // move to particular squares
     // aha but what would the value of those actions be?
 
+
+
+
+
+
     override fun copy(): AbstractGameState {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val gs = SokobanMacroGlue(gameState.copy() as Sokoban)
+        // may want to update other state variables here
+        return gs
     }
 
     override fun next(actions: IntArray): AbstractGameState {
+
+        // here we translate the current state into the next state
+
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun nActions(): Int {
 
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+
+
     }
 
     override fun score(): Double {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // interesting one here: what is the score?
+        // currently just return the game state score, but
+        // we might want to add some heuristic score to
+        return gameState.score()
     }
 
-    override fun isTerminal(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun nTicks(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun totalTicks(): Long {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun resetTotalTicks() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun randomInitialState(): AbstractGameState {
-        TODO("not implemented")
-    }
 
 
     companion object {
         var total: Long = 0
     }
 
+    override fun isTerminal(): Boolean {
+        return false
+    }
+
+    var nTicks = 0
+    override fun nTicks(): Int {
+        return nTicks
+    }
+
+    override fun totalTicks(): Long {
+        return DummyForwardModel.total
+    }
+
+    override fun resetTotalTicks() {
+        DummyForwardModel.total = 0
+    }
+
+    override fun randomInitialState(): AbstractGameState {
+        return this
+    }
 
 
 }
