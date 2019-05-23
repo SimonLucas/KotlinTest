@@ -3,7 +3,7 @@ package games.eventqueuegame
 import games.gridgame.Grid
 import utilities.DrawUtil
 import java.awt.*
-import java.awt.geom.Ellipse2D
+import java.awt.geom.*
 import java.awt.geom.Rectangle2D
 import javax.swing.JComponent
 import kotlin.math.roundToInt
@@ -47,8 +47,13 @@ class WorldView(var game: EventQueueGame) : JComponent() {
             }
 
             for (c in cities) {
-                val ellipse = Ellipse2D.Double(xScale * (c.location.x - c.radius), yScale * (c.location.y - c.radius),
-                        2 * c.radius * xScale, 2 * c.radius * yScale)
+                val ellipse: Shape = if (c.fort) {
+                    Rectangle2D.Double(xScale * (c.location.x - c.radius), yScale * (c.location.y - c.radius),
+                            2 * c.radius * xScale, 2 * c.radius * yScale)
+                } else {
+                    Ellipse2D.Double(xScale * (c.location.x - c.radius), yScale * (c.location.y - c.radius),
+                            2 * c.radius * xScale, 2 * c.radius * yScale)
+                }
                 g.setColor(outline)
                 g.draw(ellipse)
                 g.setColor(playerCols[c.owner])
@@ -72,11 +77,11 @@ class WorldView(var game: EventQueueGame) : JComponent() {
 
             for (t in game.targets[0]) {
                 DrawUtil().centreString(g, "TGT", xScale * (cities[t].location.x + params.minRad + 40),
-                        yScale * (cities[t].location.y + params.minRad ), Color.BLUE)
+                        yScale * (cities[t].location.y + params.minRad), playerCols[PlayerId.Blue])
             }
             for (t in game.targets[1]) {
                 DrawUtil().centreString(g, "TGT", xScale * (cities[t].location.x + params.minRad + 40),
-                        yScale * (cities[t].location.y + params.minRad - 40), Color.RED)
+                        yScale * (cities[t].location.y + params.minRad - 40), playerCols[PlayerId.Red])
             }
         }
     }

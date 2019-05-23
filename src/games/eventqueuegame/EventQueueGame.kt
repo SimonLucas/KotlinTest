@@ -37,7 +37,8 @@ data class EventGameParams(
         val redLanchesterCoeff: Double = 0.05,
         val blueLanchesterExp: Double = 1.0,    // should be between 0.0 and 1.0
         val redLanchesterExp: Double = 1.0,  // should be between 0.0 and 1.0
-        val planningHorizon: Int = 100
+        val planningHorizon: Int = 100,
+        val percentFort: Double = 0.25
 )
 
 var totalTicks: Long = 0

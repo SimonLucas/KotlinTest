@@ -49,12 +49,14 @@ data class CityInflux(val player: PlayerId, val pop: Double, val destination: In
             if (city.owner == player) {
                 city.pop += pop
             } else {
+                fun attackExponent(start: Double, fort: Boolean): Double = if (fort) Math.max(0.0, start - 0.5) else start
+                fun attackCoefficient(start: Double, fort: Boolean): Double = start / if (fort) 3.0 else 1.0
                 val p = world.params
                 val result = lanchesterClosedFormBattle(pop, city.pop,
                         if (player == PlayerId.Blue) p.blueLanchesterCoeff else p.redLanchesterCoeff,
-                        if (player == PlayerId.Blue) p.blueLanchesterExp else p.redLanchesterExp,
+                        attackExponent(if (player == PlayerId.Blue) p.blueLanchesterExp else p.redLanchesterExp, city.fort),
                         if (player == PlayerId.Blue) p.redLanchesterCoeff else p.blueLanchesterCoeff,
-                        if (player == PlayerId.Blue) p.redLanchesterExp else p.blueLanchesterExp
+                        attackCoefficient(if (player == PlayerId.Blue) p.redLanchesterExp else p.blueLanchesterExp, city.fort)
                 )
                 if (result > 0.0) {
                     // attackers win
@@ -74,7 +76,7 @@ data class Battle(val transit1: Transit, val transit2: Transit) : Action {
     override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
         if (state is EventQueueGame) {
             val p = state.world.params
-            val result = lanchesterClosedFormBattle(transit1.nPeople.toDouble(), transit2.nPeople.toDouble(),
+            val result = lanchesterClosedFormBattle(transit1.nPeople, transit2.nPeople,
                     if (transit1.playerId == PlayerId.Blue) p.blueLanchesterCoeff else p.redLanchesterCoeff,
                     if (transit1.playerId == PlayerId.Blue) p.blueLanchesterExp else p.redLanchesterExp,
                     if (transit1.playerId == PlayerId.Blue) p.redLanchesterCoeff else p.blueLanchesterCoeff,

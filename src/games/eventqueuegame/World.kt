@@ -7,7 +7,8 @@ enum class PlayerId {
     Blue, Red, Neutral, Fog
 }
 
-data class City(val location: Vec2d, val radius: Int = 40, var pop: Double = 100.0, var owner: PlayerId = PlayerId.Neutral, val name: String = "")
+data class City(val location: Vec2d, val radius: Int = 40, var pop: Double = 100.0,
+                var owner: PlayerId = PlayerId.Neutral, val name: String = "", val fort: Boolean = false )
 
 data class Route(val fromCity: Int, val toCity: Int, val length: Int, val terrainDifficulty: Double)
 
@@ -86,9 +87,10 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
         with(params) {
             var n = 0
             for (i in 0 until nAttempts) {
+                val isFort = random.nextDouble() < percentFort;
                 val location = Vec2d(minRad + random.nextDouble((width - 2.0 * minRad)),
                         minRad + random.nextDouble((height - 2.0 * minRad)))
-                val city = City(location, minRad, 0.0, name = n.toString())
+                val city = City(location, minRad, 0.0, name = n.toString(), fort = isFort)
                 if (canPlace(city, cities, minSep)) {
                     cities += city
                     n++
