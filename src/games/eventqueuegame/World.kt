@@ -10,7 +10,7 @@ enum class PlayerId {
 data class City(val location: Vec2d, val radius: Int = 40, var pop: Double = 100.0,
                 var owner: PlayerId = PlayerId.Neutral, val name: String = "", val fort: Boolean = false )
 
-data class Route(val fromCity: Int, val toCity: Int, val length: Int, val terrainDifficulty: Double)
+data class Route(val fromCity: Int, val toCity: Int, val length: Double, val terrainDifficulty: Double)
 
 fun routesCross(start: Vec2d, end: Vec2d, routesToCheck: List<Route>, cities: List<City>): Boolean {
     return routesToCheck.any { r -> routesCross(start, end, cities[r.fromCity].location, cities[r.toCity].location) }
@@ -103,7 +103,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             for (j in 0 until cities.size) {
                 if (i != j && cities[i].location.distanceTo(cities[j].location) <= params.autoConnect
                         && !routesCross(cities[i].location, cities[j].location, routes, cities)) {
-                    routes += Route(i, j, cities[i].location.distanceTo(cities[j].location).toInt(), 1.0)
+                    routes += Route(i, j, cities[i].location.distanceTo(cities[j].location), 1.0)
                 }
             }
             while (routes.filter { r -> r.fromCity == i }.size < params.minConnections) {
@@ -147,7 +147,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             return false
 
         val proposal = eligibleCities[random.nextInt(eligibleCities.size)]
-        val distance = cities[cityIndex].location.distanceTo(proposal.location).toInt()
+        val distance = cities[cityIndex].location.distanceTo(proposal.location)
         routes += Route(cityIndex, cities.indexOf(proposal), distance, 1.0)
         routes += Route(cities.indexOf(proposal), cityIndex, distance, 1.0)
         return true

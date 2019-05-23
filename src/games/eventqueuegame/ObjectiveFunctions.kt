@@ -28,7 +28,7 @@ fun specificTargetScoreFunction(targetValue: Double = 100.0,
             else -> throw AssertionError("Unknown Player")
         }
         with(game.world) {
-            val targetsAcquired = game.targets[player].count { i -> cities[i].owner == playerColour}
+            val targetsAcquired = game.targets[playerColour]?.count { i -> cities[i].owner == playerColour} ?: 0
             val ourForces = cities.filter { c -> c.owner == playerColour }.sumByDouble(City::pop) +
                     currentTransits.filter { t -> t.playerId == playerColour }.sumByDouble(Transit::nPeople)
             val enemyForces = cities.filter { c -> c.owner != playerColour }.sumByDouble(City::pop) +

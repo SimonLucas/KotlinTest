@@ -75,11 +75,11 @@ class WorldView(var game: EventQueueGame) : JComponent() {
                 DrawUtil().centreString(g, label, xScale * currentLocation.x, yScale * currentLocation.y)
             }
 
-            for (t in game.targets[0]) {
+            for (t in game.targets.getOrDefault(PlayerId.Blue, emptyList())) {
                 DrawUtil().centreString(g, "TGT", xScale * (cities[t].location.x + params.minRad + 40),
                         yScale * (cities[t].location.y + params.minRad), playerCols[PlayerId.Blue])
             }
-            for (t in game.targets[1]) {
+            for (t in game.targets.getOrDefault(PlayerId.Red, emptyList())) {
                 DrawUtil().centreString(g, "TGT", xScale * (cities[t].location.x + params.minRad + 40),
                         yScale * (cities[t].location.y + params.minRad - 40), playerCols[PlayerId.Red])
             }

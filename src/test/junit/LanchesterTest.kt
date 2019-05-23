@@ -1,14 +1,10 @@
 package test.junit
 
 
-import agents.*
 import games.eventqueuegame.*
-import ggi.game.Action
 import math.Vec2d
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import kotlin.random.Random
-import kotlin.test.assertEquals
 
 class LanchesterTest {
     @Test
@@ -19,6 +15,7 @@ class LanchesterTest {
         val attackResult = lanchesterLinearBattle(20.0, 10.0, 0.05, 0.05)
         assertEquals(attackResult, lanchesterClosedFormBattle(20.0, 10.0, 0.05, 1.0, 0.05, 1.0), 0.5)
     }
+
     @Test
     fun lanchesterTie() {
         assertEquals(0.0, lanchesterClosedFormBattle(10.0, 10.0, 0.05, 0.0, 0.05, 0.0), 0.05)
@@ -48,5 +45,45 @@ class LanchesterTest {
         assert(result_1_1 < result_1_0)
         assert(result_1_1 > result_0_1)
         assert(result_1_0 > result_0_1)
+    }
+
+    @Test
+    fun fortVariationsBlueOnRed() {
+        val cities = listOf(City(Vec2d(10.0, 10.0), pop = 20.0, owner = PlayerId.Red, fort = true),
+                City(Vec2d(20.0, 20.0), pop = 20.0, owner = PlayerId.Red, fort = false))
+        val routes = listOf(Route(0, 1, 15.0, 1.0),
+                Route(1, 0, 15.0, 1.0))
+        val world = World(cities, routes)
+        assertEquals(world.routes.size, 2)
+        val state = EventQueueGame(world)
+
+        CityInflux(PlayerId.Blue, 30.0, 0).apply(state)
+        CityInflux(PlayerId.Blue, 30.0, 1).apply(state)
+
+        assert(cities[0].owner == PlayerId.Red)
+        assert(cities[1].owner == PlayerId.Blue)
+
+        assert(Math.abs(cities[0].pop - 18.5) < 0.1)
+        assert(Math.abs(cities[1].pop - 22.4) < 0.1)
+    }
+
+    @Test
+    fun fortVariationsRedOnBlue() {
+        val cities = listOf(City(Vec2d(10.0, 10.0), pop = 20.0, owner = PlayerId.Blue, fort = true),
+                City(Vec2d(20.0, 20.0), pop = 20.0, owner = PlayerId.Blue, fort = false))
+        val routes = listOf(Route(0, 1, 15.0, 1.0),
+                Route(1, 0, 15.0, 1.0))
+        val world = World(cities, routes)
+        assertEquals(world.routes.size, 2)
+        val state = EventQueueGame(world)
+
+        CityInflux(PlayerId.Red, 30.0, 0).apply(state)
+        CityInflux(PlayerId.Red, 30.0, 1).apply(state)
+
+        assert(cities[0].owner == PlayerId.Blue)
+        assert(cities[1].owner == PlayerId.Red)
+
+        assert(Math.abs(cities[0].pop - 18.5) < 0.1)
+        assert(Math.abs(cities[1].pop - 22.4) < 0.1)
     }
 }

@@ -16,12 +16,12 @@ class SimpleEvoAgentTest {
             City(Vec2d(0.0, 10.0), 0, 0.0, PlayerId.Neutral)
     )
     val routes = listOf(
-            Route(0, 1, 20, 1.0),
-            Route(0, 2, 10, 1.0),
-            Route(1, 0, 20, 1.0),
-            Route(1, 2, 10, 1.0),
-            Route(2, 0, 10, 1.0),
-            Route(2, 1, 10, 1.0)
+            Route(0, 1, 20.0, 1.0),
+            Route(0, 2, 10.0, 1.0),
+            Route(1, 0, 20.0, 1.0),
+            Route(1, 2, 10.0, 1.0),
+            Route(2, 0, 10.0, 1.0),
+            Route(2, 1, 10.0, 1.0)
     )
     val gameParams = EventGameParams(OODALoop = intArrayOf(10, 10))
     val world = World(cities, routes, 20, 20, Random(10), params = gameParams)

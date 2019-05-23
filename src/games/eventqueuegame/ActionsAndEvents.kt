@@ -49,14 +49,14 @@ data class CityInflux(val player: PlayerId, val pop: Double, val destination: In
             if (city.owner == player) {
                 city.pop += pop
             } else {
-                fun attackExponent(start: Double, fort: Boolean): Double = if (fort) Math.max(0.0, start - 0.5) else start
-                fun attackCoefficient(start: Double, fort: Boolean): Double = start / if (fort) 3.0 else 1.0
                 val p = world.params
                 val result = lanchesterClosedFormBattle(pop, city.pop,
-                        if (player == PlayerId.Blue) p.blueLanchesterCoeff else p.redLanchesterCoeff,
-                        attackExponent(if (player == PlayerId.Blue) p.blueLanchesterExp else p.redLanchesterExp, city.fort),
+                        (if (player == PlayerId.Blue) p.blueLanchesterCoeff else p.redLanchesterCoeff)
+                                / if (city.fort) p.fortAttackerCoeffDivisor else 1.0,
+                        if (player == PlayerId.Blue) p.blueLanchesterExp else p.redLanchesterExp,
                         if (player == PlayerId.Blue) p.redLanchesterCoeff else p.blueLanchesterCoeff,
-                        attackCoefficient(if (player == PlayerId.Blue) p.redLanchesterExp else p.blueLanchesterExp, city.fort)
+                        (if (player == PlayerId.Blue) p.redLanchesterExp else p.blueLanchesterExp)
+                                + if (city.fort) p.fortDefenderExpIncrease else 0.0
                 )
                 if (result > 0.0) {
                     // attackers win

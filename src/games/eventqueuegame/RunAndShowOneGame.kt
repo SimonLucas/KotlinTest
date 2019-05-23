@@ -14,9 +14,10 @@ fun main() {
             blueLanchesterExp = 0.5,
             redLanchesterExp = 0.5)
     val world = World(random = Random(1), params = params)
-    val game = EventQueueGame(world, targets = listOf(listOf(0, 2, 4), listOf(1, 3, 5)))
-    //   game.scoreFunction = simpleScoreFunction(5.0, 1.0)
-    game.scoreFunction = specificTargetScoreFunction(50.0)
+    val targets = mapOf(PlayerId.Blue to listOf(0, 2, 4, 5), PlayerId.Red to listOf(0, 1, 3, 5))
+    val game = EventQueueGame(world, targets = emptyMap())
+    game.scoreFunction = simpleScoreFunction(5.0, 1.0)
+    // game.scoreFunction = specificTargetScoreFunction(50.0)
 
     println(world)
 

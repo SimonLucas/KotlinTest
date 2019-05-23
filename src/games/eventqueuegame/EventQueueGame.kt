@@ -38,7 +38,9 @@ data class EventGameParams(
         val blueLanchesterExp: Double = 1.0,    // should be between 0.0 and 1.0
         val redLanchesterExp: Double = 1.0,  // should be between 0.0 and 1.0
         val planningHorizon: Int = 100,
-        val percentFort: Double = 0.25
+        val percentFort: Double = 0.25,
+        val fortAttackerCoeffDivisor: Double = 3.0,
+        val fortDefenderExpIncrease: Double = 0.5
 )
 
 var totalTicks: Long = 0
@@ -50,7 +52,7 @@ data class Event(val tick: Int, val action: Action) : Comparable<Event> {
     }
 }
 
-class EventQueueGame(val world: World = World(), val targets: List<List<Int>> = emptyList()) : ActionAbstractGameState {
+class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List<Int>> = emptyMap()) : ActionAbstractGameState {
 
     val eventQueue = PriorityQueue<Event>()
 
