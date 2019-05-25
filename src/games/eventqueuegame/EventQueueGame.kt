@@ -2,7 +2,6 @@ package games.eventqueuegame
 
 import ggi.game.*
 import math.Vec2d
-import test.junit.params
 import java.lang.AssertionError
 import java.util.PriorityQueue
 import kotlin.math.*
@@ -53,7 +52,7 @@ data class EventGameParams(
 var totalTicks: Long = 0
 
 
-data class Event(val tick: Int, val action: Action) : Comparable<Event> {
+data class Event(val tick: Int, val action: Action<EventQueueGame>) : Comparable<Event> {
     operator override fun compareTo(other: Event): Int {
         return tick.compareTo(other.tick)
     }
@@ -66,7 +65,7 @@ class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List
     var scoreFunction: (EventQueueGame, Int) -> Double = { game, player ->
         // as a default we count the number of Blue cities, and subtract the number of red cities
         val sign = if (player == 0) +1 else -1
-        with (game.world.cities) {
+        with(game.world.cities) {
             val blueCities = count { c -> c.owner == PlayerId.Blue }
             val redCities = count { c -> c.owner == PlayerId.Red }
             sign * (blueCities - redCities).toDouble()
@@ -85,18 +84,21 @@ class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List
     override fun getAgent(player: Int) = playerAgentMap[player] ?: SimpleActionDoNothing
 
     override fun copy(perspective: Int): EventQueueGame {
-        val newWorld = if (params.fogOfWar) world.deepCopyWithFog(numberToPlayerID(perspective)) else world.deepCopy()
+        val newWorld = if (world.params.fogOfWar) world.deepCopyWithFog(numberToPlayerID(perspective)) else world.deepCopy()
         val retValue = copyHelper(newWorld)
-        // TODO: Aah! We also need to strip out any events in the queue that are not visible to the perspective player!
+        // We also need to strip out any events in the queue that are not visible to the perspective player!
+        retValue.eventQueue.addAll(eventQueue.filter { e -> e.action.visibleTo(perspective, this) })
+        return retValue
     }
 
     override fun copy(): EventQueueGame {
-        return copyHelper(world.deepCopy())
+        val retValue = copyHelper(world.deepCopy())
+        retValue.eventQueue.addAll(eventQueue)
+        return retValue
     }
 
     private fun copyHelper(world: World): EventQueueGame {
         val state = EventQueueGame(world, targets)
-        state.eventQueue.addAll(eventQueue)
         state.scoreFunction = scoreFunction
         playerAgentMap.forEach { (k, v) -> state.registerAgent(k, v.getForwardModelInterface()) }
         return state
@@ -108,11 +110,11 @@ class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List
 
     override fun nActions() = world.cities.size
 
-    override fun possibleActions(player: Int): List<Action> {
+    override fun possibleActions(player: Int): List<Action<EventQueueGame>> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun translateGene(player: Int, gene: IntArray): Action {
+    override fun translateGene(player: Int, gene: IntArray): Action<EventQueueGame> {
         // if the gene does not encode a valid LaunchExpedition, then we interpret it as a Wait action
         // if we take a real action, then we must wait for a minimum period before the next one
         val playerId: PlayerId = if (player == 0) PlayerId.Blue else PlayerId.Red

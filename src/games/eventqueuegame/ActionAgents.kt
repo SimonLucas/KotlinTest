@@ -1,16 +1,20 @@
 package games.eventqueuegame
 
 import agents.SimpleEvoAgent
+import ggi.AbstractGameState
 import ggi.SimpleActionPlayerInterface
 import ggi.game.Action
 import ggi.game.ActionAbstractGameState
 import test.junit.game
+import java.lang.AssertionError
 
-object NoAction : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+object NoAction : Action<EventQueueGame> {
+    override fun apply(state: EventQueueGame): EventQueueGame {
         // Do absolutely nothing
         return state
     }
+
+    override fun visibleTo(player: Int, state: EventQueueGame) = true
 }
 
 class SimpleActionEvoAgent(val underlyingAgent: SimpleEvoAgent = SimpleEvoAgent(),
@@ -23,30 +27,33 @@ class SimpleActionEvoAgent(val underlyingAgent: SimpleEvoAgent = SimpleEvoAgent(
 
     override fun getAgentType() = "SimpleActionEvoAgent: $underlyingAgent"
 
-    override fun getAction(gameState: ActionAbstractGameState, playerRef: Int): Action {
-        val intPerAction = gameState.codonsPerAction()
-        // the underlyingAgent does all the work on mutating the genome
-        // we're just a wrapper for it
-        if (opponentModel != null) {
-            opponentModel.getAction(gameState, 1 - playerRef)
-            // this is just to give the opponent model some thinking time
-            underlyingAgent.opponentModel = opponentModel.getForwardModelInterface()
+    override fun getAction(gameState: ActionAbstractGameState, playerRef: Int): Action<*> {
+        if (gameState is EventQueueGame) {
+            val intPerAction = gameState.codonsPerAction()
+            // the underlyingAgent does all the work on mutating the genome
+            // we're just a wrapper for it
+            if (opponentModel != null) {
+                opponentModel.getAction(gameState, 1 - playerRef)
+                // this is just to give the opponent model some thinking time
+                underlyingAgent.opponentModel = opponentModel.getForwardModelInterface()
+            }
+            val gene = underlyingAgent.getActions(gameState, playerRef).sliceArray(0 until intPerAction)
+            return gameState.translateGene(playerRef, gene)
         }
-        val gene = underlyingAgent.getActions(gameState, playerRef).sliceArray(0 until intPerAction)
-        return gameState.translateGene(playerRef, gene)
+        throw AssertionError("Unexpected type of GameState $gameState")
     }
 
     override fun getForwardModelInterface(): SimpleActionPlayerInterface {
         return SimpleActionEvoAgentRollForward((underlyingAgent.buffer ?: intArrayOf()).copyOf())
     }
 
-    override fun getPlan(gameState: ActionAbstractGameState, playerRef: Int): List<Action> {
+    override fun getPlan(gameState: ActionAbstractGameState, playerRef: Int): List<Action<*>> {
         val genome = underlyingAgent.buffer
         return convertGenomeToActionList(genome, gameState, playerRef)
     }
 }
 
-fun convertGenomeToActionList(genome: IntArray?, gameState: ActionAbstractGameState, playerRef: Int): List<Action> {
+fun convertGenomeToActionList(genome: IntArray?, gameState: ActionAbstractGameState, playerRef: Int): List<Action<*>> {
     val intPerAction = gameState.codonsPerAction()
     if (genome == null || genome.isEmpty()) return listOf()
     val retValue = (0 until (genome.size / intPerAction)).map { i ->
@@ -63,7 +70,7 @@ Will take actions using a specified genome...until the sequence runs out
  */
 class SimpleActionEvoAgentRollForward(var genome: IntArray) : SimpleActionPlayerInterface {
 
-    override fun getAction(gameState: ActionAbstractGameState, playerId: Int): Action {
+    override fun getAction(gameState: ActionAbstractGameState, playerId: Int): Action<*> {
         val intPerAction = gameState.codonsPerAction()
         if (genome.size >= intPerAction) {
             val gene = genome?.sliceArray(0 until intPerAction)
@@ -74,7 +81,7 @@ class SimpleActionEvoAgentRollForward(var genome: IntArray) : SimpleActionPlayer
         }
     }
 
-    override fun getPlan(gameState: ActionAbstractGameState, playerRef: Int): List<Action> {
+    override fun getPlan(gameState: ActionAbstractGameState, playerRef: Int): List<Action<*>> {
         return convertGenomeToActionList(genome, gameState, playerRef)
     }
 
@@ -90,7 +97,7 @@ class SimpleActionEvoAgentRollForward(var genome: IntArray) : SimpleActionPlayer
 
 object SimpleActionDoNothing : SimpleActionPlayerInterface {
     override fun getAction(gameState: ActionAbstractGameState, playerId: Int) = NoAction
-    override fun getPlan(gameState: ActionAbstractGameState, playerId: Int) = emptyList<Action>()
+    override fun getPlan(gameState: ActionAbstractGameState, playerId: Int) = emptyList<Action<*>>()
     override fun reset() = this
     override fun getAgentType() = "SimpleActionDoNothing"
     override fun getForwardModelInterface() = this

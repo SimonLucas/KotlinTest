@@ -31,15 +31,16 @@ interface ActionAbstractGameState : AbstractGameState {
 
     fun playerCount(): Int
 
-    fun possibleActions(player: Int): List<Action>
+    fun possibleActions(player: Int): List<Action<*>>
 
-    fun translateGene(player: Int, gene: IntArray) : Action
+    fun translateGene(player: Int, gene: IntArray) : Action<*>
 
     fun registerAgent(player: Int, agent: SimpleActionPlayerInterface)
 
     fun getAgent(player: Int): SimpleActionPlayerInterface
 }
 
-interface Action  {
-    fun apply(state: ActionAbstractGameState) : ActionAbstractGameState
+interface Action<T>  {
+    fun apply(state: T) : T
+    fun visibleTo(player: Int, state: T): Boolean
 }
