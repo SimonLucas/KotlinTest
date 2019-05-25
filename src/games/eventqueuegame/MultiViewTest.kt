@@ -37,8 +37,8 @@ fun main() {
         val redGame = game.copy() as EventQueueGame
         val blueGame = game.copy() as EventQueueGame
 
-        redGame.world.fogTest(PlayerId.Red)
-        blueGame.world.fogTest(PlayerId.Blue)
+        redGame.world.deepCopyWithFog(PlayerId.Red)
+        blueGame.world.deepCopyWithFog(PlayerId.Blue)
         redView.game = redGame
         blueView.game = blueGame
 

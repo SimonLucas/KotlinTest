@@ -7,8 +7,25 @@ enum class PlayerId {
     Blue, Red, Neutral, Fog
 }
 
+fun playerIDToNumber(playerID: PlayerId): Int {
+    return when(playerID) {
+        PlayerId.Blue -> 0
+        PlayerId.Red -> 1
+        else -> throw java.lang.AssertionError("Only RED and BLUE supported")
+    }
+}
+
+fun numberToPlayerID(player: Int): PlayerId {
+    return when(player) {
+        0 -> PlayerId.Blue
+        1 -> PlayerId.Red
+        else -> throw java.lang.AssertionError("Only 0 and 1 supported")
+    }
+}
+
+
 data class City(val location: Vec2d, val radius: Int = 40, var pop: Double = 100.0,
-                var owner: PlayerId = PlayerId.Neutral, val name: String = "", val fort: Boolean = false )
+                var owner: PlayerId = PlayerId.Neutral, val name: String = "", val fort: Boolean = false)
 
 data class Route(val fromCity: Int, val toCity: Int, val length: Double, val terrainDifficulty: Double)
 
@@ -91,7 +108,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                 val location = Vec2d(minRad + random.nextDouble((width - 2.0 * minRad)),
                         minRad + random.nextDouble((height - 2.0 * minRad)))
                 val city = City(location, minRad, 0.0, name = n.toString(), fort = isFort)
-                if (canPlace(city, cities, minSep)) {
+                if (canPlace(city, cities, citySeparation)) {
                     cities += city
                     n++
                 }
@@ -129,9 +146,9 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             redBase = random.nextInt(cities.size)
         }
         cities[blueBase].owner = PlayerId.Blue
-        cities[blueBase].pop = params.maxPop.toDouble()
+        cities[blueBase].pop = params.blueForce.toDouble()
         cities[redBase].owner = PlayerId.Red
-        cities[redBase].pop = params.maxPop.toDouble()
+        cities[redBase].pop = params.redForce.toDouble()
     }
 
     private fun linkRandomCityTo(cityIndex: Int): Boolean {
@@ -159,15 +176,17 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
         return true
     }
 
-    fun fogTest(id: PlayerId): World {
-        cities.forEach { c ->
-            if (c.owner != id) {
-                // fog it out
-                c.owner = PlayerId.Fog
-                c.pop = -1.0
-            }
-        }
-        return this
+    fun deepCopyWithFog(perspective: PlayerId): World {
+        val state = copy()
+        state.cities = ArrayList(cities.withIndex().map { (i, c) ->
+            if (checkVisible(i, perspective)) City(c.location, c.radius, c.pop, c.owner, c.name, c.fort)
+            else City(c.location, c.radius, 0.0, PlayerId.Fog, c.name, c.fort)
+        })
+        state.currentTransits = ArrayList(currentTransits.filter { t -> checkVisible(t, perspective) }) // each Transit is immutable, but not the list of active ones
+        state.currentTicks = currentTicks
+        state.routes = routes       // immutable, so safe
+        state.allRoutesFromCity = allRoutesFromCity // immutable, so safe
+        return state
     }
 
     fun deepCopy(): World {
@@ -179,6 +198,20 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
         state.allRoutesFromCity = allRoutesFromCity // immutable, so safe
         return state
     }
+
+    fun checkVisible(city: Int, perspective: PlayerId): Boolean {
+        if (!params.fogOfWar) return true
+        return (cities[city].owner == perspective) ||
+                routes.any { r -> r.toCity == city && cities[r.fromCity].owner == perspective}
+    }
+
+    fun checkVisible(transit: Transit, perspective: PlayerId): Boolean {
+        if (!params.fogOfWar) return true
+        return transit.playerId == perspective ||
+                cities[transit.toCity].owner == perspective ||
+                cities[transit.fromCity].owner == perspective
+    }
+
 
     fun addTransit(transit: Transit) {
         currentTransits.add(transit)

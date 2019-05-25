@@ -2,17 +2,15 @@ package games.eventqueuegame
 
 import agents.SimpleEvoAgent
 import ggi.SimpleActionPlayerInterface
-import test.Player
-import utilities.JEasyFrame
 import kotlin.random.Random
 
 fun main() {
-    val params = EventGameParams(minSep = 50,
-            OODALoop = intArrayOf(10, 30))
+    val params = EventGameParams(citySeparation = 50,
+            OODALoop = intArrayOf(20, 20))
     val agents = HashMap<PlayerId, SimpleActionPlayerInterface>()
-    agents[PlayerId.Blue] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 50, sequenceLength = 40, horizon = 100, useMutationTransducer = false, probMutation = 0.25))
+    agents[PlayerId.Blue] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 20, sequenceLength = 40, horizon = 100, useMutationTransducer = false, probMutation = 0.25))
 //        opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 12, useMutationTransducer = false, probMutation = 0.25, horizon = 100)))
-    agents[PlayerId.Red] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 50, sequenceLength = 40, horizon = 100, useMutationTransducer = false, probMutation = 0.1))
+    agents[PlayerId.Red] = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 20, sequenceLength = 40, horizon = 100, useMutationTransducer = false, probMutation = 0.25))
 
     var blueWins = 0;
     var redWins = 0;

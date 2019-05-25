@@ -2,6 +2,8 @@ package games.eventqueuegame
 
 import ggi.game.*
 import math.Vec2d
+import test.junit.params
+import java.lang.AssertionError
 import java.util.PriorityQueue
 import kotlin.math.*
 import kotlin.collections.*
@@ -19,28 +21,33 @@ import ggi.SimpleActionPlayerInterface as SimpleActionPlayerInterface
 // todo: Rapid planner example: and when to retreat
 
 data class EventGameParams(
+        // world set up
         val nAttempts: Int = 10,
         val width: Int = 1000,
         val height: Int = 600,
         val minRad: Int = 25,
         val maxRad: Int = 25,
-        val minPop: Int = 10,
-        val maxPop: Int = 100,
-        val minSep: Int = 30,
+        val blueForce: Int = 100,
+        val redForce: Int = 100,
+        val citySeparation: Int = 30,
         val seed: Long = 10,
         val autoConnect: Int = 300,
         val minConnections: Int = 2,
         val maxDistance: Int = 1000,
+        val percentFort: Double = 0.25,
+        val fogOfWar: Boolean = false,
+        // force and combat attributes
         val speed: Double = 10.0,
-        val OODALoop: IntArray = intArrayOf(10, 10),
+        val fortAttackerCoeffDivisor: Double = 3.0,
+        val fortDefenderExpIncrease: Double = 0.5,
         val blueLanchesterCoeff: Double = 0.05,
         val redLanchesterCoeff: Double = 0.05,
         val blueLanchesterExp: Double = 1.0,    // should be between 0.0 and 1.0
         val redLanchesterExp: Double = 1.0,  // should be between 0.0 and 1.0
-        val planningHorizon: Int = 100,
-        val percentFort: Double = 0.25,
-        val fortAttackerCoeffDivisor: Double = 3.0,
-        val fortDefenderExpIncrease: Double = 0.5
+        // agent behaviour
+        val OODALoop: IntArray = intArrayOf(10, 10),
+        val planningHorizon: Int = 100
+
 )
 
 var totalTicks: Long = 0
@@ -77,8 +84,18 @@ class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List
 
     override fun getAgent(player: Int) = playerAgentMap[player] ?: SimpleActionDoNothing
 
+    override fun copy(perspective: Int): EventQueueGame {
+        val newWorld = if (params.fogOfWar) world.deepCopyWithFog(numberToPlayerID(perspective)) else world.deepCopy()
+        val retValue = copyHelper(newWorld)
+        // TODO: Aah! We also need to strip out any events in the queue that are not visible to the perspective player!
+    }
+
     override fun copy(): EventQueueGame {
-        val state = EventQueueGame(world.deepCopy(), targets)
+        return copyHelper(world.deepCopy())
+    }
+
+    private fun copyHelper(world: World): EventQueueGame {
+        val state = EventQueueGame(world, targets)
         state.eventQueue.addAll(eventQueue)
         state.scoreFunction = scoreFunction
         playerAgentMap.forEach { (k, v) -> state.registerAgent(k, v.getForwardModelInterface()) }

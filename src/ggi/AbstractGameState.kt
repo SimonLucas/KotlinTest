@@ -4,6 +4,8 @@ interface AbstractGameState {
 
     fun copy(): AbstractGameState
 
+    fun copy(perspective: Int): AbstractGameState = copy()
+
     // the ith entry of the actions array is the action for the ith player
     // next is used to advance the state of the game given the current
     // set of actions

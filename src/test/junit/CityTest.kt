@@ -31,15 +31,23 @@ object CityLocationTest {
     }
 }
 
-object CityCreationTest{
+object CityCreationTest {
 
     val cityCreationParams = EventGameParams(seed = 3, minConnections = 2, autoConnect = 300, maxDistance = 1000)
     val cityCreationWorld = World(params = cityCreationParams)
 
     @Test
-    fun allCitiesHaveMinimumConnections() {
+    fun allCitiesHaveTwoMinimumConnections() {
         for ((i, _) in cityCreationWorld.cities.withIndex()) {
             assert(cityCreationWorld.allRoutesFromCity[i]?.size ?: 0 >= 2)
+        }
+    }
+
+    @Test
+    fun allCitiesHaveThreeMinimumConnections() {
+        val localCityCreationWorld = World(params = cityCreationParams.copy(minConnections = 3))
+        for ((i, _) in localCityCreationWorld.cities.withIndex()) {
+            assert(localCityCreationWorld.allRoutesFromCity[i]?.size ?: 0 >= 3)
         }
     }
 
@@ -64,14 +72,32 @@ object CityCreationTest{
         }
     }
 }
+
 object CityCopyTest {
+
+    val cityCreationParams = EventGameParams(seed = 6, minConnections = 2, autoConnect = 300, maxDistance = 1000)
+    val world = World(params = cityCreationParams)
+
     @Test
     fun fortStatusIsCopied() {
         val city1 = City(Vec2d(10.0, 10.0), fort = true)
         val city2 = city1.copy()
         assert(city2.fort)
-        
+
         val world = World(listOf(city1))
-        assert (world.deepCopy().cities[0].fort)
+        assert(world.deepCopy().cities[0].fort)
+    }
+
+    @Test
+    fun allCitiesAreVisible() {
+        val blueCity: Int = world.cities.withIndex().filter { (_, c) -> c.owner == PlayerId.Blue }.map { (i, _) -> i }.first()
+        val neighbours = world.allRoutesFromCity.getOrDefault(blueCity, emptyList())
+                .map(Route::toCity)
+                .toSet()
+        val nonNeighbours = (0 until world.cities.size).toSet() - neighbours - blueCity
+        assertFalse(nonNeighbours.isEmpty())
+        assert(world.checkVisible(blueCity, PlayerId.Blue))
+        assert(nonNeighbours.all { i -> world.checkVisible(i, PlayerId.Blue) })
+        assert(neighbours.all { i -> world.checkVisible(i, PlayerId.Blue) })
     }
 }
