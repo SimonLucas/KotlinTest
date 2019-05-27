@@ -8,7 +8,7 @@ enum class PlayerId {
 }
 
 fun playerIDToNumber(playerID: PlayerId): Int {
-    return when(playerID) {
+    return when (playerID) {
         PlayerId.Blue -> 0
         PlayerId.Red -> 1
         else -> throw java.lang.AssertionError("Only RED and BLUE supported")
@@ -16,7 +16,7 @@ fun playerIDToNumber(playerID: PlayerId): Int {
 }
 
 fun numberToPlayerID(player: Int): PlayerId {
-    return when(player) {
+    return when (player) {
         0 -> PlayerId.Blue
         1 -> PlayerId.Red
         else -> throw java.lang.AssertionError("Only 0 and 1 supported")
@@ -202,14 +202,20 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
     fun checkVisible(city: Int, perspective: PlayerId): Boolean {
         if (!params.fogOfWar) return true
         return (cities[city].owner == perspective) ||
-                routes.any { r -> r.toCity == city && cities[r.fromCity].owner == perspective}
+                routes.any { r -> r.toCity == city && cities[r.fromCity].owner == perspective } ||
+                currentTransits.any { t -> t.playerId == perspective && (t.toCity == city || t.fromCity == city) }
     }
 
     fun checkVisible(transit: Transit, perspective: PlayerId): Boolean {
         if (!params.fogOfWar) return true
         return transit.playerId == perspective ||
                 cities[transit.toCity].owner == perspective ||
-                cities[transit.fromCity].owner == perspective
+                cities[transit.fromCity].owner == perspective ||
+                currentTransits.any { t ->
+                    t.playerId == perspective && (
+                            (t.toCity == transit.toCity && t.fromCity == transit.fromCity)
+                                    || (t.toCity == transit.fromCity && t.fromCity == transit.toCity))
+                }
     }
 
 

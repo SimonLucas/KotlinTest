@@ -81,8 +81,9 @@ data class CityInflux(val player: PlayerId, val pop: Double, val destination: In
         // i.e. which Route they are travelling on
         val playerId = numberToPlayerID(player)
         with(state.world) {
-            if (origin == -1) return checkVisible(destination, playerId)
-            return checkVisible(Transit(0.0, origin, destination, playerId, 0, 0), playerId)
+            if (origin == -1) return this@CityInflux.player == playerId || checkVisible(destination, playerId)
+            return checkVisible(Transit(0.0, origin, destination, this@CityInflux.player, 0, 0), playerId)
+            // If we could see a Transit by another player on that route, then we can see the CityInflux
         }
     }
 }
