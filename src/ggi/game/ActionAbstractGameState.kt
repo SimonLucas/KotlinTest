@@ -40,7 +40,11 @@ interface ActionAbstractGameState : AbstractGameState {
     fun getAgent(player: Int): SimpleActionPlayerInterface
 }
 
-interface Action<T>  {
+interface Action<T : ActionAbstractGameState>  {
     fun apply(state: T) : T
     fun visibleTo(player: Int, state: T): Boolean
+}
+
+interface StateSummarizer {
+    operator fun invoke(state: ActionAbstractGameState) : String
 }

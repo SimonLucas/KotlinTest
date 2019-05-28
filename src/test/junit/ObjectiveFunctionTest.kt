@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
-object ObjectiveFunctionTest {
+class ObjectiveFunctionTest {
     @Test
     fun simpleObjectiveTest() {
         val startState = game.copy()
