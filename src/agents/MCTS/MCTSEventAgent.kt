@@ -1,12 +1,12 @@
 package agents.MCTS
 
-import agents.DoNothingAgent
 import games.eventqueuegame.NoAction
 import games.eventqueuegame.SimpleActionDoNothing
 import ggi.SimpleActionPlayerInterface
 import ggi.game.*
 import test.junit.game
-import java.lang.AssertionError
+import test.junit.params
+import java.util.*
 
 class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
                                         val stateFunction: StateSummarizer,
@@ -19,14 +19,14 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
         return "MCTSTranspositionTableAgentMaster"
     }
 
-    override fun <T : ActionAbstractGameState> getAction(gameState: T, playerId: Int): Action<T> {
+    override fun getAction(gameState: ActionAbstractGameState, playerId: Int): Action {
 
         val startTime = System.currentTimeMillis()
         var iteration = 0
 
         resetTree(gameState, playerId)
         do {
-            val clonedState = gameState.copy(playerId) as T
+            val clonedState = gameState.copy(playerId) as ActionAbstractGameState
             // TODO: At some point, we may then resample state here for IS-MCTS
             clonedState.registerAgent(playerId, getForwardModelInterface())
             (0 until clonedState.playerCount()).forEach {
@@ -44,19 +44,18 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
 
         } while (iteration < params.maxPlayouts && System.currentTimeMillis() < startTime + params.timeLimit)
 
-        return getBestAction(gameState) as Action<T>? ?: NoAction()
+        return getBestAction(gameState) ?: NoAction
     }
 
-    fun getBestAction(state: ActionAbstractGameState): Action<*>? {
+    fun getBestAction(state: ActionAbstractGameState): Action? {
         val key = stateFunction(state)
-        val actionMap: Map<Action<*>, MCStatistics> = tree[key]?.actionMap ?: mapOf()
+        val actionMap: Map<Action, MCStatistics> = tree[key]?.actionMap ?: mapOf()
         val chosenAction = actionMap.maxBy {
             when (params.selectionMethod) {
                 MCTSSelectionMethod.SIMPLE -> it.value.mean
                 MCTSSelectionMethod.ROBUST -> it.value.visitCount.toDouble()
             }
-        }
-                ?.key
+        }?.key
         return chosenAction
     }
 
@@ -67,7 +66,7 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
         tree[key] = TTNode(params, root.possibleActions(playerId))
     }
 
-    override fun <T : ActionAbstractGameState> getPlan(gameState: T, playerId: Int): List<Action<T>> {
+    override fun getPlan(gameState: ActionAbstractGameState, playerId: Int): List<Action> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -76,38 +75,87 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
     }
 
     override fun getForwardModelInterface(): SimpleActionPlayerInterface {
-        return MCTSTranspositionTableAgentChild()
+        return MCTSTranspositionTableAgentChild(tree, params, stateFunction)
     }
 
     override fun backPropagate(finalScore: Double) {
+        // should never need to back-propagate here...that is done in the Child agent
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
 }
 
 
-class MCTSTranspositionTableAgentChild : SimpleActionPlayerInterface {
+class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
+                                       val params: MCTSParameters,
+                                       val stateFunction: StateSummarizer) : SimpleActionPlayerInterface {
+
+    // node, possibleActtions from node, action taken
+    private val trajectory: Deque<Triple<TTNode?, List<Action>, Action>> = ArrayDeque()
+
+    var nodesExpanded = 1
+        private set(n) {
+            field = n
+        }
+
     override fun getAgentType(): String {
         return "MCTSTranspositionTableAgentChild"
     }
 
-    override fun <T : ActionAbstractGameState> getAction(gameState: T, playerId: Int): Action<T> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getAction(gameState: ActionAbstractGameState, playerId: Int): Action {
+        val currentState = stateFunction(gameState)
+        val possibleActions = gameState.possibleActions(playerId)
+        val node = tree[currentState]
+        val actionChosen = when {
+            node == null && nodesExpanded != 0 -> throw AssertionError("$currentState not found in tree, but nodes still to expand")
+            node == null -> rolloutPolicy(gameState, possibleActions)
+            node.hasUnexploredActions() -> expansionPolicy(node, currentState, possibleActions)
+            else -> treePolicy(node, gameState, possibleActions)
+        }
+        trajectory.addLast(Triple(node, possibleActions, actionChosen))
+        return actionChosen
     }
 
-    override fun <T : ActionAbstractGameState> getPlan(gameState: T, playerId: Int): List<Action<T>> {
+    fun expansionPolicy(node: TTNode, state: String, possibleActions: List<Action>): Action {
+        nodesExpanded--
+        tree[state] = TTNode(params, possibleActions)
+        // Add new node (with no visits as yet; that will be sorted during back-propagation)
+        return node.getRandomUnexploredAction(possibleActions)
+    }
+
+    fun treePolicy(node: TTNode, state: ActionAbstractGameState, possibleActions: List<Action>): Action {
+        return node.getUCTAction(possibleActions)
+    }
+
+    fun rolloutPolicy(state: ActionAbstractGameState, possibleActions: List<Action>): Action {
+        return possibleActions.random()
+    }
+
+
+    override fun getPlan(gameState: ActionAbstractGameState, playerId: Int): List<Action> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun reset(): SimpleActionPlayerInterface {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return MCTSTranspositionTableAgentChild(tree, params, stateFunction)
     }
 
     override fun getForwardModelInterface(): SimpleActionPlayerInterface {
-        return this
+        throw AssertionError("Not expecting this to be called...this should be the end of the recursion")
     }
 
     override fun backPropagate(finalScore: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // Here we go forwards through the trajectory
+        // we decrement nodesExpanded as we need to expand a node
+        // We can discount if needed
+        var totalDiscount = Math.pow(params.discountRate, trajectory.size.toDouble())
+        trajectory.forEach { (node, possibleActions, action) ->
+            totalDiscount /= params.discountRate
+            when {
+                node == null -> Unit// do nothing
+                else -> node.update(action, possibleActions, finalScore * totalDiscount)
+            }
+
+        }
     }
 }
