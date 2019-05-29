@@ -9,7 +9,7 @@ fun main() {
 
     val params = EventGameParams(nAttempts = 20)
     val world = World(params = params)
-    val game = EventQueueGame(world)
+    val game = LandCombatGame(world)
 
     game.eventQueue.add(Event(200,
             CityInflux(pop = 100.0, destination = 5, player = PlayerId.Blue)))
@@ -34,8 +34,8 @@ fun main() {
         // now process each version of the game
 
         // create separate fogged out copies for each view
-        val redGame = game.copy() as EventQueueGame
-        val blueGame = game.copy() as EventQueueGame
+        val redGame = game.copy() as LandCombatGame
+        val blueGame = game.copy() as LandCombatGame
 
         redGame.world.deepCopyWithFog(PlayerId.Red)
         blueGame.world.deepCopyWithFog(PlayerId.Blue)

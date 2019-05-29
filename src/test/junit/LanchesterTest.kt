@@ -55,7 +55,7 @@ class LanchesterTest {
                 Route(1, 0, 15.0, 1.0))
         val world = World(cities, routes)
         assertEquals(world.routes.size, 2)
-        val state = EventQueueGame(world)
+        val state = LandCombatGame(world)
 
         CityInflux(PlayerId.Blue, 30.0, 0).apply(state)
         CityInflux(PlayerId.Blue, 30.0, 1).apply(state)
@@ -75,7 +75,7 @@ class LanchesterTest {
                 Route(1, 0, 15.0, 1.0))
         val world = World(cities, routes)
         assertEquals(world.routes.size, 2)
-        val state = EventQueueGame(world)
+        val state = LandCombatGame(world)
 
         CityInflux(PlayerId.Red, 30.0, 0).apply(state)
         CityInflux(PlayerId.Red, 30.0, 1).apply(state)

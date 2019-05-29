@@ -1,7 +1,6 @@
 package test.junit
 
 import games.eventqueuegame.*
-import math.Vec2d
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -164,7 +163,7 @@ class FogTests {
     @Test
     fun rollForwardDoesNotIncludeInvisibleInvasion() {
         foggyWorld.cities[8].owner = PlayerId.Blue
-        val game = EventQueueGame(foggyWorld)
+        val game = LandCombatGame(foggyWorld)
         // We should now have cities 4 and 8 as Blue, and 3 as Red
         // If Red invades 1 (which is visible to 8), then Blue's projection will not see the result
         LaunchExpedition(PlayerId.Red, 3, 1, 3, 10).apply(game)
@@ -183,7 +182,7 @@ class FogTests {
         // 1 is visible to both 3 and 4
         foggyWorld.cities[8].owner = PlayerId.Blue
         foggyWorld.cities[8].pop = 5.0
-        val game = EventQueueGame(foggyWorld)
+        val game = LandCombatGame(foggyWorld)
         game.eventQueue.add(Event(10, MakeDecision(PlayerId.Red)))  // R
         game.eventQueue.add(Event(10, MakeDecision(PlayerId.Blue))) // B
         assertFalse(game.world.checkVisible(6, PlayerId.Blue))

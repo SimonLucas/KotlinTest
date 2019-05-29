@@ -1,11 +1,9 @@
 package games.eventqueuegame
 
-import agents.SimpleEvoAgent
 import ggi.SimpleActionPlayerInterface
-import java.awt.*
 import javax.swing.*
 
-class PlanView(val agent: SimpleActionPlayerInterface, val game: EventQueueGame, val playerId: Int) : JTextArea(10, 50) {
+class PlanView(val agent: SimpleActionPlayerInterface, val game: LandCombatGame, val playerId: Int) : JTextArea(10, 50) {
 
     var lastGenome = intArrayOf()
     var lastDifferentGenome = intArrayOf()

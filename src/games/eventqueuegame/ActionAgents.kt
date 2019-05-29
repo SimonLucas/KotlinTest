@@ -1,11 +1,9 @@
 package games.eventqueuegame
 
 import agents.SimpleEvoAgent
-import ggi.AbstractGameState
 import ggi.SimpleActionPlayerInterface
 import ggi.game.Action
 import ggi.game.ActionAbstractGameState
-import test.junit.game
 import java.lang.AssertionError
 
 object NoAction : Action {
@@ -29,7 +27,7 @@ class SimpleActionEvoAgent(val underlyingAgent: SimpleEvoAgent = SimpleEvoAgent(
     override fun getAgentType() = "SimpleActionEvoAgent: $underlyingAgent"
 
     override fun getAction(gameState: ActionAbstractGameState, playerRef: Int): Action {
-        if (gameState is EventQueueGame) {
+        if (gameState is LandCombatGame) {
             val intPerAction = gameState.codonsPerAction()
             // the underlyingAgent does all the work on mutating the genome
             // we're just a wrapper for it

@@ -1,12 +1,9 @@
 package games.eventqueuegame
 
 import ggi.game.*
-import math.Vec2d
-import java.lang.AssertionError
 import java.util.PriorityQueue
 import kotlin.math.*
 import kotlin.collections.*
-import kotlin.random.Random
 import ggi.SimpleActionPlayerInterface as SimpleActionPlayerInterface
 
 // todo : Decide which effects to add next
@@ -58,11 +55,13 @@ data class Event(val tick: Int, val action: Action) : Comparable<Event> {
     }
 }
 
-class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List<Int>> = emptyMap()) : ActionAbstractGameState {
+class LandCombatGame(val world: World = World(), val targets: Map<PlayerId, List<Int>> = emptyMap()) : ActionAbstractGameState {
 
-    val eventQueue = PriorityQueue<Event>()
+    val eventQueue = EventQueue()
+    override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) = eventQueue.registerAgent(player, agent, nTicks())
+    override fun getAgent(player: Int) = eventQueue.getAgent(player)
 
-    var scoreFunction: (EventQueueGame, Int) -> Double = { game, player ->
+    var scoreFunction: (LandCombatGame, Int) -> Double = { game, player ->
         // as a default we count the number of Blue cities, and subtract the number of red cities
         val sign = if (player == 0) +1 else -1
         with(game.world.cities) {
@@ -71,36 +70,28 @@ class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List
             sign * (blueCities - redCities).toDouble()
         }
     }
-    private val playerAgentMap = HashMap<Int, SimpleActionPlayerInterface>()
 
-    override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) {
-        playerAgentMap[player] = agent
-        val playerID = if (player == 0) PlayerId.Blue else PlayerId.Red
-        if (eventQueue.none { e -> e.action is MakeDecision && e.action.player == playerID }) {
-            eventQueue.add(Event(world.currentTicks, MakeDecision(playerID)))
-        }
-    }
-
-    override fun getAgent(player: Int) = playerAgentMap[player] ?: SimpleActionDoNothing
-
-    override fun copy(perspective: Int): EventQueueGame {
+    override fun copy(perspective: Int): LandCombatGame {
         val newWorld = if (world.params.fogOfWar) world.deepCopyWithFog(numberToPlayerID(perspective)) else world.deepCopy()
         val retValue = copyHelper(newWorld)
         // We also need to strip out any events in the queue that are not visible to the perspective player!
-        retValue.eventQueue.addAll(eventQueue.filter { e -> e.action.visibleTo(perspective, this) })
+        retValue.eventQueue.addAll(eventQueue) { e -> e.action.visibleTo(perspective, this) }
         return retValue
     }
 
-    override fun copy(): EventQueueGame {
+    override fun copy(): LandCombatGame {
         val retValue = copyHelper(world.deepCopy())
-        retValue.eventQueue.addAll(eventQueue)
+        retValue.eventQueue.addAll(eventQueue) { true }
         return retValue
     }
 
-    private fun copyHelper(world: World): EventQueueGame {
-        val state = EventQueueGame(world, targets)
+    private fun copyHelper(world: World): LandCombatGame {
+        val state = LandCombatGame(world, targets)
         state.scoreFunction = scoreFunction
-        playerAgentMap.forEach { (k, v) -> state.registerAgent(k, v.getForwardModelInterface()) }
+        state.eventQueue.currentTime = nTicks()
+        (0 until playerCount()).forEach { p ->
+            state.registerAgent(p, getAgent(p).getForwardModelInterface())
+        }
         return state
     }
 
@@ -124,35 +115,18 @@ class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List
         return proposedAction
     }
 
-    override fun next(forwardTicks: Int): EventQueueGame {
-        val timeToFinish = world.currentTicks + forwardTicks
-        do {
-            // we may have multiple events triggering in the same tick
-            val event = eventQueue.peek()
-            if (event != null && event.tick < timeToFinish) {
-                // the time has come to trigger it
-                eventQueue.poll()
-                world.currentTicks = event.tick
-                event.action.apply(this)
-                //           println("Triggered event: ${event} in Game $this")
-            } else {
-                world.currentTicks = timeToFinish
-            }
-        } while (timeToFinish > world.currentTicks)
+    override fun next(forwardTicks: Int): LandCombatGame {
+        eventQueue.next(forwardTicks, this)
         return this
     }
 
-    override fun score(player: Int): Double {
-        return scoreFunction(this, player)
-    }
+    override fun score(player: Int) = scoreFunction(this, player)
 
     override fun isTerminal(): Boolean {
         // game is over if all cities are controlled by the same player, whoever that is
         val player0 = world.cities[0].owner
-        return (world.currentTicks > 1000 || world.cities.all { c -> c.owner == player0 })
+        return (nTicks() > 1000 || world.cities.all { c -> c.owner == player0 })
     }
 
-    override fun nTicks(): Int {
-        return world.currentTicks
-    }
+    override fun nTicks() = eventQueue.currentTime
 }

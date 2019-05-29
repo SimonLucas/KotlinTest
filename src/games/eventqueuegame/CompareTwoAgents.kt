@@ -26,7 +26,7 @@ fun main() {
         agents[PlayerId.Red]?.reset()
 
         val world = World(random = Random( if (useConstantWorld) constantWorld else r), params = params)
-        val game = EventQueueGame(world)
+        val game = LandCombatGame(world)
         game.scoreFunction = simpleScoreFunction(5.0, 1.0)
 
         game.registerAgent(0, agents[PlayerId.Blue] ?: SimpleActionDoNothing)

@@ -71,11 +71,11 @@ data class Transit(val nPeople: Double, val fromCity: Int, val toCity: Int, val 
         return cities[fromCity].location + (cities[toCity].location - cities[fromCity].location) * proportion
     }
 
-    fun collisionEvent(otherTransit: Transit, world: World): Event {
-        val currentEnemyPosition = otherTransit.currentPosition(world.currentTicks, world.cities)
-        val ourPosition = this.currentPosition(world.currentTicks, world.cities)
+    fun collisionEvent(otherTransit: Transit, world: World, currentTime: Int): Event {
+        val currentEnemyPosition = otherTransit.currentPosition(currentTime, world.cities)
+        val ourPosition = this.currentPosition(currentTime, world.cities)
         val distance = ourPosition.distanceTo(currentEnemyPosition) / 2.0
-        val timeOfCollision = world.currentTicks + (distance / world.params.speed).toInt()
+        val timeOfCollision = currentTime + (distance / world.params.speed).toInt()
         return Event(timeOfCollision, Battle(this, otherTransit))
     }
 }
@@ -89,7 +89,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
         private set(newTransits) {
             field = newTransits
         }
-    var currentTicks: Int = 0
+
     var allRoutesFromCity: Map<Int, List<Route>> = HashMap()
 
     init {
@@ -183,7 +183,6 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             else City(c.location, c.radius, 0.0, PlayerId.Fog, c.name, c.fort)
         })
         state.currentTransits = ArrayList(currentTransits.filter { t -> checkVisible(t, perspective) }) // each Transit is immutable, but not the list of active ones
-        state.currentTicks = currentTicks
         state.routes = routes       // immutable, so safe
         state.allRoutesFromCity = allRoutesFromCity // immutable, so safe
         return state
@@ -193,7 +192,6 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
         val state = copy()
         state.cities = ArrayList(cities.map { c -> City(c.location, c.radius, c.pop, c.owner, c.name, c.fort) })
         state.currentTransits = ArrayList(currentTransits.filter { true }) // each Transit is immutable, but not the list of active ones
-        state.currentTicks = currentTicks
         state.routes = routes       // immutable, so safe
         state.allRoutesFromCity = allRoutesFromCity // immutable, so safe
         return state
@@ -230,7 +228,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             throw AssertionError("Transit to be removed is not recognised")
     }
 
-    fun nextCollidingTransit(newTransit: Transit): Transit? {
+    fun nextCollidingTransit(newTransit: Transit, currentTime: Int): Transit? {
         if (currentTransits.any {
                     it.fromCity == newTransit.fromCity
                             && it.toCity == newTransit.toCity
@@ -242,7 +240,7 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
             it.fromCity == newTransit.toCity
                     && it.toCity == newTransit.fromCity
                     && it.playerId != newTransit.playerId
-                    && it.endTime > currentTicks
+                    && it.endTime > currentTime
         }.minBy(Transit::endTime)
         // find the transit on the rout closest to us
         return collidingTransit

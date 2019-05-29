@@ -1,6 +1,6 @@
 package test.junit
 
-import games.citywars.LEFT
+import games.eventqueuegame.EventQueue
 import games.eventqueuegame.NoAction
 import ggi.*
 import ggi.game.*
@@ -8,6 +8,8 @@ import ggi.game.*
 class SimpleMazeGame(val playerCount: Int, val target: Int) : ActionAbstractGameState {
 
     var currentPosition = IntArray(playerCount) { 0 }  // initialise all players to the origin
+    val eventQueue = EventQueue()
+    var currentTime = 0
 
     override fun nActions() = 3
     // LEFT, RIGHT, STOP
@@ -24,33 +26,26 @@ class SimpleMazeGame(val playerCount: Int, val target: Int) : ActionAbstractGame
             Move(player, Direction.RIGHT),
             NoAction)
 
+    override fun codonsPerAction() = 1
     override fun translateGene(player: Int, gene: IntArray) = possibleActions(player).getOrElse(gene[0]) { NoAction }
 
-    override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getAgent(player: Int): SimpleActionPlayerInterface {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) = eventQueue.registerAgent(player, agent, nTicks())
+    override fun getAgent(player: Int) = eventQueue.getAgent(player)
 
     override fun copy(): AbstractGameState {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val retValue = SimpleMazeGame(playerCount, target)
+        retValue.currentPosition = currentPosition.copyOf()
+        retValue.currentTime = currentTime
+        return retValue
     }
 
-    override fun isTerminal(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun isTerminal() = currentPosition.any{it >= target}
 
-    override fun nTicks(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun nTicks() = currentTime
 
     override fun next(forwardTicks: Int): ActionAbstractGameState {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
-
 }
 
 enum class Direction { LEFT, RIGHT }

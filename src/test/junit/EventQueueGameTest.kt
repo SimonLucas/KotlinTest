@@ -24,7 +24,7 @@ val routes = listOf(
 
 val params = EventGameParams(speed = 5.0)
 val world = World(cities, routes, 20, 20, Random(10), params = params)
-val game = EventQueueGame(world)
+val game = LandCombatGame(world)
 
 object TransitTest {
 
@@ -65,9 +65,9 @@ object TransitTest {
     @Test
     fun TransitCollisionAtHalfwayMark() {
         val gameCopy = game.copy()
-        val arrivalTime = gameCopy.world.currentTicks + (20.0 / world.params.speed).toInt()
+        val arrivalTime = gameCopy.nTicks() + (20.0 / world.params.speed).toInt()
         assertEquals(arrivalTime, 4)
-        assertEquals(gameCopy.world.currentTicks, 0)
+        assertEquals(gameCopy.nTicks(), 0)
         val oneWay = Transit(5.0, 0, 1, PlayerId.Blue, 0, arrivalTime)
         val otherWay = Transit(7.0, 1, 0, PlayerId.Red, 0, arrivalTime)
         // note that the endTime on the Transit
@@ -75,11 +75,11 @@ object TransitTest {
         assertEquals(oneWay.currentPosition(0, gameCopy.world.cities).y, 0.0)
         assertEquals(otherWay.currentPosition(0, gameCopy.world.cities).x, 0.0)
         assertEquals(otherWay.currentPosition(0, gameCopy.world.cities).y, 20.0)
-        assert(gameCopy.world.nextCollidingTransit(otherWay) == null)
+        assert(gameCopy.world.nextCollidingTransit(otherWay, gameCopy.nTicks()) == null)
         gameCopy.world.addTransit(oneWay)
-        assert(gameCopy.world.nextCollidingTransit(otherWay) == oneWay)
-        assertEquals(oneWay.collisionEvent(otherWay, gameCopy.world).tick, 2)
-        assertEquals(otherWay.collisionEvent(oneWay, gameCopy.world).tick, 2)
+        assert(gameCopy.world.nextCollidingTransit(otherWay, gameCopy.nTicks()) == oneWay)
+        assertEquals(oneWay.collisionEvent(otherWay, gameCopy.world, gameCopy.nTicks()).tick, 2)
+        assertEquals(otherWay.collisionEvent(oneWay, gameCopy.world, gameCopy.nTicks()).tick, 2)
     }
 
 }
@@ -170,6 +170,7 @@ class MakeDecisionTest() {
         // 0 = cityFrom, 1 = 2nd route (hence to 2)
         assert(fullInvasion is LaunchExpedition)
         val gameCopy = game.copy()
+        assertEquals(gameCopy.eventQueue.size, 0)
         fullInvasion.apply(gameCopy)
         assertEquals(gameCopy.eventQueue.size, 2)
         val firstAction = gameCopy.eventQueue.poll().action

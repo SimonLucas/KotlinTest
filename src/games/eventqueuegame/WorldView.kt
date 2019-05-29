@@ -1,6 +1,5 @@
 package games.eventqueuegame
 
-import games.gridgame.Grid
 import utilities.DrawUtil
 import java.awt.*
 import java.awt.geom.*
@@ -8,7 +7,7 @@ import java.awt.geom.Rectangle2D
 import javax.swing.JComponent
 import kotlin.math.roundToInt
 
-class WorldView(var game: EventQueueGame) : JComponent() {
+class WorldView(var game: LandCombatGame) : JComponent() {
 
     val oliveGreen = Color(84, 79, 61)
 
@@ -64,7 +63,7 @@ class WorldView(var game: EventQueueGame) : JComponent() {
             }
 
             for (t in currentTransits) {
-                val currentLocation = t.currentPosition(world.currentTicks, cities)
+                val currentLocation = t.currentPosition(game.nTicks(), cities)
                 val ellipse = Ellipse2D.Double(xScale * (currentLocation.x - 3.0), yScale * (currentLocation.y - 3.0),
                         2 * 3.0 * xScale, 2 * 3.0 * yScale)
                 g.setColor(playerCols[t.playerId])

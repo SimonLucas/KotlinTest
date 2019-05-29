@@ -25,7 +25,7 @@ class SimpleEvoAgentTest {
     )
     val gameParams = EventGameParams(OODALoop = intArrayOf(10, 10))
     val world = World(cities, routes, 20, 20, Random(10), params = gameParams)
-    val game = EventQueueGame(world)
+    val game = LandCombatGame(world)
 
     @Test
     fun shiftLeftOperatorWithOneAction() {
@@ -76,7 +76,7 @@ class SimpleEvoAgentTest {
         val projectedState2 = game.copy()
         var reward = evaluateSequenceDelta(projectedState2, blueGenome2, 0, 1.0, 1)
         assert(projectedState2.world.cities[2].owner == PlayerId.Neutral)
-        assertEquals(projectedState2.world.currentTicks, 1)
+        assertEquals(projectedState2.nTicks(), 1)
         assert(game.world.cities[2].owner == PlayerId.Neutral)
         assertEquals(projectedState2.world.currentTransits.size, 1)
         assertEquals(reward, 0.0)
@@ -85,8 +85,8 @@ class SimpleEvoAgentTest {
         val redGenome1 = intArrayOf(1, 0, 2, 1, 1, 1, 1, 0)
         val projectedState3 = projectedState2.copy()
         reward = evaluateSequenceDelta(projectedState3, redGenome1, 1, 1.0, 1)
-        assertEquals(projectedState2.world.currentTicks, 1)
-        assertEquals(projectedState3.world.currentTicks, 2)
+        assertEquals(projectedState2.nTicks(), 1)
+        assertEquals(projectedState3.nTicks(), 2)
         assertEquals(reward, -1.0) // blue force reaches neutral city
 
         val redGenome2 = intArrayOf(1, 0, 2, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0)
@@ -131,7 +131,7 @@ class SimpleEvoAgentTest {
         game.registerAgent(0, blueAgent)
         game.registerAgent(1, redAgent)
         game.next(9)
-        assertEquals(game.world.currentTicks, 9)
+        assertEquals(game.nTicks(), 9)
         assertEquals(game.score(0), -1.0)
         assertEquals(game.score(1), 1.0)
         assert(game.world.cities[2].owner == PlayerId.Red)
