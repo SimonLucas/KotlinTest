@@ -4,8 +4,6 @@ import games.eventqueuegame.NoAction
 import games.eventqueuegame.SimpleActionDoNothing
 import ggi.SimpleActionPlayerInterface
 import ggi.game.*
-import test.junit.game
-import test.junit.params
 import java.util.*
 
 class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
@@ -44,10 +42,10 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
 
         } while (iteration < params.maxPlayouts && System.currentTimeMillis() < startTime + params.timeLimit)
 
-        return getBestAction(gameState) ?: NoAction
+        return getBestAction(gameState)
     }
 
-    fun getBestAction(state: ActionAbstractGameState): Action? {
+    fun getBestAction(state: ActionAbstractGameState): Action {
         val key = stateFunction(state)
         val actionMap: Map<Action, MCStatistics> = tree[key]?.actionMap ?: mapOf()
         val chosenAction = actionMap.maxBy {
@@ -56,7 +54,7 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
                 MCTSSelectionMethod.ROBUST -> it.value.visitCount.toDouble()
             }
         }?.key
-        return chosenAction
+        return chosenAction ?: NoAction
     }
 
     fun resetTree(root: ActionAbstractGameState, playerId: Int) {

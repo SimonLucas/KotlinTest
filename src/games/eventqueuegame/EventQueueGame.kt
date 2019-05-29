@@ -52,7 +52,7 @@ data class EventGameParams(
 var totalTicks: Long = 0
 
 
-data class Event(val tick: Int, val action: Action<EventQueueGame>) : Comparable<Event> {
+data class Event(val tick: Int, val action: Action) : Comparable<Event> {
     operator override fun compareTo(other: Event): Int {
         return tick.compareTo(other.tick)
     }
@@ -110,11 +110,11 @@ class EventQueueGame(val world: World = World(), val targets: Map<PlayerId, List
 
     override fun nActions() = world.cities.size
 
-    override fun possibleActions(player: Int): List<Action<EventQueueGame>> {
+    override fun possibleActions(player: Int): List<Action> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun translateGene(player: Int, gene: IntArray): Action<EventQueueGame> {
+    override fun translateGene(player: Int, gene: IntArray): Action {
         // if the gene does not encode a valid LaunchExpedition, then we interpret it as a Wait action
         // if we take a real action, then we must wait for a minimum period before the next one
         val playerId: PlayerId = if (player == 0) PlayerId.Blue else PlayerId.Red
