@@ -7,9 +7,9 @@ import ggi.game.ActionAbstractGameState
 import java.lang.AssertionError
 
 object NoAction : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+    override fun apply(state: ActionAbstractGameState): Int {
         // Do absolutely nothing
-        return state
+        return state.nTicks() + 1
     }
 
     override fun visibleTo(player: Int, state: ActionAbstractGameState) = true

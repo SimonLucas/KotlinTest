@@ -114,8 +114,8 @@ class SimpleEvoAgentTest {
         assertFalse(copiedRedAgent is SimpleActionEvoAgent)
         assertTrue(game.getAgent(1) is SimpleActionEvoAgent)
 
-        assertTrue(copy.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Red})
-        assertTrue(copy.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Blue})
+        assertTrue(copy.eventQueue.any{e -> e.action is MakeDecision && e.action.playerRef == 1})
+        assertTrue(copy.eventQueue.any{e -> e.action is MakeDecision && e.action.playerRef == 0})
     }
 
     @Test
@@ -138,8 +138,8 @@ class SimpleEvoAgentTest {
         assertEquals(game.world.currentTransits.size, 1)
         assertTrue(game.world.currentTransits[0].playerId == PlayerId.Blue)
 
-        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Red && e.tick == 12})
-        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.player == PlayerId.Blue && e.tick == 18})
+        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.playerRef == 1 && e.tick == 12})
+        assertTrue(game.eventQueue.any{e -> e.action is MakeDecision && e.action.playerRef == 0 && e.tick == 18})
     }
 
 }

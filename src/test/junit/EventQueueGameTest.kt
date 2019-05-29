@@ -1,6 +1,7 @@
 package test.junit
 
 
+import dgp.accelType
 import games.eventqueuegame.*
 import math.Vec2d
 import org.junit.jupiter.api.Test
@@ -165,35 +166,68 @@ object BattleTest {
 class MakeDecisionTest() {
 
     @Test
-    fun makeDecisionSpawnedAfterLaunchExpedition() {
+    fun makeDecisionSpawnedOnAgentRegistrationNotLaunchExpedition() {
         val fullInvasion = game.translateGene(0, intArrayOf(0, 1, 2, 15))
         // 0 = cityFrom, 1 = 2nd route (hence to 2)
         assert(fullInvasion is LaunchExpedition)
         val gameCopy = game.copy()
         assertEquals(gameCopy.eventQueue.size, 0)
-        fullInvasion.apply(gameCopy)
-        assertEquals(gameCopy.eventQueue.size, 2)
-        val firstAction = gameCopy.eventQueue.poll().action
-        assert(firstAction is TransitEnd)
+        assertEquals(fullInvasion.apply(gameCopy), 15)
+        assertEquals(gameCopy.eventQueue.size, 1)         // no MakeDecision created
+        gameCopy.registerAgent(0, SimpleActionEvoAgent())
+        assertEquals(gameCopy.eventQueue.size, 2)           // Make Decision now added
         val secondEvent = gameCopy.eventQueue.poll()
         assert(secondEvent.action is MakeDecision)
-        assert((secondEvent.action as MakeDecision).player == PlayerId.Blue)
-        assertEquals(secondEvent.tick, 15)
+        assert((secondEvent.action as MakeDecision).playerRef == 0)
+        assertEquals(secondEvent.tick, gameCopy.nTicks())
+        val firstAction = gameCopy.eventQueue.poll().action
+        assert(firstAction is TransitEnd)
     }
 
+
     @Test
-    fun makeDecisionObeysDefaultOODALoop() {
+    fun timeUntilNextDecisionObeysDefaultOODALoop() {
         assertEquals(world.params.OODALoop[0], 10);
         val fullInvasion = game.translateGene(0, intArrayOf(0, 1, 2, 5))
         val gameCopy = game.copy()
-        fullInvasion.apply(gameCopy)
-        assertEquals(gameCopy.eventQueue.size, 2)
-        val firstAction = gameCopy.eventQueue.poll().action
-        assert(firstAction is TransitEnd)
-        val secondEvent = gameCopy.eventQueue.poll()
+        assertEquals(fullInvasion.apply(gameCopy),10)
+    }
+
+    @Test
+    fun registeringAgentTwiceDoesNotCreateSecondMakeDecision() {
+        val gameCopy = game.copy()
+        assertEquals(gameCopy.eventQueue.size, 0)         // no MakeDecision created
+        gameCopy.registerAgent(0, SimpleActionEvoAgent())
+        assertEquals(gameCopy.eventQueue.size, 1)           // Make Decision now added
+        val secondEvent = gameCopy.eventQueue.peek()
         assert(secondEvent.action is MakeDecision)
-        assert((secondEvent.action as MakeDecision).player == PlayerId.Blue)
-        assertEquals(secondEvent.tick, 10)
+        gameCopy.registerAgent(0, SimpleActionEvoAgent())
+        assertEquals(gameCopy.eventQueue.size, 1)           // Make Decision not added again
+
+        gameCopy.registerAgent(1, SimpleActionEvoAgent())
+        assertEquals(gameCopy.eventQueue.size, 2)           // Make Decision added for different agent
+    }
+
+    @Test
+    fun registeringADoNothingAgentWillRemoveExistingMakeDecisions() {
+        val gameCopy = game.copy()
+        assertEquals(gameCopy.eventQueue.size, 0)         // no MakeDecision created
+        gameCopy.registerAgent(0, SimpleActionEvoAgent())
+        assertEquals(gameCopy.eventQueue.size, 1)           // Make Decision now added
+        gameCopy.registerAgent(0, SimpleActionDoNothing)
+        assertEquals(gameCopy.eventQueue.size, 0)           // Make Decision removed
+    }
+
+    @Test
+    fun makingADecisionWillCreateANewMakeDecision() {
+        val gameCopy = game.copy()
+        gameCopy.registerAgent(0, SimpleActionEvoAgent())
+        assertEquals(gameCopy.eventQueue.size, 1)         // no MakeDecision created
+        val event = gameCopy.eventQueue.poll()
+        assert(event.action is MakeDecision)
+        assertEquals(gameCopy.eventQueue.size, 0)
+        event.action.apply(gameCopy)
+        assertEquals(gameCopy.eventQueue.count{e -> e.action is MakeDecision && e.action.playerRef == 0}, 1)
     }
 
 }

@@ -4,7 +4,7 @@ import ggi.game.Action
 import ggi.game.ActionAbstractGameState
 
 data class TransitStart(val transit: Transit) : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+    override fun apply(state: ActionAbstractGameState): Int {
         if (state is LandCombatGame) {
             val world = state.world
             val city = world.cities[transit.fromCity]
@@ -21,14 +21,14 @@ data class TransitStart(val transit: Transit) : Action {
                 state.eventQueue.add(transit.collisionEvent(enemyCollision, world, state.nTicks()))
             }
         }
-        return state
+        return -1
     }
 
     override fun visibleTo(player: Int, state: ActionAbstractGameState) = if (state is LandCombatGame) state.world.checkVisible(transit, numberToPlayerID(player)) else true
 }
 
 data class TransitEnd(val player: PlayerId, val fromCity: Int, val toCity: Int, val endTime: Int) : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+    override fun apply(state: ActionAbstractGameState): Int {
         if (state is LandCombatGame) {
             val transit = getTransit(state)
             if (transit != null) {
@@ -36,7 +36,7 @@ data class TransitEnd(val player: PlayerId, val fromCity: Int, val toCity: Int, 
                 state.world.removeTransit(transit)
             }
         }
-        return state
+        return -1
     }
 
     override fun visibleTo(player: Int, state: ActionAbstractGameState): Boolean {
@@ -55,7 +55,7 @@ data class TransitEnd(val player: PlayerId, val fromCity: Int, val toCity: Int, 
 }
 
 data class CityInflux(val player: PlayerId, val pop: Double, val destination: Int, val origin: Int = -1) : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+    override fun apply(state: ActionAbstractGameState): Int {
         if (state is LandCombatGame) {
             val world = state.world
             val city = world.cities[destination]
@@ -81,7 +81,7 @@ data class CityInflux(val player: PlayerId, val pop: Double, val destination: In
                 }
             }
         }
-        return state
+        return -1
     }
 
     override fun visibleTo(player: Int, state: ActionAbstractGameState): Boolean {
@@ -99,7 +99,7 @@ data class CityInflux(val player: PlayerId, val pop: Double, val destination: In
 }
 
 data class Battle(val transit1: Transit, val transit2: Transit) : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+    override fun apply(state: ActionAbstractGameState): Int {
         if (state is LandCombatGame) {
             val p = state.world.params
             val result = lanchesterClosedFormBattle(transit1.nPeople, transit2.nPeople,
@@ -124,7 +124,7 @@ data class Battle(val transit1: Transit, val transit2: Transit) : Action {
                 }
             }
         }
-        return state
+        return -1
     }
 
     override fun visibleTo(player: Int, state: ActionAbstractGameState): Boolean {
@@ -136,35 +136,16 @@ data class Battle(val transit1: Transit, val transit2: Transit) : Action {
     }
 }
 
-data class Wait(val playerId: PlayerId, val wait: Int) : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
-        if (state is LandCombatGame) {
-            val world = state.world
-            state.eventQueue.add(Event(state.nTicks() + wait, MakeDecision(playerId)))
-        }
-        return state
-    }
+data class Wait(val playerRef: Int, val wait: Int) : Action {
+    override fun apply(state: ActionAbstractGameState) = state.nTicks() + wait
 
     // only visible to planning player
-    override fun visibleTo(player: Int, state: ActionAbstractGameState) = player == playerIDToNumber(playerId)
-}
-
-data class MakeDecision(val player: PlayerId) : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
-        val playerRef = playerIDToNumber(player)
-        val agent = state.getAgent(playerRef)
-        val action = agent.getAction(state, playerRef)
-        action.apply(state)
-        return state
-    }
-
-    // only visible to planning player
-    override fun visibleTo(player: Int, state: ActionAbstractGameState) = player == playerIDToNumber(this.player)
+    override fun visibleTo(player: Int, state: ActionAbstractGameState) = player == playerRef
 }
 
 data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int, val proportion: Int, val wait: Int) : Action {
 
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+    override fun apply(state: ActionAbstractGameState): Int {
         if (state is LandCombatGame) {
             val world = state.world
             val to = destinationCity(world, from, toCode)
@@ -181,9 +162,8 @@ data class LaunchExpedition(val player: PlayerId, val from: Int, val toCode: Int
                 // and put their arrival in the queue for the game state
                 state.eventQueue.add(Event(arrivalTime, TransitEnd(transit.playerId, transit.fromCity, transit.toCity, transit.endTime)))
             }
-            state.eventQueue.add(Event(state.nTicks() + wait, MakeDecision(player)))
         }
-        return state
+        return state.nTicks() + wait
     }
 
     private fun destinationCity(world: World, from: Int, toCode: Int): Int {

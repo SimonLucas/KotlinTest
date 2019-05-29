@@ -38,10 +38,12 @@ interface ActionAbstractGameState : AbstractGameState {
     fun registerAgent(player: Int, agent: SimpleActionPlayerInterface)
 
     fun getAgent(player: Int): SimpleActionPlayerInterface
+
+    fun planEvent(time: Int, action: Action)
 }
 
 interface Action  {
-    fun apply(state: ActionAbstractGameState) : ActionAbstractGameState
+    fun apply(state: ActionAbstractGameState) : Int
     fun visibleTo(player: Int, state: ActionAbstractGameState): Boolean
 }
 

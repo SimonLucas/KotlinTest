@@ -60,6 +60,9 @@ class LandCombatGame(val world: World = World(), val targets: Map<PlayerId, List
     val eventQueue = EventQueue()
     override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) = eventQueue.registerAgent(player, agent, nTicks())
     override fun getAgent(player: Int) = eventQueue.getAgent(player)
+    override fun planEvent(time: Int, action: Action) {
+        eventQueue.add(Event(time, action))
+    }
 
     var scoreFunction: (LandCombatGame, Int) -> Double = { game, player ->
         // as a default we count the number of Blue cities, and subtract the number of red cities
@@ -108,10 +111,10 @@ class LandCombatGame(val world: World = World(), val targets: Map<PlayerId, List
     override fun translateGene(player: Int, gene: IntArray): Action {
         // if the gene does not encode a valid LaunchExpedition, then we interpret it as a Wait action
         // if we take a real action, then we must wait for a minimum period before the next one
-        val playerId: PlayerId = if (player == 0) PlayerId.Blue else PlayerId.Red
+        val playerId = numberToPlayerID(player)
         val proposedAction = LaunchExpedition(playerId, gene[0], gene[1], gene[2], max(gene[3], world.params.OODALoop[player]))
         if (!proposedAction.isValid(this.world))
-            return Wait(playerId, max(gene[3], 1))
+            return Wait(player, max(gene[3], 1))
         return proposedAction
     }
 

@@ -183,8 +183,8 @@ class FogTests {
         foggyWorld.cities[8].owner = PlayerId.Blue
         foggyWorld.cities[8].pop = 5.0
         val game = LandCombatGame(foggyWorld)
-        game.eventQueue.add(Event(10, MakeDecision(PlayerId.Red)))  // R
-        game.eventQueue.add(Event(10, MakeDecision(PlayerId.Blue))) // B
+        game.eventQueue.add(Event(10, MakeDecision(1)))  // R
+        game.eventQueue.add(Event(10, MakeDecision(0))) // B
         assertFalse(game.world.checkVisible(6, PlayerId.Blue))
         game.eventQueue.add(Event(10, CityInflux(PlayerId.Red, 10.0, 6))) // R
         game.eventQueue.add(Event(10, CityInflux(PlayerId.Red, 10.0, 1, 3))) // RB
@@ -201,8 +201,8 @@ class FogTests {
         val redForce = Transit(2.0, 3, 1, PlayerId.Red, 10, 20)
         game.world.addTransit(blueForce); game.world.addTransit(redForce)
         game.eventQueue.add(Event(11, Battle(blueForce, redForce))) // RB
-        game.eventQueue.add(Event(20, Wait(PlayerId.Red, 5)))  // R
-        game.eventQueue.add(Event(20, Wait(PlayerId.Blue, 5))) // B
+        game.eventQueue.add(Event(20, Wait(1, 5)))  // R
+        game.eventQueue.add(Event(20, Wait(0, 5))) // B
         game.eventQueue.add(Event(13, LaunchExpedition(PlayerId.Red, 3, 1, 3, 10))) // R
         game.eventQueue.add(Event(13, LaunchExpedition(PlayerId.Blue, 8, 1, 3, 10))) // B
 
@@ -212,16 +212,16 @@ class FogTests {
 
         assertEquals(masterVersion.eventQueue.size, 15)
 
-        assert(redVersion.eventQueue.contains(Event(10, MakeDecision(PlayerId.Red))))
+        assert(redVersion.eventQueue.contains(Event(10, MakeDecision(1))))
         assert(redVersion.eventQueue.contains(Event(10, CityInflux(PlayerId.Red, 10.0, 6))))
         assert(redVersion.eventQueue.contains(Event(10, CityInflux(PlayerId.Red, 10.0, 1, 3))))
         assert(redVersion.eventQueue.contains(Event(14, TransitEnd(PlayerId.Blue, 1, 3, 20))))
         assert(redVersion.eventQueue.contains(Event(11, Battle(blueForce, redForce)))) // RB
-        assert(redVersion.eventQueue.contains(Event(20, Wait(PlayerId.Red, 5))))  // R
+        assert(redVersion.eventQueue.contains(Event(20, Wait(1, 5))))  // R
         assert(redVersion.eventQueue.contains(Event(13, LaunchExpedition(PlayerId.Red, 3, 1, 3, 10)))) // R
         assertEquals(redVersion.eventQueue.size, 7)
 
-        assert(blueVersion.eventQueue.contains(Event(10, MakeDecision(PlayerId.Blue)))) // B
+        assert(blueVersion.eventQueue.contains(Event(10, MakeDecision(0)))) // B
         assert(blueVersion.eventQueue.contains(Event(10, CityInflux(PlayerId.Red, 10.0, 1, 3)))) // RB
         assert(blueVersion.eventQueue.contains(Event(10, CityInflux(PlayerId.Blue, 10.0, 1, 4)))) // RB
         assert(blueVersion.eventQueue.contains(Event(10, CityInflux(PlayerId.Blue, 10.0, 2, 4)))) // B
@@ -229,7 +229,7 @@ class FogTests {
         assert(blueVersion.eventQueue.contains(Event(10, TransitEnd(PlayerId.Blue, 4, 2, 20)))) // B
         assert(blueVersion.eventQueue.contains(Event(10, TransitEnd(PlayerId.Blue, 4, 1, 20)))) // RB
         assert(blueVersion.eventQueue.contains(Event(11, Battle(blueForce, redForce)))) // RB
-        assert(blueVersion.eventQueue.contains(Event(20, Wait(PlayerId.Blue, 5)))) // B
+        assert(blueVersion.eventQueue.contains(Event(20, Wait(0, 5)))) // B
         assert(blueVersion.eventQueue.contains(Event(13, LaunchExpedition(PlayerId.Blue, 8, 1, 3, 10)))) // B
         assert(blueVersion.eventQueue.contains(Event(14, TransitEnd(PlayerId.Blue, 1, 3, 20))))
         assertEquals(blueVersion.eventQueue.size, 11)

@@ -1,14 +1,19 @@
 package test.junit
 
-import games.eventqueuegame.EventQueue
-import games.eventqueuegame.NoAction
+import games.eventqueuegame.*
 import ggi.*
 import ggi.game.*
 
 class SimpleMazeGame(val playerCount: Int, val target: Int) : ActionAbstractGameState {
 
-    var currentPosition = IntArray(playerCount) { 0 }  // initialise all players to the origin
     val eventQueue = EventQueue()
+    override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) = eventQueue.registerAgent(player, agent, nTicks())
+    override fun getAgent(player: Int) = eventQueue.getAgent(player)
+    override fun planEvent(time: Int, action: Action) {
+        eventQueue.add(Event(time, action))
+    }
+
+    var currentPosition = IntArray(playerCount) { 0 }  // initialise all players to the origin
     var currentTime = 0
 
     override fun nActions() = 3
@@ -29,9 +34,6 @@ class SimpleMazeGame(val playerCount: Int, val target: Int) : ActionAbstractGame
     override fun codonsPerAction() = 1
     override fun translateGene(player: Int, gene: IntArray) = possibleActions(player).getOrElse(gene[0]) { NoAction }
 
-    override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) = eventQueue.registerAgent(player, agent, nTicks())
-    override fun getAgent(player: Int) = eventQueue.getAgent(player)
-
     override fun copy(): AbstractGameState {
         val retValue = SimpleMazeGame(playerCount, target)
         retValue.currentPosition = currentPosition.copyOf()
@@ -51,14 +53,14 @@ class SimpleMazeGame(val playerCount: Int, val target: Int) : ActionAbstractGame
 enum class Direction { LEFT, RIGHT }
 
 data class Move(val player: Int, val direction: Direction) : Action {
-    override fun apply(state: ActionAbstractGameState): ActionAbstractGameState {
+    override fun apply(state: ActionAbstractGameState): Int {
         if (state is SimpleMazeGame) {
             when (direction) {
                 Direction.LEFT -> state.currentPosition[player]--
                 Direction.RIGHT -> state.currentPosition[player]++
             }
         }
-        return state
+        return state.nTicks() + 1
     }
 
     override fun visibleTo(player: Int, state: ActionAbstractGameState) = true
