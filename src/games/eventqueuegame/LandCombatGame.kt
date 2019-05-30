@@ -4,6 +4,7 @@ import ggi.game.*
 import java.util.PriorityQueue
 import kotlin.math.*
 import kotlin.collections.*
+import kotlin.random.Random
 import ggi.SimpleActionPlayerInterface as SimpleActionPlayerInterface
 
 // todo : Decide which effects to add next
@@ -42,7 +43,8 @@ data class EventGameParams(
         val redLanchesterExp: Double = 1.0,  // should be between 0.0 and 1.0
         // agent behaviour
         val OODALoop: IntArray = intArrayOf(10, 10),
-        val planningHorizon: Int = 100
+        val planningHorizon: Int = 100,
+        val maxActionsPerState: Int = 7
 
 )
 
@@ -56,6 +58,10 @@ data class Event(val tick: Int, val action: Action) : Comparable<Event> {
 }
 
 class LandCombatGame(val world: World = World(), val targets: Map<PlayerId, List<Int>> = emptyMap()) : ActionAbstractGameState {
+    companion object {
+        val stateToActionMap: MutableMap<String, List<Action>> = mutableMapOf()
+        val rnd: Random = Random(10)
+    }
 
     val eventQueue = EventQueue()
     override fun registerAgent(player: Int, agent: SimpleActionPlayerInterface) = eventQueue.registerAgent(player, agent, nTicks())
@@ -105,7 +111,15 @@ class LandCombatGame(val world: World = World(), val targets: Map<PlayerId, List
     override fun nActions() = world.cities.size
 
     override fun possibleActions(player: Int): List<Action> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val stateRep = LandCombatStateFunction(this)
+        // we create X random actions on the same lines as an EvoAgent would
+        if (!stateToActionMap.containsKey(stateRep)) {
+            val randomActions = (0 until world.params.maxActionsPerState).map {
+                translateGene(player, IntArray(codonsPerAction()) { rnd.nextInt(nActions()) })
+            }.toList()
+            stateToActionMap[stateRep] = randomActions
+        }
+        return stateToActionMap[stateRep] ?: emptyList()
     }
 
     override fun translateGene(player: Int, gene: IntArray): Action {

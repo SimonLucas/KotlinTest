@@ -1,5 +1,7 @@
 package games.eventqueuegame
 
+import agents.MCTS.MCTSParameters
+import agents.MCTS.MCTSTranspositionTableAgentMaster
 import agents.SimpleEvoAgent
 import utilities.JEasyFrame
 import kotlin.random.Random
@@ -7,6 +9,7 @@ import kotlin.random.Random
 fun main() {
     val params = EventGameParams(
             fogOfWar = true,
+            nAttempts = 10,
             citySeparation = 50,
             speed = 7.0,
             planningHorizon = 200,
@@ -33,8 +36,10 @@ fun main() {
                     useMutationTransducer = false, probMutation = 0.1,
                     horizon = params.planningHorizon)))
     game.registerAgent(0, blueAgent)
-    game.registerAgent(1, SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
-            useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon)))
+   // val redAgent =  SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
+   //         useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon))
+    val redAgent = MCTSTranspositionTableAgentMaster(MCTSParameters(horizon = 100), LandCombatStateFunction)
+    game.registerAgent(1, redAgent)
 
     val multiView = ListComponent()
     val omniView = WorldView(game)

@@ -58,7 +58,8 @@ class EventQueue(val eventQueue: Queue<Event> = PriorityQueue<Event>()) : Queue<
 data class MakeDecision(val playerRef: Int) : Action {
     override fun apply(state: ActionAbstractGameState): Int {
         val agent = state.getAgent(playerRef)
-        val action = agent.getAction(state, playerRef)
+        val perceivedState = state.copy(playerRef) as ActionAbstractGameState
+        val action = agent.getAction(perceivedState, playerRef)
         val nextDecisionPoint = action.apply(state)
         if (nextDecisionPoint < state.nTicks())
             throw AssertionError("Next Decision point must be in the future")

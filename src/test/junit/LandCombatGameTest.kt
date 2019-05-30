@@ -231,3 +231,14 @@ class MakeDecisionTest() {
     }
 
 }
+
+class LandCombatStateRepresentationTests {
+
+    @Test
+    fun stateRepresentationIsAString() {
+        val stateRep = LandCombatStateFunction(game)
+        assertTrue(stateRep is String)
+        assertFalse(stateRep.isEmpty())
+        assertEquals(stateRep.count{it == '|'}, game.world.cities.size + game.world.routes.size)
+    }
+}

@@ -11,7 +11,8 @@ fun playerIDToNumber(playerID: PlayerId): Int {
     return when (playerID) {
         PlayerId.Blue -> 0
         PlayerId.Red -> 1
-        else -> throw java.lang.AssertionError("Only RED and BLUE supported")
+        PlayerId.Neutral -> 99
+        PlayerId.Fog -> -1
     }
 }
 

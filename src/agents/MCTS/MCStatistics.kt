@@ -1,8 +1,6 @@
 package agents.MCTS
 
-import games.eventqueuegame.NoAction
 import ggi.game.Action
-import ggi.game.ActionAbstractGameState
 
 data class MCTSParameters(
         val C: Double = 1.0,
@@ -19,12 +17,20 @@ class MCStatistics(
         val params: MCTSParameters = MCTSParameters(),
         var visitCount: Int = 0,
         var validVisitCount: Int = 0,
-        var mean: Double = 0.0,
+        var sum: Double = 0.0,
         var max: Double = Double.NEGATIVE_INFINITY,
         var min: Double = Double.POSITIVE_INFINITY,
-        var variance: Double = 0.0
+        var sumSquares: Double = 0.0
 ) {
-    fun UCTScore(): Double = mean + params.C * Math.sqrt(Math.log(validVisitCount.toDouble()))
+    val mean: Double
+        get() = sum / visitCount
+
+    fun UCTScore(): Double {
+        return if (visitCount == 0)
+            Double.POSITIVE_INFINITY
+        else
+            mean + params.C * Math.sqrt(Math.log(validVisitCount.toDouble()) / visitCount)
+    }
 }
 
 class TTNode(
@@ -54,8 +60,8 @@ class TTNode(
         val stats = actionMap[action]
         if (stats != null) {
             stats.visitCount++
-            stats.mean += reward
-            stats.variance += reward * reward
+            stats.sum += reward
+            stats.sumSquares += reward * reward
             if (stats.max < reward) stats.max = reward
             if (stats.min > reward) stats.min = reward
         }
@@ -64,7 +70,6 @@ class TTNode(
 }
 
 class OLNode(
-        val params: MCTSParameters = MCTSParameters(),
         val key: Long,
         val actionMap: Map<Action, MCStatistics> = mutableMapOf(),
         val treeMap: Map<Action, OLNode> = mutableMapOf()

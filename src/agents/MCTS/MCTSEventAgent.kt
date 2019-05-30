@@ -11,7 +11,7 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
                                         val opponentModel: SimpleActionPlayerInterface = SimpleActionDoNothing
 ) : SimpleActionPlayerInterface {
 
-    private val tree: MutableMap<String, TTNode> = mutableMapOf()
+    val tree: MutableMap<String, TTNode> = mutableMapOf()
 
     override fun getAgentType(): String {
         return "MCTSTranspositionTableAgentMaster"
@@ -24,7 +24,7 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
 
         resetTree(gameState, playerId)
         do {
-            val clonedState = gameState.copy(playerId) as ActionAbstractGameState
+            val clonedState = gameState.copy() as ActionAbstractGameState
             // TODO: At some point, we may then resample state here for IS-MCTS
             clonedState.registerAgent(playerId, getForwardModelInterface())
             (0 until clonedState.playerCount()).forEach {
@@ -39,9 +39,10 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
                 val reward = clonedState.score(it)
                 clonedState.getAgent(it).backPropagate(reward)
             }
-
+            iteration++
         } while (iteration < params.maxPlayouts && System.currentTimeMillis() < startTime + params.timeLimit)
 
+    //    println("$iteration iterations executed for player $playerId")
         return getBestAction(gameState)
     }
 
@@ -89,9 +90,11 @@ class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
                                        val stateFunction: StateSummarizer) : SimpleActionPlayerInterface {
 
     // node, possibleActtions from node, action taken
-    private val trajectory: Deque<Triple<TTNode?, List<Action>, Action>> = ArrayDeque()
 
-    var nodesExpanded = 1
+    private val trajectory: Deque<Triple<String, List<Action>, Action>> = ArrayDeque()
+
+    val nodesPerIteration = 1
+    var nodesToExpand = nodesPerIteration
         private set(n) {
             field = n
         }
@@ -105,19 +108,15 @@ class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
         val possibleActions = gameState.possibleActions(playerId)
         val node = tree[currentState]
         val actionChosen = when {
-            node == null && nodesExpanded != 0 -> throw AssertionError("$currentState not found in tree, but nodes still to expand")
             node == null -> rolloutPolicy(gameState, possibleActions)
             node.hasUnexploredActions() -> expansionPolicy(node, currentState, possibleActions)
             else -> treePolicy(node, gameState, possibleActions)
         }
-        trajectory.addLast(Triple(node, possibleActions, actionChosen))
+        trajectory.addLast(Triple(currentState, possibleActions, actionChosen))
         return actionChosen
     }
 
     fun expansionPolicy(node: TTNode, state: String, possibleActions: List<Action>): Action {
-        nodesExpanded--
-        tree[state] = TTNode(params, possibleActions)
-        // Add new node (with no visits as yet; that will be sorted during back-propagation)
         return node.getRandomUnexploredAction(possibleActions)
     }
 
@@ -139,7 +138,7 @@ class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
     }
 
     override fun getForwardModelInterface(): SimpleActionPlayerInterface {
-        throw AssertionError("Not expecting this to be called...this should be the end of the recursion")
+        return this
     }
 
     override fun backPropagate(finalScore: Double) {
@@ -147,13 +146,19 @@ class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
         // we decrement nodesExpanded as we need to expand a node
         // We can discount if needed
         var totalDiscount = Math.pow(params.discountRate, trajectory.size.toDouble())
-        trajectory.forEach { (node, possibleActions, action) ->
+        trajectory.forEach { (state, possibleActions, action) ->
             totalDiscount /= params.discountRate
+            val node = tree[state]
             when {
-                node == null -> Unit// do nothing
+                node == null && nodesToExpand > 0 -> {
+                    nodesToExpand--
+                    tree[state] = TTNode(params, possibleActions)
+                    // Add new node (with no visits as yet; that will be sorted during back-propagation)
+                }
+                node == null -> Unit // do nothing
                 else -> node.update(action, possibleActions, finalScore * totalDiscount)
             }
-
         }
+        nodesToExpand = nodesPerIteration
     }
 }
