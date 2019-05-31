@@ -23,7 +23,7 @@ class MCStatistics(
         var sumSquares: Double = 0.0
 ) {
     val mean: Double
-        get() = sum / visitCount
+        get() = if (visitCount == 0) Double.NaN else sum / visitCount
 
     fun UCTScore(): Double {
         return if (visitCount == 0)

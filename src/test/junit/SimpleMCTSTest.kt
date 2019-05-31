@@ -133,14 +133,91 @@ class SimpleMCTSTest() {
         assertEquals(agents[0].tree.size, 3)
         val rootAgent0 = agents[0].tree["0|0|0|0"]
         assertFalse(rootAgent0 == null)
-        assertEquals(rootAgent0!!.actionMap.values.count{it.visitCount == 1}, 2)
-        assertEquals(rootAgent0!!.actionMap.values.count{it.validVisitCount == 2}, 3)
-        assertEquals(agents[0].tree.values.flatMap{n -> n.actionMap.values}.count{it.visitCount == 1}, 2)
-        assertEquals(agents[0].tree.values.flatMap{n -> n.actionMap.values}.count{it.validVisitCount == 2}, 3)
+        assertEquals(rootAgent0!!.actionMap.values.count { it.visitCount == 1 }, 2)
+        assertEquals(rootAgent0.actionMap.values.count { it.validVisitCount == 2 }, 3)
+        assertEquals(agents[0].tree.values.flatMap { n -> n.actionMap.values }.count { it.visitCount == 1 }, 2)
+        assertEquals(agents[0].tree.values.flatMap { n -> n.actionMap.values }.count { it.validVisitCount == 2 }, 3)
 
-        assertEquals(agents[1].tree.values.flatMap{n -> n.actionMap.values}.count{it.visitCount == 2}, 2)
-        assertEquals(agents[1].tree.values.flatMap{n -> n.actionMap.values}.count{it.validVisitCount == 5}, 3)
-        assertEquals(agents[1].tree.values.flatMap{n -> n.actionMap.values}.count{it.visitCount == 1}, 3)
-        assertEquals(agents[1].tree.values.flatMap{n -> n.actionMap.values}.count{it.validVisitCount == 1}, 6)
+        assertEquals(agents[1].tree.values.flatMap { n -> n.actionMap.values }.count { it.visitCount == 2 }, 2)
+        assertEquals(agents[1].tree.values.flatMap { n -> n.actionMap.values }.count { it.validVisitCount == 5 }, 3)
+        assertEquals(agents[1].tree.values.flatMap { n -> n.actionMap.values }.count { it.visitCount == 1 }, 3)
+        assertEquals(agents[1].tree.values.flatMap { n -> n.actionMap.values }.count { it.validVisitCount == 1 }, 6)
+    }
+}
+
+class MCStatisticsTest {
+
+    @Test
+    fun checkMean() {
+        val stats = MCStatistics()
+        assertEquals(stats.mean, Double.NaN)
+        stats.sum += 10.0
+        assertEquals(stats.mean, Double.NaN)
+        stats.visitCount++
+        assertEquals(stats.mean, 10.0)
+        stats.sum += 25.0
+        stats.visitCount++
+        assertEquals(stats.mean, 17.5)
+    }
+
+    @Test
+    fun testUCTDefault() {
+        val stats = MCStatistics(params = MCTSParameters(C = 2.0))
+        assertEquals(stats.UCTScore(), Double.POSITIVE_INFINITY)
+        stats.sum = 30.0
+        stats.visitCount = 10
+        stats.validVisitCount = 100
+        assertEquals(stats.UCTScore(), 3.0 + 2.0 * Math.sqrt(Math.log(100.0) / 10))
+    }
+}
+
+class TTNodeTest {
+
+    val allActions = listOf(
+            Move(0, Direction.LEFT),
+            Move(0, Direction.RIGHT),
+            NoAction)
+
+    @Test
+    fun updateTest() {
+        val node = TTNode(MCTSParameters(), allActions)
+        val stats = node.actionMap[NoAction]!!
+        assertTrue(node.actionMap.values.all { it.validVisitCount == 0 })
+        assertEquals(stats.mean, Double.NaN)
+        assertEquals(stats.max, Double.NEGATIVE_INFINITY)
+        assertEquals(stats.min, Double.POSITIVE_INFINITY)
+        assertEquals(stats.sum, 0.0)
+        assertEquals(stats.sumSquares, 0.0)
+
+        node.update(NoAction, allActions, 2.0)
+
+        assertEquals(stats.mean, 2.0)
+        assertEquals(stats.max, 2.0)
+        assertEquals(stats.min, 2.0)
+        assertEquals(stats.sum, 2.0)
+        assertEquals(stats.sumSquares, 4.0)
+        assertEquals(stats.validVisitCount, 1)
+        assertEquals(stats.visitCount, 1)
+        assertTrue(node.actionMap.values.all { it.validVisitCount == 1 })
+    }
+
+    @Test
+    fun testUnexploredActions() {
+        val node = TTNode(MCTSParameters(), allActions)
+        assertTrue(node.hasUnexploredActions())
+        val actions = ArrayList<Action>(3)
+        actions.add(node.getRandomUnexploredAction(allActions))
+        node.update(actions[0], allActions, 1.0)
+        assertTrue(node.hasUnexploredActions())
+        actions.add( node.getRandomUnexploredAction(allActions))
+        node.update(actions[1], allActions, 2.0)
+        assertTrue(node.hasUnexploredActions())
+        actions.add(node.getRandomUnexploredAction(allActions))
+        node.update(actions[2], allActions, 3.0)
+        assertFalse(node.hasUnexploredActions())
+
+        assertTrue((allActions - actions).isEmpty())
+        assertTrue((actions - allActions).isEmpty())
+        assertEquals(node.getUCTAction(allActions), actions[2])
     }
 }
