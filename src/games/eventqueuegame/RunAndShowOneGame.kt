@@ -27,18 +27,16 @@ fun main() {
     game.scoreFunction = simpleScoreFunction(5.0, 1.0)
  //   game.scoreFunction = specificTargetScoreFunction(50.0)
 
-    println(world)
-
-    val blueAgent = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
+    StatsCollator.clear()
+    val blueAgent = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 1000, timeLimit = 100, sequenceLength = 40,
             useMutationTransducer = false, probMutation = 0.1,
-            horizon = params.planningHorizon),
-            opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40,
-                    useMutationTransducer = false, probMutation = 0.1,
-                    horizon = params.planningHorizon)))
+            horizon = params.planningHorizon)
+            // , opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40, useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon))
+            )
     game.registerAgent(0, blueAgent)
    // val redAgent =  SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
    //         useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon))
-    val redAgent = MCTSTranspositionTableAgentMaster(MCTSParameters(horizon = 100), LandCombatStateFunction)
+    val redAgent = MCTSTranspositionTableAgentMaster(MCTSParameters(timeLimit = 100, maxPlayouts = 1000, horizon = params.planningHorizon), LandCombatStateFunction)
     game.registerAgent(1, redAgent)
 
     val multiView = ListComponent()
@@ -61,4 +59,6 @@ fun main() {
         //      planView.refresh()
         Thread.sleep(50)
     }
+
+    println(StatsCollator.summaryString())
 }

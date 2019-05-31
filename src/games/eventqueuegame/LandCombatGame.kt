@@ -116,7 +116,7 @@ class LandCombatGame(val world: World = World(), val targets: Map<PlayerId, List
         if (!stateToActionMap.containsKey(stateRep)) {
             val randomActions = (0 until world.params.maxActionsPerState).map {
                 translateGene(player, IntArray(codonsPerAction()) { rnd.nextInt(nActions()) })
-            }.toList()
+            }.distinct()
             stateToActionMap[stateRep] = randomActions
         }
         return stateToActionMap[stateRep] ?: emptyList()

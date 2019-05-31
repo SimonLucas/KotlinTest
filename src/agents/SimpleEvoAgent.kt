@@ -2,6 +2,7 @@ package agents
 
 import games.eventqueuegame.SimpleActionDoNothing
 import games.eventqueuegame.SimpleActionEvoAgentRollForward
+import games.eventqueuegame.StatsCollator
 import ggi.AbstractGameState
 import ggi.SimpleActionPlayerInterface
 import ggi.SimplePlayerInterface
@@ -74,6 +75,7 @@ data class SimpleEvoAgent(
         var probMutation: Double = 0.2,
         var sequenceLength: Int = 200,
         var nEvals: Int = 20,
+        var timeLimit: Int = 1000,
         var useShiftBuffer: Boolean = true,
         var useMutationTransducer: Boolean = true,
         var repeatProb: Double = 0.5,  // only used with mutation transducer
@@ -101,6 +103,7 @@ data class SimpleEvoAgent(
     var x: Int? = 1
 
     fun getActions(gameState: AbstractGameState, playerId: Int): IntArray {
+        val startTime = System.currentTimeMillis()
         var solution = buffer ?: randomPoint(gameState.nActions())
         if (useShiftBuffer) {
             if (solution == null) {
@@ -117,7 +120,8 @@ data class SimpleEvoAgent(
         solutions.add(solution)
         var curScore: Double = evalSeq(gameState.copy(), solution, playerId)
         //       println(String.format("Player %d starting score to beat is %.1f", playerId, startScore))
-        for (i in 0 until nEvals) {
+        var iterations = 0
+        do {
             // evaluate the current one
             val mut = mutate(solution, probMutation, gameState.nActions())
             val mutScore = evalSeq(gameState.copy(), mut, playerId)
@@ -127,7 +131,10 @@ data class SimpleEvoAgent(
                 //        println(String.format("Player %d finds better score of %.1f with %s", playerId, mutScore, solution.joinToString("")))
             }
             solutions.add(solution)
-        }
+            iterations++
+        } while (iterations < nEvals && System.currentTimeMillis() - startTime < timeLimit)
+        StatsCollator.addStatistics("SimpleEvoTime",  System.currentTimeMillis() - startTime)
+        StatsCollator.addStatistics("SimpleEvoEvaluations", iterations)
         buffer = solution
         return solution
     }

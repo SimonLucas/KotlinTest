@@ -1,8 +1,7 @@
 package agents.MCTS
 
-import games.eventqueuegame.NoAction
-import games.eventqueuegame.SimpleActionDoNothing
-import ggi.SimpleActionPlayerInterface
+import games.eventqueuegame.*
+import ggi.*
 import ggi.game.*
 import java.util.*
 
@@ -42,6 +41,8 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
             iteration++
         } while (iteration < params.maxPlayouts && System.currentTimeMillis() < startTime + params.timeLimit)
 
+        StatsCollator.addStatistics("MCTSTime",  System.currentTimeMillis() - startTime)
+        StatsCollator.addStatistics("MCTSIterations", iteration)
     //    println("$iteration iterations executed for player $playerId")
         return getBestAction(gameState)
     }
@@ -61,6 +62,7 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
     fun resetTree(root: ActionAbstractGameState, playerId: Int) {
         // may be overridden to prune tree
         tree.clear()
+        LandCombatGame.stateToActionMap.clear()
         val key = stateFunction(root)
         tree[key] = TTNode(params, root.possibleActions(playerId))
     }
