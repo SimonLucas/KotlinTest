@@ -81,7 +81,8 @@ data class SimpleEvoAgent(
         var repeatProb: Double = 0.5,  // only used with mutation transducer
         var discountFactor: Double? = null,
         val horizon: Int = -1,
-        var opponentModel: SimplePlayerInterface = DoNothingAgent()
+        var opponentModel: SimplePlayerInterface = DoNothingAgent(),
+        val name: String = "EA"
 ) : SimplePlayerInterface {
     override fun getAgentType(): String {
         return "SimpleEvoAgent"
@@ -133,8 +134,8 @@ data class SimpleEvoAgent(
             solutions.add(solution)
             iterations++
         } while (iterations < nEvals && System.currentTimeMillis() - startTime < timeLimit)
-        StatsCollator.addStatistics("SimpleEvoTime",  System.currentTimeMillis() - startTime)
-        StatsCollator.addStatistics("SimpleEvoEvaluations", iterations)
+        StatsCollator.addStatistics("${name}Time",  System.currentTimeMillis() - startTime)
+        StatsCollator.addStatistics("${name}Evals", iterations)
         buffer = solution
         return solution
     }

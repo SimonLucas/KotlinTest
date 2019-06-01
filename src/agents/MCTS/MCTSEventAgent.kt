@@ -7,7 +7,8 @@ import java.util.*
 
 class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
                                         val stateFunction: StateSummarizer,
-                                        val opponentModel: SimpleActionPlayerInterface = SimpleActionDoNothing
+                                        val opponentModel: SimpleActionPlayerInterface = SimpleActionDoNothing,
+                                        val name: String = "MCTS"
 ) : SimpleActionPlayerInterface {
 
     val tree: MutableMap<String, TTNode> = mutableMapOf()
@@ -41,8 +42,8 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
             iteration++
         } while (iteration < params.maxPlayouts && System.currentTimeMillis() < startTime + params.timeLimit)
 
-        StatsCollator.addStatistics("MCTSTime",  System.currentTimeMillis() - startTime)
-        StatsCollator.addStatistics("MCTSIterations", iteration)
+        StatsCollator.addStatistics("${name}Time",  System.currentTimeMillis() - startTime)
+        StatsCollator.addStatistics("${name}Iterations", iteration)
     //    println("$iteration iterations executed for player $playerId")
         return getBestAction(gameState)
     }
@@ -72,7 +73,9 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
     }
 
     override fun reset(): SimpleActionPlayerInterface {
-        return MCTSTranspositionTableAgentMaster(params, stateFunction, opponentModel)
+        tree.clear()
+        opponentModel.reset()
+        return this
     }
 
     override fun getForwardModelInterface(): SimpleActionPlayerInterface {
@@ -91,7 +94,7 @@ class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
                                        val params: MCTSParameters,
                                        val stateFunction: StateSummarizer) : SimpleActionPlayerInterface {
 
-    // node, possibleActtions from node, action taken
+    // node, possibleActions from node, action taken
 
     private val trajectory: Deque<Triple<String, List<Action>, Action>> = ArrayDeque()
 
@@ -136,6 +139,9 @@ class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
     }
 
     override fun reset(): SimpleActionPlayerInterface {
+        tree.clear()
+        trajectory.clear()
+        nodesToExpand = nodesPerIteration
         return MCTSTranspositionTableAgentChild(tree, params, stateFunction)
     }
 

@@ -11,7 +11,8 @@ fun main() {
             fogOfWar = true,
             nAttempts = 10,
             citySeparation = 50,
-            speed = 7.0,
+            minConnections = 3,
+            speed = 5.0,
             planningHorizon = 200,
             OODALoop = intArrayOf(25, 25),
             blueLanchesterCoeff = 0.05,
@@ -31,7 +32,7 @@ fun main() {
     val blueAgent = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 1000, timeLimit = 100, sequenceLength = 40,
             useMutationTransducer = false, probMutation = 0.1,
             horizon = params.planningHorizon)
-            // , opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 10, sequenceLength = 40, useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon))
+            // , opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(name = "OppEA", nEvals = 10, sequenceLength = 40, useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon))
             )
     game.registerAgent(0, blueAgent)
    // val redAgent =  SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,

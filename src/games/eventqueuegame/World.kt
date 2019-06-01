@@ -124,9 +124,11 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                     routes += Route(i, j, cities[i].location.distanceTo(cities[j].location), 1.0)
                 }
             }
-            while (routes.filter { r -> r.fromCity == i }.size < params.minConnections) {
+            var count = 0;
+            while (count < 50 && routes.filter { r -> r.fromCity == i }.size < params.minConnections) {
                 // then connect to random cities up to minimum
                 linkRandomCityTo(i)
+                count++
             }
         }
 

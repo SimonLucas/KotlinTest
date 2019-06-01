@@ -16,8 +16,8 @@ object NoAction : Action {
 }
 
 class SimpleActionEvoAgent(val underlyingAgent: SimpleEvoAgent = SimpleEvoAgent(),
-                           val opponentModel: SimpleActionPlayerInterface= SimpleActionDoNothing,
-                           val name: String = "SAEA") : SimpleActionPlayerInterface {
+                           val opponentModel: SimpleActionPlayerInterface= SimpleActionDoNothing
+) : SimpleActionPlayerInterface {
 
     override fun reset(): SimpleActionPlayerInterface {
         underlyingAgent.reset()

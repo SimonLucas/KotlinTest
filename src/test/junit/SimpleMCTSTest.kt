@@ -85,7 +85,7 @@ object MazeStateFunction : StateSummarizer {
 
 }
 
-class SimpleMCTSTest() {
+class MCTSMasterTest {
 
     val params = MCTSParameters(
             C = 1.0,
@@ -105,6 +105,51 @@ class SimpleMCTSTest() {
     @BeforeEach
     fun setup() {
         agents.withIndex().forEach { (i, agent) -> simpleMazeGame.registerAgent(i, agent) }
+    }
+
+    @Test
+    fun bestActionWithNoDataIsNoAction() {
+        val testState = simpleMazeGame.copy() as ActionAbstractGameState
+        assertEquals(agents[2].getBestAction(testState), NoAction)
+    }
+
+    @Test
+    fun bestActionWithSimpleSelection() {
+        val testState = simpleMazeGame.copy() as ActionAbstractGameState
+        val rootNode = TTNode(params, testState.possibleActions(2))
+        agents[2].tree[MazeStateFunction(testState)] = rootNode
+        rootNode.update(Move(2, Direction.LEFT), testState.possibleActions(2), 1.0)
+        rootNode.update(Move(2, Direction.LEFT), testState.possibleActions(2), 1.0)
+        rootNode.update(Move(2, Direction.RIGHT), testState.possibleActions(2), 2.0)
+        rootNode.update(NoAction, testState.possibleActions(2), 1.5)
+        assertEquals(agents[2].getBestAction(testState), Move(2, Direction.RIGHT))
+    }
+
+    @Test
+    fun bestActionWithRobustSelection() {
+        val thisParams =  params.copy(selectionMethod = MCTSSelectionMethod.ROBUST)
+        agents[2] = MCTSTranspositionTableAgentMaster(params = thisParams, stateFunction = MazeStateFunction)
+        val testState = simpleMazeGame.copy() as ActionAbstractGameState
+        val rootNode = TTNode(thisParams, testState.possibleActions(2))
+        agents[2].tree[MazeStateFunction(testState)] = rootNode
+        rootNode.update(Move(2, Direction.LEFT), testState.possibleActions(2), 1.0)
+        rootNode.update(Move(2, Direction.LEFT), testState.possibleActions(2), 1.0)
+        rootNode.update(Move(2, Direction.RIGHT), testState.possibleActions(2), 2.0)
+        rootNode.update(NoAction, testState.possibleActions(2), 1.5)
+        assertEquals(agents[2].getBestAction(testState), Move(2, Direction.LEFT))
+    }
+
+    @Test
+    fun resetTreeDoesSo() {
+        bestActionWithSimpleSelection()
+        assertEquals(agents[2].tree.size, 1)
+        assertEquals(agents[2].tree.values.flatMap{it.actionMap.values}.sumBy(MCStatistics::visitCount), 4)
+        assertEquals(agents[1].tree.values.flatMap{it.actionMap.values}.sumBy(MCStatistics::visitCount), 0)
+        assertEquals(agents[0].tree.values.flatMap{it.actionMap.values}.sumBy(MCStatistics::visitCount), 0)
+        agents[2].resetTree(simpleMazeGame.copy() as ActionAbstractGameState, 2)
+        assertEquals(agents[2].tree.size, 1)
+        assertEquals(agents[2].tree.values.flatMap{it.actionMap.values}.sumBy(MCStatistics::visitCount), 0)
+
     }
 
     @Test
@@ -209,7 +254,7 @@ class TTNodeTest {
         actions.add(node.getRandomUnexploredAction(allActions))
         node.update(actions[0], allActions, 1.0)
         assertTrue(node.hasUnexploredActions())
-        actions.add( node.getRandomUnexploredAction(allActions))
+        actions.add(node.getRandomUnexploredAction(allActions))
         node.update(actions[1], allActions, 2.0)
         assertTrue(node.hasUnexploredActions())
         actions.add(node.getRandomUnexploredAction(allActions))
@@ -221,3 +266,4 @@ class TTNodeTest {
         assertEquals(node.getUCTAction(allActions), actions[2])
     }
 }
+
