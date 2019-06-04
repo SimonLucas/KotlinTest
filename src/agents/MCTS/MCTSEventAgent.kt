@@ -90,17 +90,17 @@ class MCTSTranspositionTableAgentMaster(val params: MCTSParameters,
 }
 
 
-class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
+open class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
                                        val params: MCTSParameters,
                                        val stateFunction: StateSummarizer) : SimpleActionPlayerInterface {
 
     // node, possibleActions from node, action taken
 
-    private val trajectory: Deque<Triple<String, List<Action>, Action>> = ArrayDeque()
+    protected val trajectory: Deque<Triple<String, List<Action>, Action>> = ArrayDeque()
 
-    val nodesPerIteration = 1
+    private val nodesPerIteration = 1
     var nodesToExpand = nodesPerIteration
-        private set(n) {
+        protected set(n) {
             field = n
         }
 
@@ -114,22 +114,22 @@ class MCTSTranspositionTableAgentChild(val tree: MutableMap<String, TTNode>,
         val node = tree[currentState]
         val actionChosen = when {
             node == null -> rolloutPolicy(gameState, possibleActions)
-            node.hasUnexploredActions() -> expansionPolicy(node, currentState, possibleActions)
+            node.hasUnexploredActions() -> expansionPolicy(node, gameState, possibleActions)
             else -> treePolicy(node, gameState, possibleActions)
         }
         trajectory.addLast(Triple(currentState, possibleActions, actionChosen))
         return actionChosen
     }
 
-    fun expansionPolicy(node: TTNode, state: String, possibleActions: List<Action>): Action {
+    open fun expansionPolicy(node: TTNode, state: ActionAbstractGameState, possibleActions: List<Action>): Action {
         return node.getRandomUnexploredAction(possibleActions)
     }
 
-    fun treePolicy(node: TTNode, state: ActionAbstractGameState, possibleActions: List<Action>): Action {
+    open fun treePolicy(node: TTNode, state: ActionAbstractGameState, possibleActions: List<Action>): Action {
         return node.getUCTAction(possibleActions)
     }
 
-    fun rolloutPolicy(state: ActionAbstractGameState, possibleActions: List<Action>): Action {
+    open fun rolloutPolicy(state: ActionAbstractGameState, possibleActions: List<Action>): Action {
         return possibleActions.random()
     }
 

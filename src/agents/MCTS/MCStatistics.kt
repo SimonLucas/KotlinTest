@@ -1,6 +1,7 @@
 package agents.MCTS
 
 import ggi.game.Action
+import java.lang.AssertionError
 
 data class MCTSParameters(
         val C: Double = 1.0,
@@ -44,8 +45,10 @@ class TTNode(
     }
 
     fun getRandomUnexploredAction(validOptions: List<Action>): Action {
-        if ((validOptions - actions).size > 0) TODO("Need to cater for previously unknown options")
-        return validOptions.filter { actionMap[it]!!.visitCount == 0 }.random()
+        if ((validOptions - actions).isNotEmpty()) TODO("Need to cater for previously unknown options")
+        val filteredOptions = validOptions.filter { actionMap[it]!!.visitCount == 0 }
+        return if (filteredOptions.isEmpty()) throw AssertionError("No unexplored options to choose from")
+        else filteredOptions.random()
     }
 
     fun getUCTAction(validOptions: List<Action>): Action {

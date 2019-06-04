@@ -9,7 +9,7 @@ import kotlin.random.Random
 fun main() {
     val params = EventGameParams(
             fogOfWar = true,
-            nAttempts = 10,
+            nAttempts = 20,
             citySeparation = 50,
             minConnections = 3,
             speed = 5.0,

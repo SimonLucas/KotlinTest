@@ -1,11 +1,14 @@
 package test.junit
 
 import agents.MCTS.*
+import games.citywars.LEFT
 import games.eventqueuegame.*
 import ggi.*
 import ggi.game.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
+import java.lang.AssertionError
+import kotlin.test.assertEquals
 
 class SimpleMazeGame(val playerCount: Int, val target: Int) : ActionAbstractGameState {
 
@@ -127,7 +130,7 @@ class MCTSMasterTest {
 
     @Test
     fun bestActionWithRobustSelection() {
-        val thisParams =  params.copy(selectionMethod = MCTSSelectionMethod.ROBUST)
+        val thisParams = params.copy(selectionMethod = MCTSSelectionMethod.ROBUST)
         agents[2] = MCTSTranspositionTableAgentMaster(params = thisParams, stateFunction = MazeStateFunction)
         val testState = simpleMazeGame.copy() as ActionAbstractGameState
         val rootNode = TTNode(thisParams, testState.possibleActions(2))
@@ -143,12 +146,12 @@ class MCTSMasterTest {
     fun resetTreeDoesSo() {
         bestActionWithSimpleSelection()
         assertEquals(agents[2].tree.size, 1)
-        assertEquals(agents[2].tree.values.flatMap{it.actionMap.values}.sumBy(MCStatistics::visitCount), 4)
-        assertEquals(agents[1].tree.values.flatMap{it.actionMap.values}.sumBy(MCStatistics::visitCount), 0)
-        assertEquals(agents[0].tree.values.flatMap{it.actionMap.values}.sumBy(MCStatistics::visitCount), 0)
+        assertEquals(agents[2].tree.values.flatMap { it.actionMap.values }.sumBy(MCStatistics::visitCount), 4)
+        assertEquals(agents[1].tree.values.flatMap { it.actionMap.values }.sumBy(MCStatistics::visitCount), 0)
+        assertEquals(agents[0].tree.values.flatMap { it.actionMap.values }.sumBy(MCStatistics::visitCount), 0)
         agents[2].resetTree(simpleMazeGame.copy() as ActionAbstractGameState, 2)
         assertEquals(agents[2].tree.size, 1)
-        assertEquals(agents[2].tree.values.flatMap{it.actionMap.values}.sumBy(MCStatistics::visitCount), 0)
+        assertEquals(agents[2].tree.values.flatMap { it.actionMap.values }.sumBy(MCStatistics::visitCount), 0)
 
     }
 
@@ -188,6 +191,117 @@ class MCTSMasterTest {
         assertEquals(agents[1].tree.values.flatMap { n -> n.actionMap.values }.count { it.visitCount == 1 }, 3)
         assertEquals(agents[1].tree.values.flatMap { n -> n.actionMap.values }.count { it.validVisitCount == 1 }, 6)
     }
+}
+
+class MCTSChildTest {
+    class MCTSChildTestAgent(tree: MutableMap<String, TTNode>, params: MCTSParameters, stateFunction: MazeStateFunction)
+        : MCTSTranspositionTableAgentChild(tree, params, stateFunction) {
+
+
+        var rolloutCalls = 0
+        var expansionCalls = 0
+        var treeCalls = 0
+        // to make trajectory visible for testing
+        fun trajectory() = trajectory
+
+        override fun rolloutPolicy(state: ActionAbstractGameState, possibleActions: List<Action>): Action {
+            rolloutCalls++
+            return super.rolloutPolicy(state, possibleActions)
+        }
+
+        override fun expansionPolicy(node: TTNode, state: ActionAbstractGameState, possibleActions: List<Action>): Action {
+            expansionCalls++
+            return super.expansionPolicy(node, state, possibleActions)
+        }
+
+        override fun treePolicy(node: TTNode, state: ActionAbstractGameState, possibleActions: List<Action>): Action {
+            treeCalls++
+            return super.treePolicy(node, state, possibleActions)
+        }
+
+    }
+
+    var simpleMazeGame = SimpleMazeGame(3, 10)
+    val tree = mutableMapOf<String, TTNode>()
+    val params = MCTSParameters()
+    var childAgent = MCTSChildTestAgent(tree, params, MazeStateFunction)
+
+    @BeforeEach
+    fun setup() {
+        simpleMazeGame = SimpleMazeGame(3, 10)
+        tree.clear()
+        childAgent = MCTSChildTestAgent(tree, params, MazeStateFunction)
+    }
+
+    @Test
+    fun testTrajectoryPopulatedAndBackPropagationIsCorrect() {
+        val root = MazeStateFunction(simpleMazeGame)
+        tree[root] = TTNode(params, simpleMazeGame.possibleActions(0))
+        assertEquals(tree.size, 1)
+        assertTrue(tree.containsKey(root))
+
+        val actionsSelected = mutableListOf<Action>()
+        val statesEnRoute = mutableListOf<String>()
+        repeat(5) {
+            actionsSelected.add(childAgent.getAction(simpleMazeGame, 0))
+            actionsSelected.last().apply(simpleMazeGame)
+            statesEnRoute.add(MazeStateFunction(simpleMazeGame))
+        }
+        assertEquals(childAgent.trajectory().size, 5)
+        childAgent.backPropagate(5.0)
+        assertEquals(tree.size, 2)
+        assertTrue(tree.containsKey(root))
+        assertTrue(tree.containsKey(statesEnRoute[0]))
+
+        (0 until 5).forEach { i -> assertEquals(actionsSelected[i], childAgent.trajectory().poll().third) }
+    }
+
+    @Test
+    fun treePolicy() {
+        // Tree policy will prioritise unused actions first
+        val root = MazeStateFunction(simpleMazeGame)
+        tree[root] = TTNode(params, simpleMazeGame.possibleActions(0))
+        tree[root]!!.update(Move(0, Direction.LEFT), simpleMazeGame.possibleActions(0), 5.0)
+        assertNotEquals(childAgent.treePolicy(tree[root]!!, simpleMazeGame, simpleMazeGame.possibleActions(0)), Move(0, Direction.LEFT))
+        tree[root]!!.update(NoAction, simpleMazeGame.possibleActions(0), 4.0)
+        assertEquals(childAgent.treePolicy(tree[root]!!, simpleMazeGame, simpleMazeGame.possibleActions(0)), Move(0, Direction.RIGHT))
+        tree[root]!!.update(Move(0, Direction.RIGHT), simpleMazeGame.possibleActions(0), 4.0)
+        assertEquals(childAgent.treePolicy(tree[root]!!, simpleMazeGame, simpleMazeGame.possibleActions(0)), Move(0, Direction.LEFT))
+        assertEquals(childAgent.treeCalls, 3)
+        assertEquals(childAgent.expansionCalls, 0)
+        assertEquals(childAgent.rolloutCalls, 0)
+    }
+
+    @Test
+    fun expansionPolicy() {
+        val root = MazeStateFunction(simpleMazeGame)
+        tree[root] = TTNode(params, simpleMazeGame.possibleActions(0))
+        tree[root]!!.update(Move(0, Direction.LEFT), simpleMazeGame.possibleActions(0), 5.0)
+        assertNotEquals(childAgent.expansionPolicy(tree[root]!!, simpleMazeGame, simpleMazeGame.possibleActions(0)), Move(0, Direction.LEFT))
+        tree[root]!!.update(NoAction, simpleMazeGame.possibleActions(0), 4.0)
+        assertEquals(childAgent.expansionPolicy(tree[root]!!, simpleMazeGame, simpleMazeGame.possibleActions(0)), Move(0, Direction.RIGHT))
+        tree[root]!!.update(Move(0, Direction.RIGHT), simpleMazeGame.possibleActions(0), 4.0)
+        assertThrows(AssertionError::class.java) { childAgent.expansionPolicy(tree[root]!!, simpleMazeGame, simpleMazeGame.possibleActions(0)) }
+        assertEquals(childAgent.treeCalls, 0)
+        assertEquals(childAgent.expansionCalls, 3)
+        assertEquals(childAgent.rolloutCalls, 0)
+    }
+
+    @Test
+    fun rolloutPolicy() {
+        val rolloutActions = mutableListOf<Action>()
+        repeat(100) {
+            rolloutActions.add(childAgent.rolloutPolicy(simpleMazeGame, simpleMazeGame.possibleActions(0)))
+        }
+        assertEquals(rolloutActions.count{it == NoAction}.toDouble(), 33.0, 10.0)
+        assertEquals(rolloutActions.count{it == Move(0, Direction.LEFT)}.toDouble(), 33.0, 10.0)
+        assertEquals(rolloutActions.count{it == Move(0, Direction.RIGHT)}.toDouble(), 33.0, 10.0)
+        assertEquals(childAgent.treeCalls, 0)
+        assertEquals(childAgent.expansionCalls, 0)
+        assertEquals(childAgent.rolloutCalls, 100)
+
+    }
+
 }
 
 class MCStatisticsTest {
