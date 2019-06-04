@@ -1,6 +1,7 @@
 package games.eventqueuegame
 
 import ggi.game.*
+import test.Player
 import java.util.PriorityQueue
 import kotlin.math.*
 import kotlin.collections.*
@@ -70,15 +71,10 @@ class LandCombatGame(val world: World = World(), val targets: Map<PlayerId, List
         eventQueue.add(Event(time, action))
     }
 
-    var scoreFunction: (LandCombatGame, Int) -> Double = { game, player ->
-        // as a default we count the number of Blue cities, and subtract the number of red cities
-        val sign = if (player == 0) +1 else -1
-        with(game.world.cities) {
-            val blueCities = count { c -> c.owner == PlayerId.Blue }
-            val redCities = count { c -> c.owner == PlayerId.Red }
-            sign * (blueCities - redCities).toDouble()
-        }
-    }
+    var scoreFunction: MutableMap<PlayerId, (LandCombatGame, Int) -> Double> = mutableMapOf(
+            PlayerId.Blue to simpleScoreFunction(5.0, 1.0),
+            PlayerId.Red to simpleScoreFunction(5.0, 1.0)
+    )
 
     override fun copy(perspective: Int): LandCombatGame {
         val newWorld = if (world.params.fogOfWar) world.deepCopyWithFog(numberToPlayerID(perspective)) else world.deepCopy()
@@ -137,7 +133,7 @@ class LandCombatGame(val world: World = World(), val targets: Map<PlayerId, List
         return this
     }
 
-    override fun score(player: Int) = scoreFunction(this, player)
+    override fun score(player: Int) = scoreFunction[numberToPlayerID(player)]?.invoke(this, player) ?: 0.0
 
     override fun isTerminal(): Boolean {
         // game is over if all cities are controlled by the same player, whoever that is

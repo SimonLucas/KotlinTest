@@ -25,18 +25,27 @@ fun main() {
     val world = World(random = Random(1), params = params)
     val targets = mapOf(PlayerId.Blue to listOf(0, 2, 4, 5), PlayerId.Red to listOf(0, 1, 3, 5))
     val game = LandCombatGame(world, targets = emptyMap())
-    game.scoreFunction = simpleScoreFunction(5.0, 1.0)
- //   game.scoreFunction = specificTargetScoreFunction(50.0)
 
+
+    game.scoreFunction[PlayerId.Blue] = compositeScoreFunction(
+            simpleScoreFunction(5.0, 1.0),
+            visibilityScore(2.0, 1.0)
+            //   game.scoreFunction = specificTargetScoreFunction(50.0)
+    )
+    game.scoreFunction[PlayerId.Red] = compositeScoreFunction(
+            simpleScoreFunction(5.0, 1.0),
+            visibilityScore(0.0, 0.0)
+            //   game.scoreFunction = specificTargetScoreFunction(50.0)
+    )
     StatsCollator.clear()
     val blueAgent = SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 1000, timeLimit = 100, sequenceLength = 40,
             useMutationTransducer = false, probMutation = 0.1,
             horizon = params.planningHorizon)
             // , opponentModel = SimpleActionEvoAgent(SimpleEvoAgent(name = "OppEA", nEvals = 10, sequenceLength = 40, useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon))
-            )
+    )
     game.registerAgent(0, blueAgent)
-   // val redAgent =  SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
-   //         useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon))
+    // val redAgent =  SimpleActionEvoAgent(SimpleEvoAgent(nEvals = 200, sequenceLength = 40,
+    //         useMutationTransducer = false, probMutation = 0.1, horizon = params.planningHorizon))
     val redAgent = MCTSTranspositionTableAgentMaster(MCTSParameters(timeLimit = 100, maxPlayouts = 1000, horizon = params.planningHorizon), LandCombatStateFunction)
     game.registerAgent(1, redAgent)
 
@@ -55,7 +64,7 @@ fun main() {
         game.next(1)
         redView.game = game.copy(1)
         blueView.game = game.copy(0)
-        frame.title = "${game.nTicks()}"
+        frame.title = String.format("Time: %d        Blue: %.0f        Red: %.0f", game.nTicks(), game.score(0), game.score(1))
         multiView.repaint()
         //      planView.refresh()
         Thread.sleep(50)

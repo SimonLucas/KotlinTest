@@ -10,7 +10,10 @@ class ObjectiveFunctionTest {
     @Test
     fun simpleObjectiveTest() {
         val startState = game.copy()
-        startState.scoreFunction = simpleScoreFunction(5.0, 1.0)
+        startState.scoreFunction = mutableMapOf(
+                PlayerId.Blue to simpleScoreFunction(5.0, 1.0),
+                PlayerId.Red to simpleScoreFunction(5.0, 1.0)
+        )
         assertEquals(startState.score(0), 0.0)
         assertEquals(startState.score(1), -0.0)
 

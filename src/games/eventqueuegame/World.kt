@@ -206,6 +206,10 @@ data class World(var cities: List<City> = ArrayList(), var routes: List<Route> =
                 routes.any { r -> r.toCity == city && cities[r.fromCity].owner == perspective } ||
                 currentTransits.any { t -> t.playerId == perspective && (t.toCity == city || t.fromCity == city) }
     }
+    fun checkVisible(route: Route, perspective: PlayerId): Boolean {
+        if (!params.fogOfWar) return true
+        return (cities.withIndex().any{ (i, c) -> c.owner == perspective && (route.toCity == i || route.fromCity == i)})
+    }
 
     fun checkVisible(transit: Transit, perspective: PlayerId): Boolean {
         if (!params.fogOfWar) return true
