@@ -6,19 +6,22 @@ import ggi.SimplePlayerInterface
 import utilities.ElapsedTimer
 import utilities.StatSummary
 
-val nSteps = 1000
+val nSteps = 100000
 
 fun main() {
 
     val t = ElapsedTimer()
-    var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 100, nEvals = 100)
-    agent = RandomAgent()
-    testModels(100, agent)
+    //var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 100, nEvals = 100)
+    //var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 100, nEvals = 100)
+    var agent = RandomAgent()
+    testModels(1, agent)
     val elapsed = t.elapsed()
 
     println(t)
-    println("total game ticks  = %e".format( Sokoban().totalTicks().toDouble()))
-    println("mTicks per second = %.2f".format( Sokoban().totalTicks().toDouble() * 1e-3 / elapsed))
+    println("seconds          = %.2f".format( (elapsed/1000).toDouble()))
+    println("total game ticks = %f".format( Sokoban().totalTicks().toDouble()))
+    println("Ticks per second = %.2f".format( Sokoban().totalTicks().toDouble() / (elapsed/1000)))
+    println("mTicks per second = %.2f".format( Sokoban().totalTicks().toDouble() *1e-3 / elapsed))
 
 }
 
