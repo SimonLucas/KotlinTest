@@ -2,6 +2,8 @@ package games.sokoban
 
 import agents.RandomAgent
 import agents.SimpleEvoAgent
+import games.simplegridgame.hyper.SimpleEvoFactorySpace
+import games.simplegridgame.hyper.SimpleEvoParams
 import ggi.SimplePlayerInterface
 import utilities.ElapsedTimer
 import utilities.StatSummary
@@ -10,7 +12,7 @@ import utilities.StatSummary
 fun main() {
 
     val nGames = 100
-    val useLearnedModel = true
+    val useLearnedModel = false
     val dummySpeedTest = false
     val span = 0
     val maxSteps = 100
@@ -25,6 +27,10 @@ fun main() {
 //            discountFactor = 0.999,
             flipAtLeastOneValue = false,
             probMutation = 0.2)
+
+//    val afs = SimpleEvoFactorySpace().setSearchSpace(SimpleEvoParams())
+//    val agent = afs.agent(intArrayOf(1, 1, 4, 4, 1, 0, 3, 1))
+
     // agent = RandomAgent()
 
     // learn a forward model
@@ -56,7 +62,7 @@ class AgentTester(val maxSteps: Int  = 1000, val useLearnedModel: Boolean = true
     }
 
     fun runModelGame(agent: SimplePlayerInterface, lfm: ForwardGridModel): Double {
-        var game = Sokoban()
+        var game = Sokoban(1)
         val actions = intArrayOf(0, 0)
         var i = 0
         var gameOver = false

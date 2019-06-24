@@ -9,7 +9,6 @@ fun main() {
 
     val span = 2
 
-
     val gatherer = Gatherer()
     ModelTrainer(trainLevels = 0..9).trainModel(gatherer)
 
@@ -18,7 +17,7 @@ fun main() {
 
     var lfm  = LocalForwardModel(gatherer.tileData, gatherer.rewardData, CrossGridIterator(2), false)
 
-    var game = Sokoban(1)
+    var game = Sokoban(-2)
 
     // var lfm = GPModel()
 

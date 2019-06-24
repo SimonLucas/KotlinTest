@@ -1,6 +1,8 @@
 package games.simplegridgame.hyper;
 
+import evodef.NoisySolutionEvaluator;
 import evodef.SearchSpace;
+import games.sokoban.SokobanGameEnv;
 import ntbea.NTupleBanditEA;
 import ntbea.NTupleSystem;
 import ntbea.NTupleSystemReport;
@@ -17,14 +19,14 @@ public class RunNTBEA {
 		double kExplore = 300;
 		double epsilon = 0.5;
 		int	   nEvals = 100;
-		int    lutSize = 512;
+		//int    lutSize = 512;
 
 		if(args.length==5){
 			fileOut = args[0];
 			kExplore = Double.parseDouble(args[1]);
 			epsilon =  Double.parseDouble(args[2]);
 			nEvals =   Integer.parseInt(  args[3]);
-			lutSize =  Integer.parseInt  (args[4]);
+			//lutSize =  Integer.parseInt  (args[4]);
 		}else{
 			fileOut = "result.txt";
 		}
@@ -32,10 +34,12 @@ public class RunNTBEA {
 		AgentFactorySpace agentFactory = new SimpleEvoFactorySpace().
 				setSearchSpace(new SimpleEvoParams());
 
-		SimpleGridGameEnv env = new SimpleGridGameEnv(agentFactory);
-		env.setLutSize(lutSize);
-		env.setTrueFitnessSamples(100);
-		int patterns = env.train();
+//		SimpleGridGameEnv env = new SimpleGridGameEnv(agentFactory);
+//		env.setLutSize(lutSize);
+//		env.setTrueFitnessSamples(100);
+//		int patterns = env.train();
+
+		SokobanGameEnv env = new SokobanGameEnv(agentFactory);
 
 		NTupleBanditEA banditEA = new NTupleBanditEA().setKExplore(kExplore).setEpsilon(epsilon);
 
@@ -87,8 +91,8 @@ public class RunNTBEA {
 				solutionNames = solutionNames+p.getName()+",";
 			}
 			solutionNames = solutionNames.substring(0,solutionNames.length()-1);
-			w.append(solutionNames+",truefitness"+",truefitnessError"+",patterns"+"\n");
-			w.append(solutionArray+","+trueFitness+","+env.getLastTrueFitnessError()+","+patterns);
+			w.append(solutionNames+",truefitness"+",truefitnessError"+"\n");
+			w.append(solutionArray+","+trueFitness+","+env.getLastTrueFitnessError());
 			w.flush();
 		}catch (IOException e){
 			e.printStackTrace();

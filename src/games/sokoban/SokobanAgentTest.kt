@@ -37,7 +37,7 @@ fun testModels(n: Int, agent: SimplePlayerInterface) : StatSummary {
 }
 
 fun runGame(agent: SimplePlayerInterface) : Double {
-    var game = Sokoban()
+    var game = Sokoban(-2)
     val actions = intArrayOf(0, 0)
     var i = 0
     var gameOver = false
