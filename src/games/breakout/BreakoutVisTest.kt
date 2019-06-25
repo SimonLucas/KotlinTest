@@ -24,7 +24,7 @@ fun main(args: Array<String>) {
             player.sequenceLength *= 2
             player.nEvals *= 4
             player.useShiftBuffer = true
-            player.useMutationTransducer = true
+            player.useMutationTransducer = false
             player.probMutation = 0.3
             player.repeatProb = 0.5
         }

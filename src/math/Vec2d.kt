@@ -26,5 +26,8 @@ data class Vec2d(val x: Double = 0.0, val y: Double = 0.0) {
         get() = x * x + y * y
     val normalized: Vec2d
         get() = this * (1.0 / sqrt(sqr))
+    // scalar product
+    fun sp(a: Vec2d, b: Vec2d) : Double = a.x * b.x + a.y * b.y
+    fun sp(a: Vec2d) : Double = x * a.x + y * a.y
 }
 
