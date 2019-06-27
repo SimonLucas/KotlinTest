@@ -7,6 +7,7 @@ import games.breakout.BreakoutGameState
 import games.caveswing.CaveGameState
 import games.caveswing.CaveSwingParams
 import games.caveswing.Map
+import games.sokoban.Sokoban
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
@@ -18,23 +19,24 @@ import java.util.*
 fun main(args: Array<String>) {
     // now play a random game
     val games = listOf<ExtendedAbstractGameState>(
-            BreakoutGameState().setUp()
+            // BreakoutGameState().setUp()
             // CaveGameState().setup()
+            Sokoban()
 
     )
     val agents = listOf<SimplePlayerInterface>(
             // SimpleEvoAgent(),
             // SimpleEvoAgent(useShiftBuffer = false),
-            SimpleEvoAgent(useMutationTransducer = false),
+            SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 200)
             // SimpleEvoAgent(repeatProb = 0.0),
-            SimpleEvoAgent(repeatProb = 0.5)
+            // SimpleEvoAgent(repeatProb = 0.5)
             // SimpleEvoAgent(repeatProb = 0.8),
             // SimpleEvoAgent(probMutation = 0.1, repeatProb = 0.8)
             // RandomAgent()
 
     )
     val runner = GameRunner()
-    val nGames = 30
+    val nGames = 5
     for (game in games) {
         for (agent in agents) {
             runner.runGames(game, agent, DoNothingAgent(), nGames)
@@ -75,9 +77,9 @@ class GameRunner {
         player.reset()
         var n = 0
         println("maxTicks = " + maxTicks)
-        while (!gameState.isTerminal() && n++ < maxTicks ) {
+        while (!gameState.isTerminal() && n++ < maxTicks) {
             // val actions = intArrayOf(player.getAction(deepCopy(gameState)))
-            val actions = intArrayOf(player.getAction(gameState.copy(), playerId), opponent.getAction(gameState.copy(), 1-playerId))
+            val actions = intArrayOf(player.getAction(gameState.copy(), playerId), opponent.getAction(gameState.copy(), 1 - playerId))
             // println(Arrays.toString(actions))
             // println("$n\t ${gameState.score()}")
             gameState.next(actions)

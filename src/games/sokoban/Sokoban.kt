@@ -323,7 +323,9 @@ open class Sokoban(private var level : Int = -1) : ExtendedAbstractGameState {
     }
 
     override fun randomInitialState(): AbstractGameState {
-        TODO("not gonna go down that rabit hole...") //To change body of created functions use File | Settings | File Templates.
+        // TODO("not gonna go down that rabit hole...") //To change body of created functions use File | Settings | File Templates.
+        println("Not setting a random initial state")
+        return this
     }
 
     override fun copy(): AbstractGameState {
