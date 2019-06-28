@@ -5,17 +5,25 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.geom.Ellipse2D
+import java.awt.geom.Path2D
 import javax.swing.JComponent
 
 
 class CoopDriveView (var state: CoopDriveState = CoopDriveState()): JComponent() {
     var gridLines = true;
     val vColor = Color.blue
+    val bg = Color.black
+    val goalSought = Color.red
+    val goalFound = Color.green
 
     override fun paintComponent(go: Graphics) {
         val g = go as Graphics2D
 
+        g.color = bg
+        g.fillRect(0, 0, width, height)
 
+        drawGoals(g, state.state.vehicles)
         drawVehicles(g, state.state.vehicles)
         drawGrid(g, 20, 200, 30)
 
@@ -37,41 +45,45 @@ class CoopDriveView (var state: CoopDriveState = CoopDriveState()): JComponent()
     }
 
     fun drawVehicles(g: Graphics2D, vehicles: ArrayList<Vehicle>) {
-
-
         g.color = vColor
         for (v in vehicles) {
-            val tv = TransporterView().setState(v.s, v.v, 10.0)
+            val tv = TransporterView().setState(v, 10.0)
+            tv.draw(g)
         }
-
     }
 
+    fun drawGoals(g: Graphics2D, vehicles: ArrayList<Vehicle>) {
+        for (v in vehicles) {
+            val goal = state.state.getGoal(v.id)
+            val rad = state.state.range()
+            val circle = Ellipse2D.Double(goal.x-rad, goal.y - rad, rad*2, rad*2)
+            // println(circle)
+            g.color = if (state.atGoal(v)) goalFound else goalSought
+            g.fill(circle)
+        }
+    }
 }
 
 
 class TransporterView {
 
-    internal var s = Vec2d()
-    internal var v = Vec2d()
+    internal var v = Vehicle()
     internal var scale: Double = 0.toDouble()
 
-    fun setState(s: Vec2d, v: Vec2d, scale: Double): TransporterView {
-        this.s = s
+    fun setState(v: Vehicle,  scale: Double): TransporterView {
         this.v = v
-        // this.d = v.copy();
         this.scale = scale
-        // d.normalise();
         return this
     }
 
     override fun toString(): String {
-        return "$s\t $v"
+        return v.toString()
     }
 
     fun draw(g: Graphics2D) {
         val at = g.transform
-        g.translate(s.x, s.y)
-        val rot = Math.atan2(v.y, v.x) + Math.PI / 2
+        g.translate(v.s.x, v.s.y)
+        val rot = Math.atan2(v.d.y, v.d.x) + Math.PI / 2
         g.rotate(rot)
         g.scale(scale, scale)
         g.fillPolygon(xp, yp, xp.size)

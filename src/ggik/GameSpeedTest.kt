@@ -7,6 +7,7 @@ import games.breakout.BreakoutGameState
 import games.caveswing.CaveGameState
 import games.caveswing.CaveSwingParams
 import games.caveswing.Map
+import games.coopdrive.CoopDriveState
 import games.sokoban.Sokoban
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
@@ -20,8 +21,9 @@ fun main(args: Array<String>) {
     // now play a random game
     val games = listOf<ExtendedAbstractGameState>(
             // BreakoutGameState().setUp()
+            CoopDriveState()
             // CaveGameState().setup()
-            Sokoban()
+            // Sokoban()
 
     )
     val agents = listOf<SimplePlayerInterface>(
