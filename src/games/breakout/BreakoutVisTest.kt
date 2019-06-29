@@ -24,9 +24,10 @@ fun main(args: Array<String>) {
             player.sequenceLength *= 2
             player.nEvals *= 4
             player.useShiftBuffer = true
-            player.useMutationTransducer = false
+            player.useMutationTransducer = true
             player.probMutation = 0.3
             player.repeatProb = 0.5
+            player.discountFactor = 0.99
         }
         // player = BreakoutKeyController()
         if (player is BreakoutKeyController)
