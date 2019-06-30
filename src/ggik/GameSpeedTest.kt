@@ -21,7 +21,7 @@ fun main(args: Array<String>) {
     // now play a random game
     val games = listOf<ExtendedAbstractGameState>(
             // BreakoutGameState().setUp()
-            CoopDriveState()
+            // CoopDriveState()
             // CaveGameState().setup()
             // Sokoban()
 

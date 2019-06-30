@@ -6,15 +6,17 @@ data class Vehicle(var s: Vec2d = Vec2d(),
                    var v: Vec2d = Vec2d(),
                    var d: Vec2d = Vec2d(1.0, 0.0),
                    var speed:Double  = 0.0,
-                   val id:Int=0) {
-
+                   val id:Int=0,
+                   var carLike:Boolean = false,
+                   var hasCrashed:Boolean = false,
+                   val scale: Double = 20.0
+                   ) {
 
     // time increment for each game tick
-    val dt = 1.0 / 20
+    val dt = 1.0 / 10
     val thrust = 10.0
-    val brake = thrust/2
+    val brake = thrust
     val nActions = 5
-    var carLike = true
 
 
     // turn through this angle per second
@@ -23,7 +25,6 @@ data class Vehicle(var s: Vec2d = Vec2d(),
 
     // turn by this amount of the steer rate per pixel moved when car like
     val turnRate = 0.1
-
     //
     fun getThrust(action: Int) : Double {
         if (action == 1) return thrust
@@ -53,4 +54,3 @@ data class Vehicle(var s: Vec2d = Vec2d(),
         return this
     }
 }
-

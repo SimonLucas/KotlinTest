@@ -12,7 +12,6 @@ import javax.swing.JComponent
 
 class CoopDriveView (var state: CoopDriveState = CoopDriveState()): JComponent() {
     var gridLines = true;
-    val vColor = Color.blue
     val bg = Color.black
     val goalSought = Color.red
     val goalFound = Color.green
@@ -25,8 +24,7 @@ class CoopDriveView (var state: CoopDriveState = CoopDriveState()): JComponent()
 
         drawGoals(g, state.state.vehicles)
         drawVehicles(g, state.state.vehicles)
-        drawGrid(g, 20, 200, 30)
-
+        if (gridLines) drawGrid(g, 20, 600, 30)
     }
 
     override fun getPreferredSize(): Dimension {
@@ -34,20 +32,17 @@ class CoopDriveView (var state: CoopDriveState = CoopDriveState()): JComponent()
     }
 
     fun drawGrid(g: Graphics2D, cellSize: Int, n:Int, w:Int) {
-
         g.color = Color(128, 128, 128, 128)
         for (i in 0 until n) {
             val x = cellSize * (i % w)
             val y = cellSize * (i / w)
             g.drawRect(x, y, cellSize, cellSize)
         }
-
     }
 
     fun drawVehicles(g: Graphics2D, vehicles: ArrayList<Vehicle>) {
-        g.color = vColor
         for (v in vehicles) {
-            val tv = TransporterView().setState(v, 10.0)
+            val tv = TransporterView().setState(v)
             tv.draw(g)
         }
     }
@@ -66,13 +61,12 @@ class CoopDriveView (var state: CoopDriveState = CoopDriveState()): JComponent()
 
 
 class TransporterView {
+    val vColor = Color.cyan
 
     internal var v = Vehicle()
-    internal var scale: Double = 0.toDouble()
 
-    fun setState(v: Vehicle,  scale: Double): TransporterView {
+    fun setState(v: Vehicle): TransporterView {
         this.v = v
-        this.scale = scale
         return this
     }
 
@@ -85,13 +79,23 @@ class TransporterView {
         g.translate(v.s.x, v.s.y)
         val rot = Math.atan2(v.d.y, v.d.x) + Math.PI / 2
         g.rotate(rot)
-        g.scale(scale, scale)
+        g.scale(v.scale, v.scale)
+
+        // draw the collision disc
+        val rad = 1.0
+        val circle = Ellipse2D.Double( -rad, -rad, rad*2, rad*2)
+        g.color = Color.gray
+        // println(circle)
+        g.fill(circle)
+
+        g.color = vColor
         g.fillPolygon(xp, yp, xp.size)
+
         g.transform = at
     }
 
     companion object {
-        internal var xp = intArrayOf(-2, 0, 2, 0)
-        internal var yp = intArrayOf(2, -2, 2, 0)
+        internal var xp = intArrayOf(-1, 0, 1, 0)
+        internal var yp = intArrayOf(1, -1, 1, 0)
     }
 }
