@@ -72,7 +72,6 @@ data class SimpleEvoAgent(
             val mt = MutationTransducer(mutProb, repeatProb)
             return mt.mutate(v, nActions)
         }
-
         val n = v.size
         val x = IntArray(n)
         // pointwise probability of additional mutations
