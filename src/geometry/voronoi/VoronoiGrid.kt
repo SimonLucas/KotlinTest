@@ -1,5 +1,6 @@
 package geometry.voronoi
 
+import javafx.scene.shape.Polygon
 import math.Vector2d
 import utilities.ElapsedTimer
 import utilities.JEasyFrame
@@ -7,108 +8,70 @@ import utilities.Picker
 
 import javax.swing.*
 import java.awt.*
+import java.awt.geom.Ellipse2D
+import java.awt.geom.Line2D
+import java.awt.geom.Path2D
 import java.util.ArrayList
 import java.util.Random
 
 class VoronoiGrid : JComponent() {
 
-    internal var width = 800
-    internal var height = 500
-    internal var cellSize = 1
-    internal var dimension = Dimension(width, height)
+    var w = 800
+    var h = 500
+    var r = 5.0
+    var vps = ArrayList<VoronoiPoint>()
 
-    internal var nPoints: Int = 0
-
-    internal var points = ArrayList<Vector2d>()
-    internal var colors = ArrayList<Color>()
-    val defaultColout = Color.black
+    val defaultColour = Color.black
 
     public override fun paintComponent(go: Graphics) {
         val g = go as Graphics2D
 
+        g.stroke = BasicStroke(2f)
 
         val d = size
 
-        val timer = ElapsedTimer()
-        var nCells = 0
-        run {
-            var y = 0
-            while (y < d.getHeight()) {
-                run {
-                    var x = 0
-                    while (x < d.getWidth()) {
-                        nCells++
-                        val closestIndex = getClosestPointIndex(Vector2d(x.toDouble(), y.toDouble()))
-                        g.color = if (closestIndex == null) defaultColout else colors[closestIndex]
-                        g.fillRect(x, y, cellSize, cellSize)
-                        x += cellSize
-                    }
-                }
-                y += cellSize
-                // System.out.println(y);
+        for (vp in vps) {
+
+            for (p in vp.vn) {
+                val l1 = Line2D.Double(vp.point.x, vp.point.y, p.x, p.y)
+                g.draw(l1)
+                val bis = LineUtil().bisector(vp.point, p)
+                val l2 = Line2D.Double(bis.a.x, bis.a.y, bis.b.x, bis.b.y)
+                g.draw(l2)
+                // val poly =
             }
+            if (vp.poly.size > 0) {
+                val poly = Path2D.Double()
+                // poly.moveTo(vp.point.x, vp.point.y)
+                poly.moveTo(vp.poly[vp.poly.size - 1].x,
+                        vp.poly[vp.poly
+                                .size - 1].y)
+                for (p in vp.poly) {
+                    poly.lineTo(p.x, p.y)
+                }
+                poly.closePath()
+                g.color = randColor()
+                g.fill(poly)
+            }
+
+
         }
-        println("Painted n cells: $nCells")
-        println(timer)
+        g.color = Color.BLACK
 
-        // if (!dimension.equals(d) || )
-
-    }
-
-    fun setRandomPoints(n: Int): VoronoiGrid {
-        this.nPoints = n
-        colors = ArrayList()
-        for (i in 0 until n) {
-            val p1 = randomPoint()
-            points.add(p1)
-            points.add(reflectionXY(p1))
-            val color = randColor()
-            colors.add(color)
-            colors.add(color)
+        for (vp in vps) {
+            val dot = Ellipse2D.Double(vp.point.x - r, vp.point.y - r, 2 * r, 2 * r)
+            g.fill(dot)
         }
-        return this
-    }
-
-    fun randomPoint(): Vector2d {
-        return Vector2d(width * random.nextDouble(), height * random.nextDouble())
-    }
-
-    fun reflectionXY(p: Vector2d): Vector2d {
-
-        return Vector2d(width - p.x, height - p.y)
-    }
-
-    fun getClosestPointIndex(probe: Vector2d): Int? {
-        val picker = Picker<Int>(Picker.MIN_FIRST)
-        for (i in 0 until nPoints) {
-            picker.add(probe.dist(points[i]), i)
-        }
-        return picker.best
     }
 
     override fun getPreferredSize(): Dimension {
-        return dimension
+        return Dimension(w, h)
     }
 
-    companion object {
-
-        @JvmStatic
-        fun main(args: Array<String>) {
-            // System.out.println(new VoronoiGrid().s );
-
-            val vg = VoronoiGrid().setRandomPoints(20)
-            JEasyFrame(vg, "Voronoi GVGAISimpleTest")
-        }
-
-        internal var random = Random()
-
-        fun randColor(): Color {
-            // return Color.getHSBColor(random.nextFloat(), 0.5f + random.nextFloat()/2, 1);
-            // return Color.getHSBColor(random.nextFloat(), random.nextFloat(), 1);
-            return Color.getHSBColor(random.nextFloat(), 1f, 1f)
-            // return Color.getHSBColor(random.nextFloat(), random.nextFloat(), 0.7f * random.nextFloat() + 0.3f);
-        }
+    fun randColor(): Color {
+        // return Color.getHSBColor(random.nextFloat(), 0.5f + random.nextFloat()/2, 1);
+        // return Color.getHSBColor(random.nextFloat(), random.nextFloat(), 1);
+        return Color.getHSBColor(Random().nextFloat(), 1f, 1f)
+        // return Color.getHSBColor(random.nextFloat(), random.nextFloat(), 0.7f * random.nextFloat() + 0.3f);
     }
-
-
 }
