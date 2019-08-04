@@ -20,6 +20,8 @@ class VoronoiGrid : JComponent() {
     var h = 500
     var r = 5.0
     var vps = ArrayList<VoronoiPoint>()
+    var fillPoly = false
+    var showBisector = false
 
     val defaultColour = Color.black
 
@@ -35,9 +37,11 @@ class VoronoiGrid : JComponent() {
             for (p in vp.vn) {
                 val l1 = Line2D.Double(vp.point.x, vp.point.y, p.x, p.y)
                 g.draw(l1)
-                val bis = LineUtil().bisector(vp.point, p)
-                val l2 = Line2D.Double(bis.a.x, bis.a.y, bis.b.x, bis.b.y)
-                g.draw(l2)
+                if (showBisector) {
+                    val bis = LineUtil().bisector(vp.point, p)
+                    val l2 = Line2D.Double(bis.a.x, bis.a.y, bis.b.x, bis.b.y)
+                    g.draw(l2)
+                }
                 // val poly =
             }
             if (vp.poly.size > 0) {
@@ -51,7 +55,7 @@ class VoronoiGrid : JComponent() {
                 }
                 poly.closePath()
                 g.color = randColor()
-                g.fill(poly)
+                if (fillPoly) g.fill(poly)
             }
 
 

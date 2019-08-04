@@ -21,11 +21,11 @@ data class Mat2d(val a: Double = 0.0, val b: Double = 0.0, val c: Double = 0.0, 
             a*v.x + b *v.y, c*v.x + d*v.y
     )
 
-    fun inverse() : Mat2d {
-        val det = 1 / (a*d - b*c)
+    fun inverse() : Mat2d? {
+        val denom = (a*d - b*c)
+        if (denom == 0.0) return null
+        val det = 1 / denom
         return m(det*d, -det*b, -det*c, det*a)
     }
-
-
 }
 

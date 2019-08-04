@@ -9,10 +9,15 @@ fun main() {
 
     val inv = A.inverse()
 
-    println(inv)
+    if (inv!= null) {
 
-    println(A * inv)
-    println(A * 2.0)
+        println(inv)
 
+        println(A * inv)
+        println(A * 2.0)
+    } else {
+        "No inverse"
+    }
 }
+
 
