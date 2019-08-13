@@ -8,6 +8,7 @@ import games.caveswing.CaveGameState
 import games.caveswing.CaveSwingParams
 import games.caveswing.Map
 import games.coopdrive.CoopDriveState
+import games.gridworld.GridWorld
 import games.sokoban.Sokoban
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
@@ -19,17 +20,26 @@ import java.util.*
 
 fun main(args: Array<String>) {
     // now play a random game
+
+    var gridWorld = GridWorld()
+    // level 1 has subgoals, level 0 does not
+    // gridWorld.readFile("data/GridWorld/Levels/level-0.txt")
+    gridWorld.readFile("data/GridWorld/Levels/level-1.txt")
+
     val games = listOf<ExtendedAbstractGameState>(
             // BreakoutGameState().setUp()
             // CoopDriveState()
             // CaveGameState().setup()
             // Sokoban()
 
+            gridWorld
+
+
     )
     val agents = listOf<SimplePlayerInterface>(
             // SimpleEvoAgent(),
             // SimpleEvoAgent(useShiftBuffer = false),
-            SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 200)
+            SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 200, nEvals = 100)
             // SimpleEvoAgent(repeatProb = 0.0),
             // SimpleEvoAgent(repeatProb = 0.5)
             // SimpleEvoAgent(repeatProb = 0.8),

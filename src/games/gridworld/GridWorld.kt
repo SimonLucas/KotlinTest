@@ -10,6 +10,7 @@ import games.gridworld.GridWorldConstants.tickWeight
 import games.gridworld.GridWorldConstants.wallChar
 import games.sokoban.SimpleGrid
 import ggi.AbstractGameState
+import ggi.ExtendedAbstractGameState
 import math.Vec2d
 import views.*
 import java.awt.Color
@@ -59,7 +60,25 @@ object GridWorldConstants {
     val tickWeight = 0.01
 }
 
-class GridWorld : AbstractGameState {
+var totalTicks: Long = 0
+
+
+
+class GridWorld : ExtendedAbstractGameState {
+
+    override fun totalTicks(): Long {
+        return totalTicks
+    }
+
+    override fun resetTotalTicks() {
+        totalTicks = 0
+    }
+
+    override fun randomInitialState(): AbstractGameState {
+        gridPosition = GridPosition(1,1)
+        return this
+
+    }
 
     var nTicks = 0
     var gridPosition = GridPosition(0, 0)
@@ -118,6 +137,7 @@ class GridWorld : AbstractGameState {
         }
         if (isTerminal()) terminal = true
         nTicks++
+        totalTicks++
         return this
     }
 

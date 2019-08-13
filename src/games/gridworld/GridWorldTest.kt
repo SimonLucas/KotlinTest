@@ -54,7 +54,7 @@ fun main() {
         frame.title = "Score: %.2f".format(gridWorld.score())
 //        println(gridWorld.copy().score())
 //        println(gridWorld.score())
-        Thread.sleep(100000)
+        Thread.sleep(100)
     }
 
 
