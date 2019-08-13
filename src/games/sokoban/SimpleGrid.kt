@@ -1,5 +1,7 @@
 package games.sokoban
 
+import java.io.File
+
 data class SimpleGrid(val w: Int, val h: Int) : GridInterface {
 
     // constructor(fullGrid: )
@@ -11,6 +13,25 @@ data class SimpleGrid(val w: Int, val h: Int) : GridInterface {
     fun setCell(i: Int, v: Char) {
         grid[i] = v
     }
+
+    fun readFromFile(filname: String) : SimpleGrid {
+        val lines = File(filname).readLines()
+
+        val dim = lines[0].split(",")
+        val w = dim[0].toInt()
+        val h = dim[1].toInt()
+
+        val sg = SimpleGrid(w, h)
+        var ix = 0
+        for (line in lines.subList(1, lines.size)) {
+            // println(line)
+            line.forEach { ch -> sg.grid[ix++] = ch }
+        }
+        println("Read $ix chars into grid array")
+        return sg
+    }
+
+
 
     override fun getCell(x: Int, y: Int): Char {
         val xx = (x + w) % w

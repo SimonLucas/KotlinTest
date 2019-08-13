@@ -13,6 +13,7 @@ data class Vec2d(val x: Double = 0.0, val y: Double = 0.0) {
     operator fun minus(v: Vec2d) = v(x - v.x, y - v.y)
     operator fun times(koef: Double) = v(x * koef, y * koef)
     infix fun distanceTo(v: Vec2d) = sqrt((this - v).sqr)
+    infix fun gridDistanceTo(v: Vec2d) = abs(x-v.x) + abs(y - v.y)
     fun rotatedBy(theta: Double): Vec2d {
         val sin = sin(theta)
         val cos = cos(theta)

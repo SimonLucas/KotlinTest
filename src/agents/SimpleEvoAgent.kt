@@ -34,6 +34,7 @@ data class SimpleEvoAgent(
     }
 
     val solutions = ArrayList<IntArray>()
+    val scores = ArrayList<DoubleArray>()
 
     var x: Int? = 1
 
@@ -51,15 +52,20 @@ data class SimpleEvoAgent(
         }
         solutions.clear()
         solutions.add(solution)
+        scores.clear()
         for (i in 0 until nEvals) {
             // evaluate the current one
+            val scoreArrray1 = DoubleArray(solution.size)
+            val scoreArrray2 = DoubleArray(solution.size)
             val mut = mutate(solution, probMutation, gameState.nActions())
-            val curScore = evalSeq(gameState.copy(), solution, playerId)
-            val mutScore = evalSeq(gameState.copy(), mut, playerId)
+            val curScore = evalSeq(gameState.copy(), solution, playerId, scoreArrray1)
+            val mutScore = evalSeq(gameState.copy(), mut, playerId, scoreArrray2)
             if (mutScore >= curScore) {
                 solution = mut
             }
-            solutions.add(solution)
+            solutions.add(mut)
+            scores.add(scoreArrray1)
+            scores.add(scoreArrray2)
         }
         buffer = solution
         return solution
@@ -121,22 +127,24 @@ data class SimpleEvoAgent(
     }
 
 
-    private fun evalSeq(gameState: AbstractGameState, seq: IntArray, playerId: Int): Double {
+    private fun evalSeq(gameState: AbstractGameState, seq: IntArray, playerId: Int, scoreArray: DoubleArray): Double {
         return if (discountFactor == null) {
-            evalSeqNoDiscount(gameState, seq, playerId)
+            evalSeqNoDiscount(gameState, seq, playerId, scoreArray)
         } else {
-            evalSeqDiscounted(gameState, seq, playerId, discountFactor!!)
+            evalSeqDiscounted(gameState, seq, playerId, discountFactor!!, scoreArray)
         }
     }
 
-    private fun evalSeqNoDiscount(gameState: AbstractGameState, seq: IntArray, playerId: Int): Double {
+    private fun evalSeqNoDiscount(gameState: AbstractGameState, seq: IntArray, playerId: Int, scoreArray: DoubleArray): Double {
         var gameState = gameState
         val current = gameState.score()
         val actions = IntArray(2)
+        var ix = 0
         for (action in seq) {
             actions[playerId] = action
             actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
             gameState = gameState.next(actions)
+            scoreArray[ix++] = gameState.score()
         }
         val delta = gameState.score() - current
         return if (playerId == 0)
@@ -145,12 +153,13 @@ data class SimpleEvoAgent(
             -delta
     }
 
-    private fun evalSeqDiscounted(gameState: AbstractGameState, seq: IntArray, playerId: Int, discountFactor: Double): Double {
+    private fun evalSeqDiscounted(gameState: AbstractGameState, seq: IntArray, playerId: Int, discountFactor: Double, scoreArray: DoubleArray): Double {
         var gameState = gameState
         var currentScore = gameState.score()
         var delta = 0.0
         var discount = 1.0
         val actions = IntArray(2)
+        var ix = 0
         for (action in seq) {
             actions[playerId] = action
             actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
@@ -158,6 +167,7 @@ data class SimpleEvoAgent(
             val nextScore = gameState.score()
             val tickDelta = nextScore - currentScore
             currentScore = nextScore
+            scoreArray[ix++] = currentScore
             delta += tickDelta * discount
             discount *= discountFactor
         }
