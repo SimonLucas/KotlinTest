@@ -36,7 +36,7 @@ fun main(args: Array<String>) {
 
 data class BreakoutParams(
         // gridGame size in cells
-        var gridWidth: Int = 11,
+        var gridWidth: Int = 21,
         var gridHeight: Int = 15,
         // cell size in "pixels" - just to give an idea
         // actual pixels will depend on window size
@@ -49,7 +49,7 @@ data class BreakoutParams(
         // these control which gridGame cells will be occupied with bricks
         var topGap: Double = 0.2,
         var wallBottom: Double = 0.5,
-        var edgeGap: Double = 0.0,
+        var edgeGap: Double = 0.2,
 
         var maxTicks: Int = 50000,
         var ballSpeed: Double = 0.01,
