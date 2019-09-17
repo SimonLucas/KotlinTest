@@ -9,11 +9,7 @@ import kotlin.collections.HashSet
 
 fun main() {
 
-
     JEasyFrame(Main(), "Uniqueify")
-
-
-
 
 }
 
