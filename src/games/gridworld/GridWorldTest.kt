@@ -20,13 +20,13 @@ fun main() {
     println(gridWorld.goal)
 
     val subAgent = SubgoalAgent()
-    subAgent.expandState(gridWorld)
-    println("Final macros: ")
-    subAgent.macros.forEach { t, u ->  println("$t ->  (${gridWorld.subgoals.contains(t)}) \t $u")}
-
+    // subAgent.expandState(gridWorld)
+//    println("Final macros: ")
+//    subAgent.macros.forEach { t, u ->  println("$t ->  (${gridWorld.subgoals.contains(t)}) \t $u")}
+//
     // now make an agent test
 
-    val agent = SimpleEvoAgent(useMutationTransducer = true, discountFactor = 0.99,
+    val agent = SimpleEvoAgent(useMutationTransducer = false, discountFactor = 0.9,
             nEvals = 20, sequenceLength = 100, probMutation = 0.2, useShiftBuffer = true)
     val gridView = GridWorldView(gridWorld.simpleGrid.w, gridWorld.simpleGrid.h)
     val scoreView = EasyPlot()
@@ -57,6 +57,9 @@ fun main() {
         Thread.sleep(100)
     }
 
+    println()
+    println("Final score: ${gridWorld.score()}")
+    println("Steps taken: ${gridWorld.nTicks}")
 
 
 }

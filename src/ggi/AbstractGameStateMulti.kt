@@ -2,6 +2,12 @@ package ggi
 
 import games.eventqueuegame.PlayerId
 
+/**
+ *  This interface is designed for multi-player games, and supports the return of different scores for different players.
+ *
+ *  This can reflect the fact that different players may have different objectives (not just the opposite / negative of the other one)
+ */
+
 interface AbstractGameStateMulti {
 
     fun copy(): AbstractGameStateMulti

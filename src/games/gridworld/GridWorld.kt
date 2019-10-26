@@ -6,6 +6,7 @@ import games.gridworld.GridWorldConstants.goalChar
 import games.gridworld.GridWorldConstants.maxTicks
 import games.gridworld.GridWorldConstants.navChar
 import games.gridworld.GridWorldConstants.subgoalChar
+import games.gridworld.GridWorldConstants.subgoalWeight
 import games.gridworld.GridWorldConstants.tickWeight
 import games.gridworld.GridWorldConstants.wallChar
 import games.sokoban.SimpleGrid
@@ -28,7 +29,9 @@ fun main() {
         cp.next(intArrayOf(1))
         println("${cp.gridPosition} -> ${cp.score()}")
     }
+    println()
     println(gridWorld.score())
+    println(gridWorld.nTicks)
 
 }
 
@@ -58,6 +61,7 @@ object GridWorldConstants {
     // set this to 0.0 to be true to the original
     val distanceWeight = 0.0
     val tickWeight = 0.01
+    var subgoalWeight = 0.01
 }
 
 var totalTicks: Long = 0
@@ -134,6 +138,8 @@ class GridWorld : ExtendedAbstractGameState {
         // if the proposal is to move to a navigable cell then accept the move
         with(proposed) {
             if (simpleGrid.getCell(x, y) == navChar) gridPosition = proposed
+            // remove the subgoal
+            subgoals.remove(gridPosition)
         }
         if (isTerminal()) terminal = true
         nTicks++
@@ -146,8 +152,10 @@ class GridWorld : ExtendedAbstractGameState {
     }
 
     override fun score(): Double {
-        return atGoalScore() - tickWeight * nTicks -
-                distanceWeight * distanceScore()
+        return atGoalScore() -
+                tickWeight * nTicks -
+                distanceWeight * distanceScore() -
+                subgoalWeight * subgoals.size
 
 //         return distanceScore()
     }
