@@ -22,16 +22,14 @@ class EasyPlot {
 
         val drawList = ArrayList<Drawable>()
 
-        val lineColor = Color(255, 0, 128, 10)
+        val lineColor = Color(255, 0, 128, 50)
         val w = view.width
         val xInc = view.width / (ssx.max())
         val yScale = view.height / (ssy.max() - ssy.min())
 
         for (sa in scores) {
             val points = ArrayList<Vec2d>()
-
             var x = 0.0
-
             for (s in sa) {
                 val y = view.height - (yScale * (s - ssy.min()))
                 points.add(Vec2d(x, y))

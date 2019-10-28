@@ -18,6 +18,7 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.geom.Path2D
 import java.lang.Exception
+import kotlin.random.Random
 
 fun main() {
     // make a simple gridworld and test it
@@ -42,9 +43,20 @@ data class GridPosition(val x: Int, val y: Int) {
             1 -> return GridPosition(x, y + 1)
             2 -> return GridPosition(x - 1, y)
             3 -> return GridPosition(x, y - 1)
-            4 -> return GridPosition(x, y)
+            4 -> return GridPosition(x, y)  // do nothing
             else -> throw Exception("Invalid Action")
         }
+    }
+
+    fun nActions() = 5
+
+    fun getNeighbours() : ArrayList<GridPosition> {
+        // note that this will add the current position to the set of neighbours
+        // providing that doNothing is included in the set of actions
+        val list = ArrayList<GridPosition>()
+        for (i in 0 until nActions())
+            list.add(move(i))
+        return list
     }
 
     fun getVec(): Vec2d = Vec2d(x.toDouble(), y.toDouble())
@@ -59,7 +71,7 @@ object GridWorldConstants {
     val subgoalChar = 's'
 
     // set this to 0.0 to be true to the original
-    val distanceWeight = 0.0
+    var distanceWeight = 0.0
     val tickWeight = 0.01
     var subgoalWeight = 0.01
 }
@@ -113,6 +125,21 @@ class GridWorld : ExtendedAbstractGameState {
         }
         println(gridPosition)
         println(goal)
+    }
+    val random = Random
+
+    fun addSubgoals(n: Int) {
+        var nFails = 0
+        do {
+            val x = random.nextInt(simpleGrid.w)
+            val y = random.nextInt(simpleGrid.h)
+            val gp = GridPosition(x,y)
+            if ( simpleGrid.getCell(x, y) == navChar && !subgoals.contains(gp))
+                subgoals.add(gp)
+            else
+                nFails++
+
+        } while (subgoals.size < n && nFails < n*5)
     }
 
     fun isSubgoal(): Boolean {
@@ -180,7 +207,8 @@ class GridWorldView(val w: Int, val h: Int, val cellSize: Int = 20) {
     val view = EasyDraw()
 
     fun update(playouts: ArrayList<IntArray>, gw: GridWorld) {
-        val lineColor = Color(255, 0, 128, 100)
+        // println("Updating ${playouts.size} playouts on GRID" )
+        val lineColor = Color(155, 0, 128, 200)
         // lineColor.se
 
         for (seq in playouts) {
