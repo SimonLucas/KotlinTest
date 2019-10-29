@@ -14,7 +14,7 @@ fun main() {
     var gridWorld = GridWorld()
     // level 1 has subgoals, level 0 does not
     gridWorld.readFile("data/GridWorld/Levels/level-0.txt")
-    // gridWorld.readFile("data/GridWorld/Levels/level-3.txt")
+    gridWorld.readFile("data/GridWorld/Levels/level-3.txt")
     gridWorld.simpleGrid.print()
 
     println(gridWorld.goal)
@@ -33,8 +33,8 @@ fun main() {
     heuristic = MinDistancePolicy()
 
     val agent = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 1.0, flipAtLeastOneValue = false,
-            nEvals = 2, sequenceLength = 50, probMutation = 0.2, useShiftBuffer = true, policy = heuristic,
-            initUsingPolicy = 1.0, mutateUsingPolicy = 1.0)
+            nEvals = 2, sequenceLength = 50, probMutation = 0.2, useShiftBuffer = true, policy = null,
+            initUsingPolicy = 0.5, mutateUsingPolicy = 0.5)
 
     val gridView = GridWorldView(gridWorld.simpleGrid.w, gridWorld.simpleGrid.h)
     val scoreView = EasyPlot()
@@ -63,7 +63,7 @@ fun main() {
 //        println(gridWorld.copy().score())
 //        println(gridWorld.score())
         println(Arrays.toString(agent.scores.last()))
-        Thread.sleep(1000)
+        Thread.sleep(100)
     }
 
     println()
