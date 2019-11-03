@@ -41,8 +41,6 @@ fun main() {
             appendUsingPolicy = 0.5,
             mutateUsingPolicy = 0.5)
 
-
-
     // val agent = MinDistancePolicy()
 
     GridWorldConstants.subgoalWeight = 0.01
