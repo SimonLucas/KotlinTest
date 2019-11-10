@@ -14,7 +14,7 @@ data class LeaguePlayer(var points: Int = 0, val strategy: Strategy)
 
 fun main() {
     var game: MatrixGame = RPS()
-    // game = PD()
+    game = PD()
 
     for (i in 0 until 20)
         println(MixedStrategy(game.nActions()).getAction())
@@ -28,8 +28,8 @@ fun main() {
 
     println(MixedStrategy(3))
 
-    val nPlayers = 0
-    val nRounds = 1000
+    val nPlayers = 10
+    val nRounds = 100
 
     val players = ArrayList<LeaguePlayer>()
     for (i in 0 until nPlayers)
@@ -81,7 +81,7 @@ class RPS : MatrixGame {
     }
 }
 
-val actionsPD = arrayOf("Rock", "Paper", "Scissors")
+val actionsPD = arrayOf("Cooperate", "Defect")
 
 class PD : MatrixGame {
     override fun actionNames() = actionsPD

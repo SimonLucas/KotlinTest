@@ -36,7 +36,7 @@ fun main() {
 //            useShiftBuffer = true, policy = heuristic)
 
     val agent = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 1.0, flipAtLeastOneValue = false,
-            nEvals = 2, sequenceLength = 50, probMutation = 0.5, useShiftBuffer = true, policy = heuristic,
+            nEvals = 10, sequenceLength = 50, probMutation = 0.5, useShiftBuffer = true, policy = null,
             initUsingPolicy = 0.5,
             appendUsingPolicy = 0.5,
             mutateUsingPolicy = 0.5)
