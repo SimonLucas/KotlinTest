@@ -5,6 +5,7 @@ import games.gridworld.GridWorldConstants.distanceWeight
 import games.gridworld.GridWorldConstants.goalChar
 import games.gridworld.GridWorldConstants.maxTicks
 import games.gridworld.GridWorldConstants.navChar
+import games.gridworld.GridWorldConstants.removeSubgoalsWhenVisited
 import games.gridworld.GridWorldConstants.subgoalChar
 import games.gridworld.GridWorldConstants.subgoalWeight
 import games.gridworld.GridWorldConstants.tickWeight
@@ -74,6 +75,7 @@ object GridWorldConstants {
     var distanceWeight = 0.0
     val tickWeight = 0.01
     var subgoalWeight = 0.01
+    var removeSubgoalsWhenVisited = false
 }
 
 var totalTicks: Long = 0
@@ -166,7 +168,7 @@ class GridWorld : ExtendedAbstractGameState {
         with(proposed) {
             if (simpleGrid.getCell(x, y) == navChar) gridPosition = proposed
             // remove the subgoal
-            subgoals.remove(gridPosition)
+            if (removeSubgoalsWhenVisited) subgoals.remove(gridPosition)
         }
         if (isTerminal()) terminal = true
         nTicks++
@@ -224,7 +226,7 @@ class GridWorldView(val w: Int, val h: Int, val cellSize: Int = 20) {
 
     var drawList = ArrayList<Drawable>()
 
-    fun update(gridWorld: GridWorld) {
+    fun update(gridWorld: GridWorld) : GridWorldView {
 
         // add in the grid lines
         drawList = ArrayList<Drawable>()
@@ -267,6 +269,7 @@ class GridWorldView(val w: Int, val h: Int, val cellSize: Int = 20) {
             pd.s = Vec2d(x.toDouble() * cellSize, y.toDouble() * cellSize)
             drawList.add(pd)
         }
+        return this
     }
 
     fun repaint() {
