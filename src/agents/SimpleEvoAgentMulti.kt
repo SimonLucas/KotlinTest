@@ -21,7 +21,7 @@ data class SimpleEvoAgentMulti(
         var opponentModel: SimplePlayerInterfaceMulti = DoNothingAgentMulti()
 ) : SimplePlayerInterfaceMulti {
     override fun getAgentType(): String {
-        return "SimpleEvoAgent"
+        return "SimpleEvoAgentMulti"
     }
 
     internal var random = Random()

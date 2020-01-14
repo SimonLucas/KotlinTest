@@ -25,7 +25,7 @@ data class PolicyEvoAgent(
 ) : SimplePlayerInterface {
 
     override fun getAgentType(): String {
-        return "SimpleEvoAgent"
+        return "SimpleEvoPolicyAgent"
     }
 
     internal var random = Random()

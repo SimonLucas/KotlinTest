@@ -1,6 +1,10 @@
 package games.matrix
 
+import evodef.EvolutionLogger
+import evodef.FitnessSpace
+import evodef.SearchSpace
 import java.util.*
+import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 interface MatrixGame {
@@ -8,6 +12,7 @@ interface MatrixGame {
     fun nActions(): Int
     fun payOff(a1: Int, a2: Int): IntArray
     fun actionNames(): Array<String>
+
 }
 
 data class LeaguePlayer(var points: Int = 0, val strategy: Strategy)
@@ -119,6 +124,88 @@ class FixedStrategy(val a: Int) : Strategy {
     }
 }
 
+object weights {
+    val p = doubleArrayOf(0.0, 0.25, 0.5, 0.75, 1.0)
+}
+
+class RPSSearchSpace : SearchSpace {
+    override fun nDims(): Int {
+        return 3
+    }
+
+    override fun nValues(i: Int): Int {
+        return weights.p.size
+    }
+}
+
+
+
+class RPSEvoMixedStrategy : FitnessSpace {
+
+    override fun evaluate(x: IntArray): Double {
+        // note that this must be made to work just for point p, even if it really makes no sense for the RPS example
+        // for now, pick a random strategy to play against for one game
+
+        // convert the int array to probability weights (they need normalising to convert to probabilities
+        val p = weights.p
+        val wp = doubleArrayOf( p[x[0]], p[x[1]], p[x[2]] )
+
+        // create a mixed strategy with these weights
+        // setProbs does the normalisation
+        val mixedStrategy = MixedStrategy(wp.size).setProbs(wp)
+
+        val game = RPS()
+
+        // calling normalise with the default all zero weights will create a pure random player
+        var opponent: Strategy = MixedStrategy(wp.size).normalise()
+        opponent = FixedStrategy(0)
+        val outcome = game.payOff(mixedStrategy.getAction(), opponent.getAction())
+
+        // just return this players payoff
+        val fitness = outcome[0].toDouble()
+        logger.log(fitness, x, false)
+        return fitness
+    }
+
+    var logger: EvolutionLogger
+
+    init {
+        logger = EvolutionLogger()
+    }
+
+    override fun nDims(): Int {
+        return 3
+    }
+
+    override fun optimalFound(): Boolean {
+        return false
+    }
+
+    override fun optimalIfKnown(): Double {
+        return 0.0
+    }
+
+    override fun logger(): EvolutionLogger {
+        return logger
+    }
+
+    override fun nValues(p0: Int): Int {
+        return weights.p.size
+    }
+
+    override fun searchSpace(): SearchSpace {
+        return this
+    }
+
+    override fun reset() {
+        logger = EvolutionLogger()
+    }
+
+    override fun nEvals(): Int {
+        return logger.nEvals()
+    }
+}
+
 class MixedStrategy(val nActions: Int) : Strategy {
     val pa = DoubleArray(nActions)
     val eps: Double = 1e-10
@@ -126,10 +213,10 @@ class MixedStrategy(val nActions: Int) : Strategy {
     init {
         // for ()
         normalise()
-        println("Normalised")
+        // println("Normalised")
     }
 
-    private fun normalise(): MixedStrategy {
+    public fun normalise(): MixedStrategy {
         var sum = pa.sum()
         if (sum == 0.0) sum = pa.size * eps
         for (i in 0 until pa.size) {
@@ -140,6 +227,12 @@ class MixedStrategy(val nActions: Int) : Strategy {
 
     public fun randomise(): MixedStrategy {
         for (i in 0 until pa.size) pa[i] = rand.nextDouble()
+        normalise()
+        return this
+    }
+
+    public fun setProbs(x: DoubleArray) : MixedStrategy {
+        for (i in 0 until pa.size) pa[i] = x[i]
         normalise()
         return this
     }
