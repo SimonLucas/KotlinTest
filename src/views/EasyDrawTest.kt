@@ -24,6 +24,7 @@ fun main() {
 
     val easyDraw = EasyDraw()
     easyDraw.drawable.addAll(polys)
+    // easyDraw.drawable.add(GridLines())
 
     JEasyFrame(easyDraw, "EasyDraWTest")
 }

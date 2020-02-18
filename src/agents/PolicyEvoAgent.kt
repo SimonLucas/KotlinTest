@@ -1,7 +1,9 @@
 package agents
 
+import agents.analyse.StickToPlanRate
 import dgp.g
 import ggi.AbstractGameState
+import ggi.AbstractValueFunction
 import ggi.SimplePlayerInterface
 import test.rand
 import java.util.*
@@ -10,7 +12,7 @@ import kotlin.collections.ArrayList
 data class PolicyEvoAgent(
         var flipAtLeastOneValue: Boolean = true,
         // var expectedMutations: Double = 10.0,
-        var probMutation: Double = 0.2,
+        var probMutation: Double = 0.3,
         var sequenceLength: Int = 200,
         var nEvals: Int = 20,
         var useShiftBuffer: Boolean = true,
@@ -21,7 +23,10 @@ data class PolicyEvoAgent(
         var initUsingPolicy: Double = 0.8,
         var appendUsingPolicy: Double = 0.8, // only used if using ShiftBuffer, and Policy is not null
         var mutateUsingPolicy: Double = 0.5,
-        var policy: SimplePlayerInterface? = null
+        var policy: SimplePlayerInterface? = null,
+        var valueFunction: AbstractValueFunction? = null,
+        var analysePlans: Boolean = false
+
 ) : SimplePlayerInterface {
 
     override fun getAgentType(): String {
@@ -29,6 +34,14 @@ data class PolicyEvoAgent(
     }
 
     internal var random = Random()
+
+    internal var planAnalyser: StickToPlanRate? = null
+
+
+    init {
+        if (analysePlans) planAnalyser = StickToPlanRate()
+    }
+
 
     // these are all the parameters that control the agend
     internal var buffer: IntArray? = null // randomPoint(sequenceLength)
@@ -52,8 +65,7 @@ data class PolicyEvoAgent(
         if (useShiftBuffer) {
             if (buf == null) {
                 solution = initialSequence(gameState)
-            }
-            else {
+            } else {
                 // println("After a shift and append")
                 solution = shiftLeftAndAppend(buf, gameState)
                 // println(Arrays.toString(solution))
@@ -80,6 +92,8 @@ data class PolicyEvoAgent(
             scores.add(scoreArrray2)
         }
         buffer = solution
+        // only works if planAnalyser is not null
+        planAnalyser?.addSequence(solution)
         return solution
     }
 
@@ -182,10 +196,17 @@ data class PolicyEvoAgent(
         return p
     }
 
+    private fun vfCorrectedScore(gameState: AbstractGameState) : Double {
+        // this trick is needed to enable a smart-cast to a non-null
+        // when given a nullable valueFunction (i.e. valueFunction could be null)
+        val vf = valueFunction
+        return gameState.score() +
+                (vf?.value(gameState) ?: 0.0)
+    }
 
-    private fun evalSeq(gameState: AbstractGameState, seq: IntArray, playerId: Int, scoreArray: DoubleArray): Double {
-        var gameState = gameState
-        var currentScore = gameState.score()
+    private fun evalSeq(gs: AbstractGameState, seq: IntArray, playerId: Int, scoreArray: DoubleArray): Double {
+        var gameState = gs.copy()
+        var currentScore = vfCorrectedScore(gameState)
         var delta = 0.0
         var discount = 1.0
         val actions = IntArray(2)
@@ -194,13 +215,15 @@ data class PolicyEvoAgent(
             actions[playerId] = action
             actions[1 - playerId] = opponentModel.getAction(gameState, 1 - playerId)
             gameState = gameState.next(actions)
-            val nextScore = gameState.score()
+            val nextScore = vfCorrectedScore(gameState)
             val tickDelta = nextScore - currentScore
             currentScore = nextScore
             scoreArray[ix++] = currentScore
             delta += tickDelta * discount
             discount *= discountFactor
         }
+        // also add in the value function to the delta if non-null
+
         return if (playerId == 0)
             delta
         else

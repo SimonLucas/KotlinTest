@@ -17,9 +17,6 @@ class GPModel() : ForwardGridModel {
         grid = simpleGrid
     }
 
-
-
-
 //    override fun setGridArray(array: CharArray, playerX: Int, playerY: Int): ForwardGridModel {
 //        grid.setGrid(array, playerX, playerY)
 //        return this

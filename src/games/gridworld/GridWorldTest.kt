@@ -9,6 +9,11 @@ import java.awt.BorderLayout
 import java.util.*
 import javax.swing.JComponent
 
+// todo: Add in a Score Prediction Consistency Test (a bit like the StickToPlanRate, but for values not actions
+
+// todo: Add in a novelty value, and a Novelty Policy
+
+// should the Novelty policy be updates like this also?
 
 fun main() {
     var gridWorld = GridWorld()
@@ -31,10 +36,14 @@ fun main() {
 
     var heuristic : SimplePlayerInterface? = null
     heuristic = MinDistancePolicy()
+    // heuristic = null
+    var vf = heuristic
 
     val agent = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 1.0, flipAtLeastOneValue = false,
-            nEvals = 2, sequenceLength = 50, probMutation = 0.2, useShiftBuffer = true, policy = null,
-            initUsingPolicy = 0.5, mutateUsingPolicy = 0.5)
+            nEvals = 2, sequenceLength = 50, probMutation = 0.1, useShiftBuffer = true, policy = heuristic,
+            initUsingPolicy = 0.5, mutateUsingPolicy = 0.9, appendUsingPolicy = 0.9,
+            valueFunction = vf,
+            analysePlans = true)
 
     val gridView = GridWorldView(gridWorld.simpleGrid.w, gridWorld.simpleGrid.h)
     val scoreView = EasyPlot()
@@ -43,7 +52,8 @@ fun main() {
     val frame = JEasyFrame(both, "Grid World Test")
 
     var step = 0
-    while (!gridWorld.isTerminal()) {
+    val maxSteps = 100
+    while (!gridWorld.isTerminal() && step++ < maxSteps) {
         val action = agent.getAction(gridWorld.copy(), 0)
         gridWorld = gridWorld.next(intArrayOf(action)) as GridWorld
         // println("${step++} -> \t ${gridWorld.score()}")
@@ -69,6 +79,8 @@ fun main() {
     println()
     println("Final score: ${gridWorld.score()}")
     println("Steps taken: ${gridWorld.nTicks}")
+
+    agent.planAnalyser?.report(gridWorld.nActions())
 
 
 }

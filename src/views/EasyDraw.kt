@@ -33,7 +33,13 @@ class LineDraw {
 
 }
 
-class PolyDraw (val poly: ArrayList<Vec2d>, val fill: Color?, val stroke: Color?, val closed: Boolean = true) : Drawable {
+
+
+class PolyDraw (val poly: ArrayList<Vec2d>,
+                val fill: Color? = null,
+                val stroke: Color? = Color.blue,
+                val closed: Boolean = true,
+                val lineWidth: Float = 3f) : Drawable {
     var s = Vec2d()
     override fun draw(g: Graphics2D) {
         val at = g.transform
@@ -44,6 +50,7 @@ class PolyDraw (val poly: ArrayList<Vec2d>, val fill: Color?, val stroke: Color?
         }
         if (stroke != null) {
             g.color = stroke
+            g.stroke = BasicStroke(lineWidth)
             g.draw(polygon)
         }
         g.transform = at
@@ -57,6 +64,8 @@ class PolyDraw (val poly: ArrayList<Vec2d>, val fill: Color?, val stroke: Color?
         for (i in 0 until poly.size) polygon.lineTo(poly[i].x, poly[i].y)
         if (closed) polygon.closePath()
     }
+
+
 }
 
 class GridLines(val w: Int, val h: Int, val sx: Int, val sy: Int,
@@ -117,8 +126,10 @@ class EasyDraw(val dw:Int = 600, val dh:Int = 350) : JComponent() {
         // super.paintComponent(go)
         if (go != null) {
             val g = go as Graphics2D
+            g.renderingHints[RenderingHints.KEY_ANTIALIASING] = RenderingHints.VALUE_ANTIALIAS_ON
             for (d in drawable) {
                 // println("Drawing: " + d)
+
                 d.draw(g)
             }
         }
