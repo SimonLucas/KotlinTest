@@ -12,21 +12,19 @@ class TuneEvoPolicyAgent : AnnotatedFitnessSpace {
     override fun getParams(): Array<Param> {
         return arrayOf<Param>(
                 DoubleParam().setArray(pointMutationRate).setName("Point Mutation Rate"),
-                BooleanParam().setArray(flipAtLeastOneBit).setName("Flip at least one bit?"),
-                BooleanParam().setArray(useShiftBuffer).setName("Use shift Buffer?"),
+                BooleanParam().setArray(booleans).setName("Flip at least one bit?"),
+                BooleanParam().setArray(booleans).setName("Use shift Buffer?"),
                 IntegerParam().setArray(nResamples).setName("nResamples"),
                 IntegerParam().setArray(seqLength).setName("sequence length"))
     }
 
     // todo: Use a different (longer?) range of sequence lengths
     var pointMutationRate = doubleArrayOf(0.0, 1.0, 2.0, 3.0, 5.0, 10.0)
-    var flipAtLeastOneBit = booleanArrayOf(false, true)
-    var useShiftBuffer = booleanArrayOf(false, true)
+    var booleans = booleanArrayOf(false, true)
     var nResamples = intArrayOf(1, 2, 3)
     // int[] seqLength = {5, 10, 15, 20, 50};
     var seqLength = intArrayOf(2, 5, 10, 20, 40, 65, 100, 150, 200)
-    var nValues = intArrayOf(pointMutationRate.size, flipAtLeastOneBit.size,
-            useShiftBuffer.size, nResamples.size, seqLength.size)
+    var nValues = ParamUtil(params).nValues()
     var nDims = nValues.size
     // NoisySolutionEvaluator problemEvaluator;
     var nGames = 1
@@ -35,18 +33,14 @@ class TuneEvoPolicyAgent : AnnotatedFitnessSpace {
     var logger: EvolutionLogger
 
     fun report(solution: IntArray): String {
-        val sb = StringBuilder()
-        sb.append(String.format("pointMutationRate:     %.2f\n", pointMutationRate[solution[pointMutationRateIndex]]))
-        sb.append(String.format("flipAtLeastOneBit:     %s\n", flipAtLeastOneBit[solution[flipAtLeastOneBitIndex]]))
-        sb.append(String.format("useShiftBuffer:        %s\n", useShiftBuffer[solution[useShiftBufferIndex]]))
-        sb.append(String.format("nResamples:            %d\n", nResamples[solution[nResamplesIndex]]))
-        sb.append(String.format("seqLength:             %d\n", seqLength[solution[seqLengthIndex]]))
-        sb.append(String.format("nEvals:                %d\n", getNEvals(solution)))
-        return sb.toString()
+        return ParamUtil(params).report(solution)
     }
 
+    val tickBudget = 1000
     fun getNEvals(solution: IntArray): Int {
-        return tickBudget / seqLength[solution[seqLengthIndex]]
+        // just return the tickbudget for now, irrespective of solution length
+        // probably higher will always be better
+        return tickBudget //  / seqLength[solution[seqLengthIndex]]
     }
 
     //    public EvoAgentSearchSpacePlanetWars setEvaluator(NoisySolutionEvaluator problemEvaluator) {
@@ -105,28 +99,28 @@ class TuneEvoPolicyAgent : AnnotatedFitnessSpace {
         return 0.0
     }
 
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val searchSpace = TuneEvoPolicyAgent()
-            var point = SearchSpaceUtil.randomPoint(searchSpace)
-            point = intArrayOf(0, 0, 0, 0, 0)
-            println(searchSpace.report(point))
-            println()
-            println("Size: " + SearchSpaceUtil.size(searchSpace))
-            val timer = ElapsedTimer()
-            println("Value: " + searchSpace.evaluate(point))
-            println(timer)
-        }
-
-        var tickBudget = 400
-        var pointMutationRateIndex = 0
-        var flipAtLeastOneBitIndex = 1
-        var useShiftBufferIndex = 2
-        var nResamplesIndex = 3
-        var seqLengthIndex = 4
-    }
-
+//    companion object {
+//        @JvmStatic
+//        fun main(args: Array<String>) {
+//            val searchSpace = TuneEvoPolicyAgent()
+//            var point = SearchSpaceUtil.randomPoint(searchSpace)
+//            point = intArrayOf(0, 0, 0, 0, 0)
+//            println(searchSpace.report(point))
+//            println()
+//            println("Size: " + SearchSpaceUtil.size(searchSpace))
+//            val timer = ElapsedTimer()
+//            println("Value: " + searchSpace.evaluate(point))
+//            println(timer)
+//        }
+//
+//        var tickBudget = 400
+//        var pointMutationRateIndex = 0
+//        var flipAtLeastOneBitIndex = 1
+//        var useShiftBufferIndex = 2
+//        var nResamplesIndex = 3
+//        var seqLengthIndex = 4
+//    }
+//
     init {
         logger = EvolutionLogger()
     }
