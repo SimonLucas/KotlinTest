@@ -38,10 +38,11 @@ fun main() {
     heuristic = MinDistancePolicy()
     // heuristic = null
     var vf = heuristic
+    // vf = null
 
     val agent = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 1.0, flipAtLeastOneValue = false,
             nEvals = 2, sequenceLength = 50, probMutation = 0.1, useShiftBuffer = true, policy = heuristic,
-            initUsingPolicy = 0.5, mutateUsingPolicy = 0.9, appendUsingPolicy = 0.9,
+            initUsingPolicy = 0.5, mutateUsingPolicy = 0.5, appendUsingPolicy = 0.5,
             valueFunction = vf,
             analysePlans = true)
 
