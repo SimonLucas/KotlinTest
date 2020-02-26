@@ -26,6 +26,13 @@ fun main() {
 class EasyPlot {
     val view = EasyDraw()
 
+    fun easy(a: DoubleArray) : EasyPlot {
+        JEasyFrame(view, "Data")
+        val dat = ArrayList<DoubleArray>()
+        dat.add(a)
+        update(dat)
+        return this
+    }
 
     fun easy(data: ArrayList<StatSummary>): EasyPlot {
         val a = DoubleArray(data.size)
