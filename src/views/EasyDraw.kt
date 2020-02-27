@@ -10,11 +10,10 @@ import javax.swing.JComponent
 
 interface Drawable {
     fun draw(g: Graphics2D)
-    fun bounds() : Rectangle? = null
+    fun bounds(): Rectangle? = null
 }
 
-class LineDraw {
-    // may be not needed ...
+// may be not needed ...
 
 //    private fun drawShipPlayout(g: Graphics2D, gameState: CaveGameState, seq: IntArray) {
 //
@@ -30,16 +29,27 @@ class LineDraw {
 //
 //    }
 
+class LineDraw(val a: Vec2d, val b: Vec2d,
+               val stroke: Color = Color.blue,
+               val lineWidth: Float = 3f) : Drawable {
 
+    override fun draw(g: Graphics2D) {
+        val at = g.transform
+        g.color = stroke
+        g.stroke = BasicStroke(lineWidth)
+        val path = Path2D.Double()
+        path.moveTo(a.x, a.y)
+        path.lineTo(b.x, b.y)
+
+        g.draw(path)
+    }
 }
 
-
-
-class PolyDraw (val poly: ArrayList<Vec2d>,
-                val fill: Color? = null,
-                val stroke: Color? = Color.blue,
-                val closed: Boolean = true,
-                val lineWidth: Float = 3f) : Drawable {
+class PolyDraw(val poly: ArrayList<Vec2d>,
+               val fill: Color? = null,
+               val stroke: Color? = Color.blue,
+               val closed: Boolean = true,
+               val lineWidth: Float = 3f) : Drawable {
     var s = Vec2d()
     override fun draw(g: Graphics2D) {
         val at = g.transform
@@ -69,10 +79,10 @@ class PolyDraw (val poly: ArrayList<Vec2d>,
 }
 
 class GridLines(val w: Int, val h: Int, val sx: Int, val sy: Int,
-                var color: Color = Color(128, 128, 128, 128) ) : Drawable {
+                var color: Color = Color(128, 128, 128, 128)) : Drawable {
     override fun draw(g: Graphics2D) {
         g.color = color
-        for (i in 0 until w*h) {
+        for (i in 0 until w * h) {
             val x = sx * (i % w)
             val y = sy * (i / w)
             g.drawRect(x, y, sx, sy)
@@ -80,11 +90,13 @@ class GridLines(val w: Int, val h: Int, val sx: Int, val sy: Int,
     }
 }
 
-class CellDraw(val x:Double, val y: Double, val w:Double = 10.0, val h:Double = 10.0, val fill: Color?, val stroke: Color?) : Drawable {
+class CellDraw(val x: Double, val y: Double, val w: Double = 10.0, val h: Double = 10.0, val fill: Color?, val stroke: Color?) : Drawable {
     val rect: Rectangle2D.Double
+
     init {
         rect = Rectangle2D.Double(x, y, w, h)
     }
+
     override fun draw(g: Graphics2D) {
         if (fill != null) {
             g.color = fill
@@ -97,11 +109,13 @@ class CellDraw(val x:Double, val y: Double, val w:Double = 10.0, val h:Double = 
     }
 }
 
-class Ellipse(val x:Double, val y: Double, val w:Double = 10.0, val h:Double = 10.0, val fill: Color?, val stroke: Color?) : Drawable {
+class Ellipse(val x: Double, val y: Double, val w: Double = 10.0, val h: Double = 10.0, val fill: Color?, val stroke: Color?) : Drawable {
     val rect: Ellipse2D.Double
+
     init {
         rect = Ellipse2D.Double(x, y, w, h)
     }
+
     override fun draw(g: Graphics2D) {
         if (fill != null) {
             g.color = fill
@@ -114,7 +128,7 @@ class Ellipse(val x:Double, val y: Double, val w:Double = 10.0, val h:Double = 1
     }
 }
 
-class EasyDraw(val dw:Int = 600, val dh:Int = 350) : JComponent() {
+class EasyDraw(val dw: Int = 600, val dh: Int = 350) : JComponent() {
 
     var drawable = ArrayList<Drawable>()
 
