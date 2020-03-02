@@ -11,10 +11,10 @@ fun main() {
     // dy/dx = -x/y
 
     val rand = Random
-    val n = 10000
+    val n = 1000
     val w = 600
     val h = 600
-    val len = 10.0
+    val len = 20.0
     val draw = EasyDraw(w, h)
     draw.drawable.add(CellDraw(0.0, 0.0, w.toDouble(), h.toDouble(), fill=Color.black, stroke = null))
 

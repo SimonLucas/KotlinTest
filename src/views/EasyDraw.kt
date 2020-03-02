@@ -140,6 +140,15 @@ class EasyDraw(val dw: Int = 600, val dh: Int = 350) : JComponent() {
         // super.paintComponent(go)
         if (go != null) {
             val g = go as Graphics2D
+
+            // when drawing, compare the actual size with the preferred size and scale accordingly
+
+            val dim = getSize()
+            val sx = dim.width.toDouble() / dw
+            val sy = dim.height.toDouble() / dw
+
+            val gt = g.transform
+            g.scale(sx, sy)
             g.renderingHints[RenderingHints.KEY_ANTIALIASING] = RenderingHints.VALUE_ANTIALIAS_ON
             for (d in drawable) {
                 // println("Drawing: " + d)
