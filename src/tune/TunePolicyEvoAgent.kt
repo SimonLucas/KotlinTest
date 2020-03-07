@@ -77,11 +77,12 @@ class PolicyAgentParams : SearchSpace {
     val seqLength = arrayOf(2, 5, 10, 20, 40, 65, 100, 150, 200)
     val discounts = arrayOf(1.0, 0.99, 0.95, 0.9)
     val probs = arrayOf(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6)
-    val heuristics = arrayOf(MinDistancePolicy())
+    val heuristics = arrayOf<Any>(MinDistancePolicy())
 
 
     // val c = PolicyEvoAgent::
     val paramMap = mapOf(
+            PolicyEvoAgent::nEvals to arrayOf(10, 20, 30, 40, 50),
             PolicyEvoAgent::sequenceLength to seqLength,
             PolicyEvoAgent::flipAtLeastOneValue to booleans,
             PolicyEvoAgent::useShiftBuffer to booleans,
