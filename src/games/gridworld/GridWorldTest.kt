@@ -35,13 +35,17 @@ fun main() {
 //            nEvals = 20, sequenceLength = 100, probMutation = 0.2, useShiftBuffer = true)
 
     var heuristic : SimplePlayerInterface? = null
-    heuristic = MinDistancePolicy()
+    var policy = heuristic
+
+    // policy = null
+    // heuristic = MinDistancePolicy()
     // heuristic = null
-    var vf = heuristic
+
+    var vf: MinDistancePolicy? = MinDistancePolicy()
     // vf = null
 
     val agent = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 1.0, flipAtLeastOneValue = false,
-            nEvals = 2, sequenceLength = 50, probMutation = 0.1, useShiftBuffer = true, policy = heuristic,
+            nEvals = 2, sequenceLength = 50, probMutation = 0.1, useShiftBuffer = true, policy = policy,
             initUsingPolicy = 0.5, mutateUsingPolicy = 0.5, appendUsingPolicy = 0.5,
             valueFunction = vf,
             analysePlans = true)

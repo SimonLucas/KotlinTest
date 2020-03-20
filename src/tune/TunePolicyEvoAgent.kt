@@ -13,6 +13,7 @@ import utilities.ElapsedTimer
 import utilities.StatSummary
 import java.util.*
 import kotlin.reflect.KMutableProperty
+import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 
 // data class KParam
@@ -88,7 +89,7 @@ class PolicyAgentParams : SearchSpace {
             PolicyEvoAgent::useShiftBuffer to booleans,
             PolicyEvoAgent::discountFactor to discounts,
             PolicyEvoAgent::useMutationTransducer to booleans,
-            PolicyEvoAgent::repeatProb to probs,
+            // PolicyEvoAgent::repeatProb to probs,
             PolicyEvoAgent::probMutation to probs,
 //            PolicyEvoAgent::policy to heuristics,
 //            PolicyEvoAgent::valueFunction to heuristics,
@@ -125,7 +126,7 @@ class PolicyAgentParams : SearchSpace {
         }
     }
 
-    fun inject(solution: IntArray, agent: PolicyEvoAgent) {
+    fun inject(solution: IntArray, agent: Any) {
         for (i in indexMap.keys) {
             val p = indexMap[i]!!
             val valIndex = solution[i]
