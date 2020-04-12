@@ -45,11 +45,13 @@ class LineDraw(val a: Vec2d, val b: Vec2d,
     }
 }
 
+
+
 class PolyDraw(val poly: ArrayList<Vec2d>,
-               val fill: Color? = null,
-               val stroke: Color? = Color.blue,
+               var fill: Color? = null,
+               var stroke: Color? = Color.blue,
                val closed: Boolean = true,
-               val lineWidth: Float = 3f) : Drawable {
+               var lineWidth: Float = 3f) : Drawable {
     var s = Vec2d()
     override fun draw(g: Graphics2D) {
         val at = g.transform
@@ -145,7 +147,7 @@ class EasyDraw(val dw: Int = 600, val dh: Int = 350) : JComponent() {
 
             val dim = getSize()
             val sx = dim.width.toDouble() / dw
-            val sy = dim.height.toDouble() / dw
+            val sy = dim.height.toDouble() / dh
 
             val gt = g.transform
             g.scale(sx, sy)
