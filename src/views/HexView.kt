@@ -2,6 +2,7 @@ package views
 
 import math.Vec2d
 import utilities.JEasyFrame
+import utilities.Picker
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.event.MouseAdapter
@@ -40,6 +41,17 @@ class HexView(val w: Int = 6, val h: Int = 6, val cellWidth: Int = 50, val borde
 
     fun process(x: Int, y: Int) {
         println("($x, $y)")
+        println(pixelToGrid(x, y))
+        val selection = pixelToGrid(x, y)
+        if (selection != null) {
+            val (i, j) = selection
+            board[i][j] = next(board[i][j])
+            repaint()
+        }
+    }
+
+    fun next(v: Int) : Int {
+        return (v + 1) % 3
     }
 
 
@@ -101,5 +113,35 @@ class HexView(val w: Int = 6, val h: Int = 6, val cellWidth: Int = 50, val borde
 
     fun yc(i: Int, j: Int) = cellWidth * (j * 1.5 + 1)
 
+    fun pixelToGrid(x:Int, y:Int) : Pair<Int,Int>? {
+        // check whether they are in bounds
+        // find the closest one within bounds
+        // could easily make it faster with a direct mapping,
+        // but this way is so easy
+        val picker = Picker<Pair<Int,Int>>()
+        val p = Vec2d(x.toDouble(),y.toDouble())
+        for (i in 0 until w) {
+            for (j in 0 until h) {
+                val s = p.distanceTo(Vec2d(xc(i,j), yc(i,j)))
+                if (s < toEdge) picker.add(s, Pair(i,j))
+            }
+        }
+        return picker.best
+    }
+
+//    fun pixelToGrid(x:Int, y:Int) : Pair<Int,Int>? {
+//        // check whether they are in bounds
+//        val gridY = (y / (cellWidth * 1.5)).toInt()
+//        val gridX = (x / cellWidth).toInt()
+//        return Pair(gridX, gridY)
+//    }
+
     fun repaint() = view.repaint()
+}
+
+// have a sepaarate class for the board
+class HexBoard {
+
+
+
 }
