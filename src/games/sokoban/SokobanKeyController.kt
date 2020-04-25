@@ -26,7 +26,9 @@ class SokobanKeyController : SimplePlayerInterface {
     // in fact all that needs doing in this class is to set up
     // the keyMap, so should just push everything to that general class
     override fun getAction(gameState: AbstractGameState, playerId: Int): Int {
-        return keyListener.selectedAction
+        val action = keyListener.selectedAction
+        keyListener.selectedAction = games.breakout.Constants.doNothing
+        return action
     }
 
     override fun reset(): SimplePlayerInterface {
