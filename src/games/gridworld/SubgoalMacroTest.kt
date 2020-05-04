@@ -10,7 +10,7 @@ import java.util.*
 fun main() {
     var gridWorld = GridWorld()
     // level 1 has subgoals, level 0 does not
-    gridWorld.readFile("data/GridWorld/Levels/level-0.txt")
+    // gridWorld.readFile("data/GridWorld/Levels/level-0.txt")
     gridWorld.readFile("data/GridWorld/Levels/level-1.txt")
     gridWorld.simpleGrid.print()
 
@@ -22,13 +22,13 @@ fun main() {
     println("Final macros: ")
     subAgent.macros.forEach { t, u -> println("$t ->  (${gridWorld.subgoals.contains(t)}) \t $u") }
 
-    System.exit(0)
+    // System.exit(0)
 
     // now make a new game
 
     var macroGame = GridWorldSubgameAdapter(gridWorld)
 
-    val agent = SimpleEvoAgent()
+    val agent = SimpleEvoAgent(nEvals = 10, sequenceLength = 10)
 
     val gridView = GridWorldView(gridWorld.simpleGrid.w, gridWorld.simpleGrid.h)
     val scoreView = EasyPlot()
@@ -39,10 +39,12 @@ fun main() {
     var step = 0
     while (!macroGame.isTerminal()) {
         val action = agent.getAction(macroGame.copy(), 0)
+        // System.exit(0)
+
         macroGame = macroGame.next(intArrayOf(action)) as GridWorldSubgameAdapter
-        // println("${step++} -> \t ${gridWorld.score()}")
+        println("${step++} -> \t ${gridWorld.score()}")
         gridView.update(macroGame.microGame as GridWorld)
-        // gridView.update(agent.solutions, gridWorld.copy() as GridWorld)
+        gridView.update(agent.solutions, gridWorld.copy() as GridWorld)
         gridView.repaint()
 
         scoreView.update(agent.scores)
@@ -63,9 +65,7 @@ fun main() {
     println()
     println("Final score: ${gridWorld.score()}")
     println("Steps taken: ${gridWorld.nTicks}")
-
-
-
+    println("Total ticks: ${gridWorld.totalTicks()}")
 
 }
 

@@ -26,6 +26,8 @@ fun main() {
 class EasyPlot {
     val view = EasyDraw()
 
+    val color = Color.black
+
     fun easy(a: DoubleArray) : EasyPlot {
         JEasyFrame(view, "Data")
         val dat = ArrayList<DoubleArray>()
@@ -59,13 +61,17 @@ class EasyPlot {
             for (s in sa) ssy.add(s)
         }
 
-        println(ssy)
+        // println(ssy)
 
         val drawList = ArrayList<Drawable>()
 
         val w = view.width
         val xInc = view.width / (ssx.max())
         val yScale = view.height / (ssy.max() - ssy.min())
+
+        drawList.add( CellDraw(0.0, 0.0, view.width.toDouble(),
+                view.height.toDouble(), Color.white, Color.black) )
+
 
         for (sa in scores) {
             val points = ArrayList<Vec2d>()
@@ -79,10 +85,9 @@ class EasyPlot {
                 drawList.add(PolyDraw(points, null, lineColor, false))
         }
 
+
         view.drawable = drawList
         view.repaint()
 
     }
-
-
 }

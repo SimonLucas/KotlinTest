@@ -6,6 +6,7 @@ import ggi.SimplePlayerInterface
 import utilities.JEasyFrame
 import views.EasyPlot
 import java.awt.BorderLayout
+import java.awt.FlowLayout
 import java.util.*
 import javax.swing.JComponent
 
@@ -37,7 +38,7 @@ fun main() {
     var heuristic : SimplePlayerInterface? = null
     var policy = heuristic
 
-    // policy = null
+    policy = null
     // heuristic = MinDistancePolicy()
     // heuristic = null
 
@@ -92,8 +93,9 @@ fun main() {
 
 class PairView(grid: JComponent, scores: JComponent) : JComponent() {
     init {
-        layout = BorderLayout()
+        layout = FlowLayout()
         add(grid, BorderLayout.NORTH)
         add(scores, BorderLayout.SOUTH)
+        doLayout()
     }
 }

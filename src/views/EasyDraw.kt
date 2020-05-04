@@ -1,7 +1,7 @@
 package views
 
-import games.caveswing.CaveGameState
 import math.Vec2d
+import utilities.DrawUtil
 import java.awt.*
 import java.awt.geom.Ellipse2D
 import java.awt.geom.Path2D
@@ -44,7 +44,6 @@ class LineDraw(val a: Vec2d, val b: Vec2d,
         g.draw(path)
     }
 }
-
 
 
 class PolyDraw(val poly: ArrayList<Vec2d>,
@@ -129,6 +128,29 @@ class Ellipse(val x: Double, val y: Double, val w: Double = 10.0, val h: Double 
         }
     }
 }
+
+class DrawString(var str: String, var x: Double, var y: Double, var fg: Color?, var fontSize: Int = 20) : Drawable {
+    override fun draw(g: Graphics2D) {
+        g.color = fg
+        g.font = Font("Monospaced", Font.BOLD, fontSize)
+        val rect = g.fontMetrics.getStringBounds(str, g)
+        val sx = x.toInt() - rect.width.toInt() / 2
+        val sy = y.toInt() + (+rect.height).toInt() / 2 - g.fontMetrics.descent
+        g.drawString(str, sx, sy)
+    }
+}
+
+class DrawChars(var str: CharArray, var x: Double, var y: Double, var fg: Color?, var fontSize: Int = 20) : Drawable {
+    override fun draw(g: Graphics2D) {
+        g.color = fg
+        g.font = Font("Monospaced", Font.BOLD, fontSize)
+        val rect = g.fontMetrics.getStringBounds(str, 0, str.size, g)
+        val sx = x.toInt() - rect.width.toInt() / 2
+        val sy = y.toInt() + (+rect.height).toInt() / 2 - g.fontMetrics.descent
+        g.drawChars(str, 0 , str.size, sx, sy)
+    }
+}
+
 
 class EasyDraw(val dw: Int = 600, val dh: Int = 350) : JComponent() {
 

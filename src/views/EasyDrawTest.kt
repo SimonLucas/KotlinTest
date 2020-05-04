@@ -26,5 +26,12 @@ fun main() {
     easyDraw.drawable.addAll(polys)
     // easyDraw.drawable.add(GridLines())
 
+    val str = Character.toChars(0x1F0B6)
+
+    easyDraw.drawable.add(DrawChars(str, w/2, h/2, Color.red, 100))
+
     JEasyFrame(easyDraw, "EasyDraWTest")
+
+    println(str)
+    println(Character.toChars(0x1F0B6))
 }

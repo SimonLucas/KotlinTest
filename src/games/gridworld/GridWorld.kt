@@ -45,7 +45,7 @@ data class GridPosition(val x: Int, val y: Int) {
             2 -> return GridPosition(x - 1, y)
             3 -> return GridPosition(x, y - 1)
             4 -> return GridPosition(x, y)  // do nothing
-            else -> throw Exception("Invalid Action")
+            else -> throw Exception("Invalid Action: $action")
         }
     }
 
@@ -127,6 +127,8 @@ class GridWorld : ExtendedAbstractGameState {
         }
         println(gridPosition)
         println(goal)
+        println("Subboals:")
+        for (sg in subgoals) println(sg)
     }
     val random = Random
 
@@ -142,6 +144,7 @@ class GridWorld : ExtendedAbstractGameState {
                 nFails++
 
         } while (subgoals.size < n && nFails < n*5)
+        println("Added ${subgoals.size} random subgoals after $nFails failures")
     }
 
     fun isSubgoal(): Boolean {

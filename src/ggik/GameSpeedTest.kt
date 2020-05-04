@@ -10,6 +10,7 @@ import games.caveswing.Map
 import games.coopdrive.CoopDriveState
 import games.gridworld.GridWorld
 import games.sokoban.Sokoban
+import games.tetris.TetrisGame
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
@@ -24,7 +25,7 @@ fun main(args: Array<String>) {
     var gridWorld = GridWorld()
     // level 1 has subgoals, level 0 does not
     // gridWorld.readFile("data/GridWorld/Levels/level-0.txt")
-    gridWorld.readFile("data/GridWorld/Levels/level-1.txt")
+    // gridWorld.readFile("data/GridWorld/Levels/level-1.txt")
 
     val games = listOf<ExtendedAbstractGameState>(
             // BreakoutGameState().setUp()
@@ -32,13 +33,15 @@ fun main(args: Array<String>) {
             // CaveGameState().setup()
             // Sokoban()
 
-            gridWorld
+            TetrisGame()
+
+            // gridWorld
 
 
     )
     val agents = listOf<SimplePlayerInterface>(
             // SimpleEvoAgent(),
-            // SimpleEvoAgent(useShiftBuffer = false),
+            // SimpleEvoAgent(useShiftBuffer = false, sequenceLength = 200, nEvals = 100)
             SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 200, nEvals = 100)
             // SimpleEvoAgent(repeatProb = 0.0),
             // SimpleEvoAgent(repeatProb = 0.5)
@@ -58,7 +61,7 @@ fun main(args: Array<String>) {
 
 class GameRunner {
 
-    var verbose = false
+    var verbose = true
     var maxTicks = 5000
 
     fun runGames(gameState: ExtendedAbstractGameState, agent: SimplePlayerInterface, opponent: SimplePlayerInterface = DoNothingAgent(), nGames: Int = 100) {
