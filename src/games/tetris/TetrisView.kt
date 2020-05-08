@@ -21,9 +21,6 @@ fun main() {
 
 class TetrisView : JComponent {
 
-
-
-
     var tm: TetrisModel
     var tc: Controller?
 
