@@ -5,6 +5,7 @@ import agents.RandomAgent
 import agents.SimpleEvoAgent
 import games.gridworld.PairView
 import games.sokoban.SokobanConstants
+import games.tetris.TetrisModel.Companion.dropSkip
 // import games.tetris.TetrisGame.Actions
 import games.tetris.TetrisModel.Companion.gameOverPenalty
 import ggi.AbstractGameState
@@ -22,87 +23,6 @@ import kotlin.random.Random
 
 // todo: Find bug that causes non-determinism - try it without the dropdown of any type
 
-
-fun main() {
-    TetrisModel.defaultCols = 10
-    TetrisModel.defaultRows = 20
-    TetrisModel.includeColumnDiffs = true
-    TetrisModel.gameOverPenalty = 1000
-    TetrisModel.cyclicBlockType = true
-    TetrisModel.randomInitialRotation = false
-    TetrisModel.randomShapeColours = false
-    TetrisModel.gameOverPenalty = 0
-    var tg = TetrisGame()
-    var agent : SimplePlayerInterface = RandomAgent()
-
-    var valueFunction: AbstractValueFunction? = TetrisValueFunction()
-    valueFunction = ColHeightDiff()
-    // valueFunction = null
-    agent = PolicyEvoAgent(useMutationTransducer = true, discountFactor = 0.99, flipAtLeastOneValue = false,
-            nEvals = 100, sequenceLength = 50, probMutation = 0.2, useShiftBuffer = true, policy = null,
-            initUsingPolicy = 0.5,
-            appendUsingPolicy = 0.5,
-            mutateUsingPolicy = 0.5,
-            valueFunction = valueFunction,
-            analysePlans = false
-    )
-    // agent = SimpleEvoAgent(probMutation = 0.4, useMutationTransducer = false, discountFactor = 1.0, sequenceLength = 500, nEvals = 100)
-    // agent = RandomAgent()
-    // agent = TetrisKeyController()
-
-    val tv = TetrisView(tg.tm, null)
-    // val frame = JEasyFrame(tv, "Tetris")
-
-    val scoreView = EasyPlot()
-
-    val both = PairView(tv, scoreView.view)
-    val frame = JEasyFrame(both, "Grid World Test")
-
-    if (agent is TetrisKeyController) frame.addKeyListener(agent.keyListener)
-
-    val range = StatSummary().add(-10).add(600)
-
-    while (!tg.isTerminal()) {
-        tg = tg.copy() as TetrisGame
-        val action = agent.getAction(tg.copy(), 0)
-        if (action == Actions.Drop.ordinal) println("Drop at tick ${tg.nTicks}")
-        tg.next(intArrayOf(action))
-
-        tv.tm = tg.tm
-        tv.repaint()
-        var score = tg.score()
-        if (valueFunction != null) score += valueFunction?.value(tg)
-        val message = "${tg.nTicks}\t $score\t $action\t ${tg.totalTicks()}\t ${tg.subGoal()}"
-        // println(message)
-        frame.title = message
-        if (agent is PolicyEvoAgent || agent is SimpleEvoAgent) {
-            scoreView.update(agent.scores, ssy = range)
-        }
-        Thread.sleep(50)
-    }
-}
-
-
-class TetrisValueFunction : AbstractValueFunction {
-    companion object {
-        val rand = Random
-        val eps = 1e-10
-        val cellFactor = 0.01
-    }
-    override fun value(gameState: AbstractGameState): Double {
-        val noise = rand.nextDouble() * eps
-        if (!(gameState is TetrisGame)) return noise
-        val a = gameState.tm.a
-        var hScore = 0.0
-        for (i in 0 until a.size) {
-            for (j in 0 until a[i].size) {
-                if (a[i][j] != TetrisConstants.BG)
-                    hScore += j * j * cellFactor
-            }
-        }
-        return hScore
-    }
-}
 
 enum class Actions { DoNothing, Left, Right, Rotate, Down, Drop}
 
@@ -143,7 +63,6 @@ class TetrisGame : ExtendedAbstractGameState {
         return tg
     }
 
-    val dropSkip = 4
     override fun next(actions: IntArray): AbstractGameState {
         // just going to take the first action
 
@@ -223,35 +142,3 @@ class TetrisGame : ExtendedAbstractGameState {
 }
 
 
-class TetrisKeyController : SimplePlayerInterface {
-
-    override fun getAgentType(): String {
-        return "BreakoutKeyController"
-    }
-
-    val keyMap: HashMap<Int, Int> =
-            hashMapOf(KeyEvent.VK_LEFT to Actions.Left.ordinal,
-                    KeyEvent.VK_UP to Actions.Rotate.ordinal,
-                    KeyEvent.VK_RIGHT to Actions.Right.ordinal,
-                    KeyEvent.VK_DOWN to Actions.Down.ordinal,
-                    KeyEvent.VK_SPACE to Actions.Drop.ordinal)
-
-    val keyListener = GeneralKeyController()
-
-    constructor() {
-        keyListener.keyMap = keyMap
-    }
-
-    // in fact all that needs doing in this class is to set up
-    // the keyMap, so should just push everything to that general class
-    override fun getAction(gameState: AbstractGameState, playerId: Int): Int {
-        val action = keyListener.selectedAction
-        keyListener.selectedAction = Actions.DoNothing.ordinal
-        return action
-    }
-
-    override fun reset(): SimplePlayerInterface {
-        return this
-    }
-
-}
