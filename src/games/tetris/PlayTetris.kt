@@ -30,7 +30,7 @@ fun main() {
     TetrisModel.dropSkip = 50
     val agent = TetrisKeyController()
 
-    val tv = TetrisView(tg.tm, null)
+    val tv = TetrisView(tg.tm.nCols, tg.tm.nRows)
     val frame = JEasyFrame(tv, "Tetris")
     frame.addKeyListener(agent.keyListener)
 
@@ -39,7 +39,7 @@ fun main() {
         val action = agent.getAction(tg.copy(), 0)
         tg.next(intArrayOf(action))
 
-        tv.tm = tg.tm
+        tv.setData(tg.tm.a, tg.tm.tetronSprite, tg.tm.getGhost())
         tv.repaint()
         var score = tg.score()
         val message = "${tg.nTicks}\t $score\t $action\t ${tg.totalTicks()}\t ${tg.subGoal()}"

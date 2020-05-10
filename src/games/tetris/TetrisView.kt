@@ -5,6 +5,7 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
 import javax.swing.JComponent
+import kotlin.random.Random
 
 
 /**
@@ -13,38 +14,43 @@ import javax.swing.JComponent
 
 fun main() {
     // test the view component
-    val tm = TetrisModel()
-    System.out.println(tm.newShape())
-    val tv = TetrisView(tm, null)
-    JEasyFrame(tv, "Tetris")
+
+    val nCols = 10
+    val nRows = 20
+
+    val tv = TetrisView(nCols, nRows)
+    val a = Array(nCols) { IntArray(nRows) { TetrisView.BG } };
+    for (i in 0 until nCols)
+        for (j in nRows/2 until nRows)
+            a[i][j] = Random.nextInt(TetrisView.colors.size)
+    val shape = TetronSprite(nCols/2, 3, 2, 1, 2)
+    val ghost = TetronSprite(nCols/2, 7, 2, 3, 2)
+    tv.setData(a, shape, ghost)
+    JEasyFrame(tv, "Tetris View Random Test")
 }
 
-class TetrisView : JComponent {
-
-    var tm: TetrisModel
-    var tc: Controller?
+class TetrisView(val nCols: Int, val nRows: Int) : JComponent() {
 
     var topVisibleRow = 0
+    var shape: TetronSprite? = null
+    var ghostShape: TetronSprite? = null
+    var a: Array<IntArray>? = null
 
-    constructor(tm: TetrisModel, tc: Controller?) {
-        this.tm = tm
-        this.tc = tc
+    fun setData(a: Array<IntArray>?, shape: TetronSprite?, ghostShape: TetronSprite?) {
+        this.a = a
+        this.shape = shape
+        this.ghostShape = ghostShape
     }
 
-    fun draw(g: Graphics, a: Array<IntArray>) {
-        // a[6][10] = 3;
-        for (i in 0 until tm.nCols) {
-            for (j in topVisibleRow until tm.nRows) {
-                if (a[i][j] != 100 + TetrisConstants.BG) {
-                    g.color = colors[a[i][j]]
-                    g.fill3DRect(i * cellSize, j * cellSize, cellSize, cellSize, true)
-                }
-                if (a[i][j] == TetrisConstants.BG) {
+    fun draw(g: Graphics, a: Array<IntArray>?) {
+        if (a == null) return
+        for (i in 0 until nCols) {
+            for (j in topVisibleRow until nRows) {
+                // println(a[i][j])
+                g.color = colors[a[i][j]]
+                g.fill3DRect(i * cellSize, j * cellSize, cellSize, cellSize, true)
+                if (a[i][j] == BG) {
                     g.color = frame
-                    val nntc = tc
-                    if (nntc != null && nntc.fastMode()) {
-                        g.color = Color.red
-                    }
                     g.drawRect(i * cellSize, j * cellSize, cellSize, cellSize)
                 }
             }
@@ -72,17 +78,13 @@ class TetrisView : JComponent {
 
     @Synchronized
     public override fun paintComponent(g: Graphics) {
-        draw(g, tm.a)
-        if (tm.tetronSprite != null) {
-
-            drawGhostShape(g, tm.getGhost())
-            drawShape(g, tm.tetronSprite)
-            // Shape ghost = tm.shape.copy();
-        }
+        draw(g, a)
+        drawGhostShape(g, ghostShape)
+        drawShape(g, shape)
     }
 
     override fun getPreferredSize(): Dimension {
-        return Dimension(tm.nCols * cellSize, tm.nRows * cellSize)
+        return Dimension(nCols * cellSize, nRows * cellSize)
     }
 
     companion object {
@@ -91,8 +93,13 @@ class TetrisView : JComponent {
 
         // size of each block in pixels
         var cellSize = 20
+
         // var BG = 0
         var frame = Color.blue
+
+        // code for the background colour
+        val BG = 7
+
     }
 }
 

@@ -95,7 +95,7 @@ class Controller : Thread() {
 
     init {
         tm = TetrisModel(nCols, nRows)
-        tv = TetrisView(tm, this)
+        tv = TetrisView(nCols, nRows)
         // tv.addKeyListener(new Keys(this));
         val frame = JEasyFrame(tv, "Tetris")
         frame.addKeyListener(Keys(this))

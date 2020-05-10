@@ -38,7 +38,7 @@ fun main() {
     // agent = RandomAgent()
     // agent = TetrisKeyController()
 
-    val tv = TetrisView(tg.tm, null)
+    val tv = TetrisView(tg.tm.nCols, tg.tm.nRows)
     // val frame = JEasyFrame(tv, "Tetris")
 
     val scoreView = EasyPlot()
@@ -56,7 +56,7 @@ fun main() {
         if (action == Actions.Drop.ordinal) println("Drop at tick ${tg.nTicks}")
         tg.next(intArrayOf(action))
 
-        tv.tm = tg.tm
+        tv.setData(tg.tm.a, tg.tm.tetronSprite, tg.tm.getGhost())
         tv.repaint()
         var score = tg.score()
         if (valueFunction != null) score += valueFunction?.value(tg)
