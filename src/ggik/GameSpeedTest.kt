@@ -11,6 +11,7 @@ import games.coopdrive.CoopDriveState
 import games.gridworld.GridWorld
 import games.sokoban.Sokoban
 import games.tetris.TetrisGame
+import games.tetris.TetrisModel
 import ggi.AbstractGameState
 import ggi.ExtendedAbstractGameState
 import ggi.SimplePlayerInterface
@@ -26,6 +27,8 @@ fun main(args: Array<String>) {
     // level 1 has subgoals, level 0 does not
     // gridWorld.readFile("data/GridWorld/Levels/level-0.txt")
     // gridWorld.readFile("data/GridWorld/Levels/level-1.txt")
+
+    TetrisModel.includeColumnDiffs = false
 
     val games = listOf<ExtendedAbstractGameState>(
             // BreakoutGameState().setUp()
