@@ -13,7 +13,7 @@ fun main() {
     println("nSolutions = $total")
     println("possibles  = ${fac(available.size)}")
 
-    println(checkSymmetry(connections))
+    // println(checkSymmetry(connections))
 }
 
 fun fac(n: Int): Int = if (n <= 1) 1 else n * fac(n - 1)

@@ -3,7 +3,6 @@ package agents
 import ggi.AbstractGameState
 import ggi.SimplePlayerInterface
 
-
 import java.util.Random
 
 data class SimpleEvoAgent(
