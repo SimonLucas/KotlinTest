@@ -18,6 +18,8 @@ fun main(args: Array<String>) {
     println(p)
 
     val oddLength = compose(p, ::length)
+
+    // val test = compose(::length, ::length.toString())
     val strings = listOf("a", "ab", "abc")
     println(strings.filter(oddLength))
 
