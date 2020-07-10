@@ -5,14 +5,19 @@ package games.cards
 fun main() {
     val deck = CardDeck().shuffle()
     deck.cards.forEach{ t -> println(t.unicode()) }
+    deck.cards.sortBy { it.rank }
+    deck.cards.forEach{ println(it) }
+    val sorted = deck.cards.sortedWith(compareBy(Card::rank, Card::suit))
+    sorted.forEach { println(it) }
 }
 
 enum class Suit {Spades, Hearts, Diamonds, Clubs}
 enum class Rank {Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King}
 
-data class Card(val suit:Suit, val rank:Rank) {
+data class Card(val suit:Suit, val rank:Rank)  {
     companion object {
-        // for unicode function below
+        // for unicode function below - took some Googling to find these
+        // playing card codes
         val offsets = arrayOf(0x1F0A1, 0x1F0B1, 0x1F0C1, 0x1F0D1)
     }
     fun unicode() : CharArray {

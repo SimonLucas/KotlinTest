@@ -72,7 +72,6 @@ class EasyPlot {
         drawList.add( CellDraw(0.0, 0.0, view.width.toDouble(),
                 view.height.toDouble(), Color.white, Color.black) )
 
-
         for (sa in scores) {
             val points = ArrayList<Vec2d>()
             var x = 0.0
@@ -84,7 +83,6 @@ class EasyPlot {
             if (points.size > 1)
                 drawList.add(PolyDraw(points, null, lineColor, false))
         }
-
 
         view.drawable = drawList
         view.repaint()

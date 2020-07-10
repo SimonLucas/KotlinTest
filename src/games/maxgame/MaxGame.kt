@@ -7,10 +7,14 @@ import ggi.ExtendedAbstractGameState
  *  A simple game equivalent of OneMax
  */
 
-var totalTicks: Long = 0
+
 
 
 data class MaxGame(val n: Int=10, val m: Int=2) : ExtendedAbstractGameState {
+    companion object {
+        var totalTicks: Long = 0
+    }
+
     var score: Int = 0
     var position = 0
     var nTicks =0

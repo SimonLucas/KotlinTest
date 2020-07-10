@@ -22,9 +22,9 @@ val random = Random()
 
 fun main(args: Array<String>) {
 
-    var game = MaxGame(n=10)
+    var game = MaxGame(n=20)
     // val agent = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 20, nEvals = 5, useShiftBuffer = false)
-    val agent = MctsAgent(k=200.0)
+    val agent = MctsAgent(k=2.0)
     val playerId = 0
     // get it to play the game
     var nSteps = 1
@@ -56,7 +56,7 @@ data class Expansion(val node: TreeNode, val action: Int, val state: AbstractGam
 
 data class MctsAgent (
         var rolloutLength: Int = 200,
-        var nPlayouts: Int = 20,
+        var nPlayouts: Int = 100,
         var k: Double = 10.0,
         var opponentModel: SimplePlayerInterface = DoNothingAgent()
 ): SimplePlayerInterface {
