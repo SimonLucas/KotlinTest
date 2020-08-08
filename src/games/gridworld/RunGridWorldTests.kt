@@ -12,8 +12,8 @@ fun main() {
     var gridWorld = GridWorld()
     // level 1 has subgoals, level 0 does not
     gridWorld.readFile("data/GridWorld/Levels/level-0.txt")
-    // gridWorld.readFile("data/GridWorld/Levels/level-1.txt")
-    // gridWorld.readFile("data/GridWorld/Levels/level-2.txt")
+    gridWorld.readFile("data/GridWorld/Levels/level-1.txt")
+    gridWorld.readFile("data/GridWorld/Levels/level-2.txt")
     // gridWorld.readFile("data/GridWorld/Levels/level-3.txt")
 
     val gridView = GridWorldView(gridWorld.simpleGrid.w, gridWorld.simpleGrid.h)
@@ -24,26 +24,26 @@ fun main() {
 
     gridWorld.simpleGrid.print()
 
-    val nExp = 100
+    val nExp = 10
 //    val agent = SimpleEvoAgent(useMutationTransducer = true, discountFactor = 0.9,
 //            nEvals = 20, sequenceLength = 100, probMutation = 0.2, useShiftBuffer = true)
 
     var heuristic : SimplePlayerInterface? = null
-    heuristic = MinDistancePolicy()
+    // heuristic = MinDistancePolicy()
 
 //    val agent = PolicyEvoAgent(useMutationTransducer = true, discountFactor = 0.9,
 //            nEvals = 20, sequenceLength = 100, probMutation = 0.2,
 //            useShiftBuffer = true, policy = heuristic)
 
-    val agent = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 1.0, flipAtLeastOneValue = false,
-            nEvals = 10, sequenceLength = 50, probMutation = 0.5, useShiftBuffer = true, policy = null,
-            initUsingPolicy = 0.5,
-            appendUsingPolicy = 0.5,
-            mutateUsingPolicy = 0.5)
+//    val agent = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 1.0, flipAtLeastOneValue = false,
+//            nEvals = 10, sequenceLength = 50, probMutation = 0.5, useShiftBuffer = true, policy = null,
+//            initUsingPolicy = 0.5,
+//            appendUsingPolicy = 0.5,
+//            mutateUsingPolicy = 0.5)
 
-    // val agent = MinDistancePolicy()
+    val agent = MinDistancePolicy()
 
-    GridWorldConstants.subgoalWeight = 0.01
+    GridWorldConstants.subgoalWeight = 0.0
     GridWorldConstants.distanceWeight = 0.0
 
     val ss = StatSummary()

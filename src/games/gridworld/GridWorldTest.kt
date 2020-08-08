@@ -20,7 +20,7 @@ fun main() {
     var gridWorld = GridWorld()
     // level 1 has subgoals, level 0 does not
     gridWorld.readFile("data/GridWorld/Levels/level-0.txt")
-    gridWorld.readFile("data/GridWorld/Levels/level-3.txt")
+    // gridWorld.readFile("data/GridWorld/Levels/level-3.txt")
     gridWorld.simpleGrid.print()
 
     println(gridWorld.goal)
@@ -35,21 +35,25 @@ fun main() {
 //    val agent = SimpleEvoAgent(useMutationTransducer = false, discountFactor = 0.9,
 //            nEvals = 20, sequenceLength = 100, probMutation = 0.2, useShiftBuffer = true)
 
-    var heuristic : SimplePlayerInterface? = null
+    var heuristic: SimplePlayerInterface? = null
     var policy = heuristic
 
     policy = null
     // heuristic = MinDistancePolicy()
     // heuristic = null
 
-    var vf: MinDistancePolicy? = MinDistancePolicy()
-    // vf = null
+    // policy = MinDistancePolicy()
 
-    val agent = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 1.0, flipAtLeastOneValue = false,
-            nEvals = 2, sequenceLength = 50, probMutation = 0.1, useShiftBuffer = true, policy = policy,
+    var vf: MinDistancePolicy? = MinDistancePolicy()
+    vf = null
+
+    var agent: SimplePlayerInterface = PolicyEvoAgent(useMutationTransducer = false, discountFactor = 0.99, flipAtLeastOneValue = false,
+            nEvals = 20, sequenceLength = 50, probMutation = 0.1, useShiftBuffer = true, policy = policy,
             initUsingPolicy = 0.5, mutateUsingPolicy = 0.5, appendUsingPolicy = 0.5,
             valueFunction = vf,
             analysePlans = true)
+
+    // agent = MinDistancePolicy()
 
     val gridView = GridWorldView(gridWorld.simpleGrid.w, gridWorld.simpleGrid.h)
     val scoreView = EasyPlot()
@@ -64,10 +68,12 @@ fun main() {
         gridWorld = gridWorld.next(intArrayOf(action)) as GridWorld
         // println("${step++} -> \t ${gridWorld.score()}")
         gridView.update(gridWorld)
-        gridView.update(agent.solutions, gridWorld.copy() as GridWorld)
+        if (agent is PolicyEvoAgent)
+            gridView.update(agent.solutions, gridWorld.copy() as GridWorld)
         gridView.repaint()
 
-        scoreView.update(agent.scores)
+        if (agent is PolicyEvoAgent)
+            scoreView.update(agent.scores)
 
 //        for (seq in agent.solutions) println(Arrays.toString(seq))
 //        println()
@@ -78,7 +84,9 @@ fun main() {
         frame.title = "Score: %.2f".format(gridWorld.score())
 //        println(gridWorld.copy().score())
 //        println(gridWorld.score())
-        println(Arrays.toString(agent.scores.last()))
+
+        if (agent is PolicyEvoAgent)
+            println(Arrays.toString(agent.scores.last()))
         Thread.sleep(100)
     }
 
@@ -86,7 +94,8 @@ fun main() {
     println("Final score: ${gridWorld.score()}")
     println("Steps taken: ${gridWorld.nTicks}")
 
-    agent.planAnalyser?.report(gridWorld.nActions())
+    if (agent is PolicyEvoAgent)
+        agent.planAnalyser?.report(gridWorld.nActions())
 
 
 }

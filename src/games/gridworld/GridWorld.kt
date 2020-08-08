@@ -213,7 +213,7 @@ class GridWorldView(val w: Int, val h: Int, val cellSize: Int = 20) {
 
     fun update(playouts: ArrayList<IntArray>, gw: GridWorld) {
         // println("Updating ${playouts.size} playouts on GRID" )
-        val lineColor = Color(155, 0, 128, 200)
+        val lineColor = Color(155, 0, 128, 20)
         // lineColor.se
 
         for (seq in playouts) {
