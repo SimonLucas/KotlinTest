@@ -205,9 +205,9 @@ class CaveGameState : ExtendedAbstractGameState, Serializable {
         val y = (state.avatar.s.y/state.params.gridScale).toInt()
         val item = state.map.items.get(ItemPosition(x, y))
         if (item!= null) {
-            println(item.alive)
+            // println(item.alive)
             item.applyEffect(state)
-            println(state.bonusScore)
+            // println(state.bonusScore)
         }
     }
 

@@ -1,7 +1,7 @@
 package test.builder
 
 fun main() {
-    val args = arrayListOf<String>("Hello HTML Builder", "It works")
+    val args = arrayListOf<String>("Hello HTML Builder", "It works", "Another line")
     println(result(args, "HTML in Kotlin"))
 }
 

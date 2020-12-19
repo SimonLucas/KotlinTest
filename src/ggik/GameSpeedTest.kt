@@ -33,10 +33,10 @@ fun main(args: Array<String>) {
     val games = listOf<ExtendedAbstractGameState>(
             // BreakoutGameState().setUp()
             // CoopDriveState()
-            // CaveGameState().setup()
+            CaveGameState().setup()
             // Sokoban()
 
-            TetrisGame()
+            // TetrisGame()
 
             // gridWorld
 
