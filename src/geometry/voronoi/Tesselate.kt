@@ -78,10 +78,9 @@ class LineUtil {
         val g2 = l2.gradientVector()
 
         val mat = Mat2d(g1.x, -g2.x, g1.y, -g2.y)
-        val inv = mat.inverse()
-        if (inv == null) return null
-        val diffVec = Vec2d(l2.a.x-l1.a.x, l2.a.y - l1.a.y)
+        val inv = mat.inverse() ?: return null
 
+        val diffVec = Vec2d(l2.a.x-l1.a.x, l2.a.y - l1.a.y)
         val ab = inv * diffVec
         return l1.a + g1 * ab.x
     }
