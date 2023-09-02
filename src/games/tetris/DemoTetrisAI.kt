@@ -59,7 +59,10 @@ fun main() {
         tv.setData(tg.tm.a, tg.tm.tetronSprite, tg.tm.getGhost())
         tv.repaint()
         var score = tg.score()
-        if (valueFunction != null) score += valueFunction?.value(tg)
+        if (valueFunction != null) {
+            score += valueFunction.value(tg)
+            range.add(score)
+        }
         val message = "${tg.nTicks}\t $score\t $action\t ${tg.totalTicks()}\t ${tg.subGoal()}"
         // println(message)
         frame.title = message

@@ -177,6 +177,9 @@ class FMSimpleGridGame : SimpleGridGame {
             InputType.PlayerOneHot -> p.ip.addAll(vectorExtractor(inputs, x, y))
             // the clear() option is to run a sanity check that codes only the actions
             // p.ip.clear()
+            InputType.None -> TODO()
+            InputType.Simple -> TODO()
+            InputType.Sokoban -> TODO()
         }
         if (fakeRespone)
             return 0

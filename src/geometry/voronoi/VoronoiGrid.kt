@@ -1,6 +1,6 @@
 package geometry.voronoi
 
-import javafx.scene.shape.Polygon
+//import javafx.scene.shape.Polygon
 import math.Vector2d
 import utilities.ElapsedTimer
 import utilities.JEasyFrame

@@ -14,7 +14,7 @@ fun main() {
     //var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 100, nEvals = 100)
     //var agent: SimplePlayerInterface = SimpleEvoAgent(useMutationTransducer = false, sequenceLength = 100, nEvals = 100)
     var agent = RandomAgent()
-    testModels(1, agent)
+    testModels(10, agent)
     val elapsed = t.elapsed()
 
     println(t)

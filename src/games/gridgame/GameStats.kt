@@ -110,6 +110,9 @@ open class GenerateGameData(val width: Int = 20, val height: Int = 20, seed: Lon
                 when (includeNeighbourInputs) {
                     InputType.PlayerInt -> pattern.ip.add(getActionInt(inputs, i, j))
                     InputType.PlayerOneHot -> pattern.ip.addAll(vectorExtractor(inputs, i, j))
+                    InputType.None -> TODO()
+                    InputType.Simple -> TODO()
+                    InputType.Sokoban -> TODO()
                 }
 
                 patterns.add(pattern)

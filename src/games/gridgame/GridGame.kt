@@ -329,6 +329,9 @@ open class GridGame : ExtendedAbstractGameState {
                     InputType.PlayerOneHot -> p.ip.addAll(vectorExtractor(inputs, i, j))
                     // the clear() option is to run a sanity check that codes only the actions
                     // p.ip.clear()
+                    InputType.None -> TODO()
+                    InputType.Simple -> TODO()
+                    InputType.Sokoban -> TODO()
                 }
                 if (learner != null) {
                     learner.add(p.ip, p.op)
